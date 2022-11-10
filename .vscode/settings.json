@@ -1,0 +1,19 @@
+{
+  "C_Cpp.autoAddFileAssociations": false,
+  "editor.formatOnSave": true,
+  "editor.rulers": [
+    120
+  ],
+  "cSpell.words": [
+    "Decryptor",
+    "Decryptors",
+    "kugou",
+    "kuwo",
+    "ximalaya",
+    "xmly",
+    "netease",
+    "tencent",
+    "qq",
+    "xiami"
+  ]
+}
