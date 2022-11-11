@@ -5,7 +5,6 @@ option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 
 find_program(CCACHE_TOOL_PATH ccache) # Optional
 
-set (CMAKE_CXX_STANDARD 20)
 include(cmake/CPM-Loader.cmake)
 
 CPMAddPackage(
@@ -37,19 +36,18 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 file(GLOB_RECURSE SOURCES src/*.cpp src/*.h)
 
 # Add source to this project's executable.
-add_library (${PROJECT_NAME} STATIC ${SOURCES})
+add_library (parakeet_crypro STATIC ${SOURCES})
 target_include_directories(
-  ${PROJECT_NAME} 
+  parakeet_crypro
+  PUBLIC 
+    $<INSTALL_INTERFACE:include>    
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
-  "src" 
+    src
 )
-target_include_directories(${PROJECT_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE cryptopp::cryptopp)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_constexpr)
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
+target_link_libraries(parakeet_crypro PRIVATE cryptopp::cryptopp)
+target_compile_features(parakeet_crypro PRIVATE cxx_constexpr cxx_std_20)
+set_property(TARGET parakeet_crypro PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Tests!
 if(PARAKEET_CRYPTO_BUILD_TESTING)
@@ -70,6 +68,7 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
   target_link_libraries(parakeet_crypto_test GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
   target_link_libraries(parakeet_crypto_test ${PROJECT_NAME})
   target_include_directories(parakeet_crypto_test PRIVATE src)
+  target_compile_features(parakeet_crypto_test PRIVATE cxx_std_20)
 
   include(GoogleTest)
   gtest_discover_tests(parakeet_crypto_test)
