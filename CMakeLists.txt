@@ -12,7 +12,6 @@ CPMAddPackage(
   GITHUB_REPOSITORY abdes/cryptopp-cmake
   GIT_TAG CRYPTOPP_8_7_0
   OPTIONS
-    "CRYPTOPP_INSTALL OFF"
     "CRYPTOPP_BUILD_TESTING OFF"
 )
 
@@ -35,8 +34,9 @@ file(GLOB_RECURSE SOURCES src/*.cpp src/*.h)
 
 # Add source to this project's executable.
 add_library (parakeet_crypro STATIC ${SOURCES})
-target_include_directories(
-  parakeet_crypro
+add_library(ParakeetCrypto::core ALIAS parakeet_crypro)
+
+target_include_directories(parakeet_crypro
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -44,8 +44,27 @@ target_include_directories(
     src
 )
 target_link_libraries(parakeet_crypro PRIVATE cryptopp::cryptopp)
-target_compile_features(parakeet_crypro PRIVATE cxx_constexpr cxx_std_20)
-set_property(TARGET parakeet_crypro PROPERTY POSITION_INDEPENDENT_CODE 1)
+target_compile_features(parakeet_crypro PRIVATE cxx_std_20)
+
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro)
+
+install(TARGETS parakeet_crypro
+    EXPORT parakeet_crypro-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+set_target_properties(parakeet_crypro PROPERTIES EXPORT_NAME ParakeetCrypto)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(EXPORT parakeet_crypro-targets
+  FILE
+    ParakeetCryptoTargets.cmake
+  NAMESPACE
+    ParakeetCrypto::
+  DESTINATION
+    ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro
+)
 
 # Tests!
 if(PARAKEET_CRYPTO_BUILD_TESTING)
