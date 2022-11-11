@@ -1,13 +1,33 @@
 cmake_minimum_required(VERSION 3.21)
 project(parakeet_crypro)
-set (CMAKE_CXX_STANDARD 20)
 
+option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
+
+find_program(CCACHE_TOOL_PATH ccache) # Optional
+
+set (CMAKE_CXX_STANDARD 20)
 include(cmake/CPM-Loader.cmake)
 
-CPMAddPackage("gh:abdes/cryptopp-cmake#CRYPTOPP_8_7_0")
+CPMAddPackage(
+  NAME cryptopp-cmake
+  GITHUB_REPOSITORY abdes/cryptopp-cmake
+  GIT_TAG CRYPTOPP_8_7_0
+  OPTIONS
+    "CRYPTOPP_INSTALL OFF"
+    "CRYPTOPP_BUILD_TESTING OFF"
+)
 
 if (!MSVC)
 	link_libraries(m)
+
+  # Enable Ccache.
+  if (CCACHE_TOOL_PATH)
+    CPMAddPackage(
+      NAME Ccache.cmake
+      GITHUB_REPOSITORY TheLartians/Ccache.cmake
+      VERSION 1.2
+    )
+  endif()
 endif()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
@@ -25,21 +45,29 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${PROJECT_NAME} OBJECT cryptopp::cryptopp)
+target_link_libraries(${PROJECT_NAME} PRIVATE cryptopp::cryptopp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_constexpr)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Tests!
-enable_testing()
-find_package(GTest CONFIG)
+if(PARAKEET_CRYPTO_BUILD_TESTING)
+  enable_testing()
+  CPMAddPackage(
+    NAME googletest
+    GITHUB_REPOSITORY google/googletest
+    GIT_TAG release-1.12.1
+    VERSION 1.12.1
+    OPTIONS
+        "INSTALL_GTEST OFF"
+        "gtest_force_shared_crt ON"
+  )
 
-if(TARGET GTest::gtest)
-  file(GLOB_RECURSE TESTS_SOURCE *.test.cc *.test.hh)
-  add_executable(${PROJECT_NAME}_test ${TESTS_SOURCE})
-  target_link_libraries(${PROJECT_NAME}_test GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
-  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
-  target_include_directories(${PROJECT_NAME}_test PRIVATE src)
+  file(GLOB_RECURSE TESTS_SOURCE src/*.test.cc src/*.test.hh)
+  add_executable(parakeet_crypto_test ${TESTS_SOURCE})
+  target_link_libraries(parakeet_crypto_test GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+  target_link_libraries(parakeet_crypto_test ${PROJECT_NAME})
+  target_include_directories(parakeet_crypto_test PRIVATE src)
 
   include(GoogleTest)
-  gtest_discover_tests(${PROJECT_NAME}_test)
+  gtest_discover_tests(parakeet_crypto_test)
 endif()
