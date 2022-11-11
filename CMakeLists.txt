@@ -17,6 +17,8 @@ CPMAddPackage(
     "CRYPTOPP_BUILD_TESTING OFF"
 )
 
+find_package(cryptopp-cmake REQUIRED)
+
 if (!MSVC)
 	link_libraries(m)
 
@@ -61,6 +63,7 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
         "INSTALL_GTEST OFF"
         "gtest_force_shared_crt ON"
   )
+  find_package(googletest REQUIRED)
 
   file(GLOB_RECURSE TESTS_SOURCE src/*.test.cc src/*.test.hh)
   add_executable(parakeet_crypto_test ${TESTS_SOURCE})
