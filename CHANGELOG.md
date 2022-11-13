@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2022-11-13
+
+### Changed
+
+- Improved Kuwo `kwm` support for files with an alternate header magic values.
+
 ## [0.2.0] - 2022-11-13
 
 ### Added
@@ -25,3 +31,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [parakeet-wx]: https://github.com/parakeet-rs/parakeet-wx
 [0.2.0]: https://github.com/parakeet-rs/libparakeet/commits/v0.2.0
+[0.2.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.2.0...v0.2.1
