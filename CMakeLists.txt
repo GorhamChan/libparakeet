@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(parakeet_crypro)
+project(parakeet_crypro VERSION 0.2.0)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 
@@ -30,7 +30,17 @@ endif()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
-file(GLOB_RECURSE SOURCES src/*.cpp src/*.h)
+configure_file (
+    "${PROJECT_SOURCE_DIR}/src/version.cpp.in"
+    "${PROJECT_BINARY_DIR}/src/version.cpp"
+)
+
+file(GLOB_RECURSE SOURCES
+  "src/*.h"
+  "src/*.cpp"
+  "${PROJECT_BINARY_DIR}/src/*.h"
+  "${PROJECT_BINARY_DIR}/src/*.cpp"
+)
 
 # Add source to this project's executable.
 add_library (parakeet_crypro STATIC ${SOURCES})
@@ -42,6 +52,7 @@ target_include_directories(parakeet_crypro
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
     src
+    "${PROJECT_BINARY_DIR}/src"
 )
 target_link_libraries(parakeet_crypro PRIVATE cryptopp::cryptopp)
 target_compile_features(parakeet_crypro PRIVATE cxx_std_20)

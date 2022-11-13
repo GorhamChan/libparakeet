@@ -1,0 +1,5 @@
+#include <parakeet-crypto/version.h>
+
+const char* parakeet_crypto::get_libparakeet_version() {
+  return "@PROJECT_VERSION@";
+}

@@ -9,11 +9,12 @@
     "Decryptors",
     "kugou",
     "kuwo",
-    "ximalaya",
-    "xmly",
+    "libparakeet",
     "netease",
-    "tencent",
     "qq",
-    "xiami"
+    "tencent",
+    "xiami",
+    "ximalaya",
+    "xmly"
   ]
 }
