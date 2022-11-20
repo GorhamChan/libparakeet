@@ -14,7 +14,11 @@ constexpr std::size_t kScrambleTableSize = 0x400;
 typedef std::array<uint8_t, kX2MContentKeySize> X2MContentKey;
 typedef std::array<uint8_t, kX3MContentKeySize> X3MContentKey;
 typedef std::array<uint16_t, kScrambleTableSize> ScrambleTable;
-typedef std::span<uint8_t> XmlyContentKey;
+
+struct XmlyScrambleTableParameter {
+  double init_value;
+  double step_value;
+};
 
 class XimalayaFileLoader : public DecryptionStream {
  public:
@@ -27,11 +31,11 @@ class XimalayaFileLoader : public DecryptionStream {
    * @brief Create a Ximalaya X2M / X3M decryptor.
    *
    * @param key Content key, which can have a size of 4 or 32.
-   * @param mul_init Initial multiplier for the scramble table generation.
-   * @param mul_step Step multiplier for the scramble table generation.
+   * @param table_parameters Parameters used to generate this table, with `init_value` and `step_value`.
    * @return std::unique_ptr<XimalayaFileLoader>
    */
-  static std::unique_ptr<XimalayaFileLoader> Create(const XmlyContentKey& key, double mul_init, double mul_step);
+  static std::unique_ptr<XimalayaFileLoader> Create(const std::span<const uint8_t>& key,
+                                                    const XmlyScrambleTableParameter& table_parameters);
 };
 
 }  // namespace parakeet_crypto::decryption::ximalaya

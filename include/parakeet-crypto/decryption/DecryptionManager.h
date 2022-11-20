@@ -12,6 +12,7 @@
 #include "parakeet-crypto/utils/AudioTypes.h"
 
 #include <istream>
+#include <optional>
 #include <vector>
 
 namespace parakeet_crypto::decryption {
@@ -44,11 +45,20 @@ struct QMCConfig {
   parakeet_crypto::misc::tencent::QMCEncV2Stage2Key enc_v2_stage2_key;
 };
 
+/**
+ * @brief Decryption parameter for Ximalaya (Android).
+ * For X2M / X3M, at least one of the `scramble_table` / `scramble_table_parameter` value needs to be specified
+ *   for a successful decryption.
+ * When both supplied, the `scramble_table_parameter` take priority.
+ */
 struct XimalayaConfig {
   ximalaya::X2MContentKey x2m_content_key;
   ximalaya::ScrambleTable x2m_scramble_table;
+  std::optional<ximalaya::XmlyScrambleTableParameter> x2m_scramble_table_parameters;
+
   ximalaya::X3MContentKey x3m_content_key;
   ximalaya::ScrambleTable x3m_scramble_table;
+  std::optional<ximalaya::XmlyScrambleTableParameter> x3m_scramble_table_parameters;
 };
 
 struct DecryptionConfig {

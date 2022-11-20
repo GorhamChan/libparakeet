@@ -160,8 +160,16 @@ class DecryptionManagerImpl : public DecryptionManager {
     result.push_back(xiami::XiamiFileLoader::Create());
 
     // Add Ximalaya
+    if (c.ximalaya.x2m_scramble_table_parameters) {
+      const auto& table_parameters = c.ximalaya.x2m_scramble_table_parameters.value();
+      result.push_back(ximalaya::XimalayaFileLoader::Create(c.ximalaya.x2m_content_key, table_parameters));
+    }
     result.push_back(ximalaya::XimalayaFileLoader::Create(c.ximalaya.x2m_content_key, c.ximalaya.x2m_scramble_table));
 
+    if (c.ximalaya.x3m_scramble_table_parameters) {
+      const auto& table_parameters = c.ximalaya.x3m_scramble_table_parameters.value();
+      result.push_back(ximalaya::XimalayaFileLoader::Create(c.ximalaya.x3m_content_key, table_parameters));
+    }
     result.push_back(ximalaya::XimalayaFileLoader::Create(c.ximalaya.x3m_content_key, c.ximalaya.x3m_scramble_table));
 
     return result;
