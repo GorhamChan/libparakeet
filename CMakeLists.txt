@@ -6,6 +6,7 @@ option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 find_program(CCACHE_TOOL_PATH ccache) # Optional
 
 include(cmake/CPM-Loader.cmake)
+include(cmake/git-info.cmake)
 
 CPMAddPackage(
   NAME cryptopp-cmake
@@ -33,6 +34,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/version.cpp.in"
     "${PROJECT_BINARY_DIR}/src/version.cpp"
+    @ONLY
 )
 
 file(GLOB_RECURSE SOURCES
@@ -43,7 +45,7 @@ file(GLOB_RECURSE SOURCES
 )
 
 # Add source to this project's executable.
-add_library (parakeet_crypro STATIC ${SOURCES})
+add_library(parakeet_crypro STATIC ${SOURCES})
 add_library(ParakeetCrypto::core ALIAS parakeet_crypro)
 
 target_include_directories(parakeet_crypro

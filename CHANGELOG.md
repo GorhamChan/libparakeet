@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New API - `parakeet_crypto::get_libparakeet_full_version` for full library version, including commit date and hash.
+
 ## [0.2.1] - 2022-11-13
 
 ### Changed
