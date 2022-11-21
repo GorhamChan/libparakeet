@@ -66,10 +66,9 @@ class XimalayaFileLoaderImpl : public XimalayaFileLoader {
 };
 
 X3MContentKey FromShorterContentKey(const std::span<const uint8_t>& key) {
-  X3MContentKey new_key;
-  assert(((kX3MContentKeySize % key.size()) == 0, "key.size() size should be a factor of kX3MContentKeySize"));
-  assert((kX3MContentKeySize >= key.size(), "key.size() size should not be greater than kX3MContentKeySize"));
+  assert(("key.size() size should be a factor of kX3MContentKeySize", kX3MContentKeySize % key.size() == 0));
 
+  X3MContentKey new_key;
   for (std::size_t i = 0; i < kX3MContentKeySize; i += key.size()) {
     std::copy(key.begin(), key.end(), &new_key[i]);
   }
