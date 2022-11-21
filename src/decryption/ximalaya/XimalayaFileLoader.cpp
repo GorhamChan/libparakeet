@@ -81,8 +81,8 @@ X3MContentKey FromShorterContentKey(const std::span<const uint8_t>& key) {
 
 std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const X2MContentKey& key,
                                                                const ScrambleTable& scramble_table) {
-  return std::make_unique<detail::XimalayaFileLoaderImpl<kX3MContentKeySize>>(
-      detail::FromShorterContentKey(std::span{key}), scramble_table, "X2M");
+  return std::make_unique<detail::XimalayaFileLoaderImpl<kX3MContentKeySize>>(detail::FromShorterContentKey(key),
+                                                                              scramble_table, "X2M");
 }
 
 std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const X3MContentKey& key,
@@ -90,15 +90,15 @@ std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const X3MContentK
   return std::make_unique<detail::XimalayaFileLoaderImpl<kX3MContentKeySize>>(key, scramble_table, "X3M");
 }
 
-std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const XmlyContentKey& key,
-                                                               double mul_init,
-                                                               double mul_step) {
-  auto scramble_table_vec = generate_ximalaya_scramble_table(mul_init, mul_step, kScrambleTableSize);
+std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const std::span<const uint8_t>& key,
+                                                               const XmlyScrambleTableParameter& table_parameters) {
+  auto scramble_table_vec =
+      generate_ximalaya_scramble_table(table_parameters.init_value, table_parameters.step_value, kScrambleTableSize);
   ScrambleTable scramble_table;
   std::copy(scramble_table_vec.begin(), scramble_table_vec.end(), scramble_table.begin());
 
   if (key.size() == kX2MContentKeySize || key.size() == kX3MContentKeySize) {
-    return Create(detail::FromShorterContentKey(std::span{key}), scramble_table);
+    return Create(detail::FromShorterContentKey(key), scramble_table);
   }
 
   return nullptr;

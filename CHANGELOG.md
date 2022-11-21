@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2022-11-22
+
 ### Added
 
 - New API - `parakeet_crypto::get_libparakeet_full_version` for full library version, including commit date and hash.
+- Ximalaya - New API to generate scramble table on-the-fly by using `init` and `step` parameters.
 
 ## [0.2.1] - 2022-11-13
 
