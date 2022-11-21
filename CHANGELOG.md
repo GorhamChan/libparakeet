@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2022-11-22
+
+### Changed
+
+- Fix assertion macro when generating Ximalaya X2M/X3M table using parameters.
+
 ## [0.2.2] - 2022-11-22
 
 ### Added
