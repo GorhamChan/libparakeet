@@ -20,29 +20,29 @@ namespace parakeet_crypto::decryption {
 namespace config {
 
 struct KugouConfig {
-  kugou::KugouSingleSlotKey slot_key_1;
-  kugou::KugouV4FileKeyExpansionTable v4_file_key_expansion_table;
-  kugou::KugouV4SlotKeyExpansionTable v4_slot_key_expansion_table;
+  kugou::KugouSingleSlotKey slot_key_1 = {};
+  kugou::KugouV4FileKeyExpansionTable v4_file_key_expansion_table = {};
+  kugou::KugouV4SlotKeyExpansionTable v4_slot_key_expansion_table = {};
 };
 
 struct KuwoConfig {
-  kuwo::KuwoKey key;
+  kuwo::KuwoKey key = {};
 };
 
 struct NeteaseConfig {
-  netease::NCMContentKeyProtectionKey key;
+  netease::NCMContentKeyProtectionKey key = {};
 };
 
 struct JooxConfig {
-  std::string install_uuid;
-  tencent::JooxSalt salt;
+  std::string install_uuid = {};
+  tencent::JooxSalt salt = {};
 };
 
 struct QMCConfig {
-  uint8_t ekey_seed;
-  tencent::QMCv1Key static_cipher_key;
-  parakeet_crypto::misc::tencent::QMCEncV2Stage1Key enc_v2_stage1_key;
-  parakeet_crypto::misc::tencent::QMCEncV2Stage2Key enc_v2_stage2_key;
+  uint8_t ekey_seed = {};
+  tencent::QMCv1Key static_cipher_key = {};
+  parakeet_crypto::misc::tencent::QMCEncV2Stage1Key enc_v2_stage1_key = {};
+  parakeet_crypto::misc::tencent::QMCEncV2Stage2Key enc_v2_stage2_key = {};
 };
 
 /**
@@ -52,22 +52,22 @@ struct QMCConfig {
  * When both supplied, the `scramble_table_parameter` take priority.
  */
 struct XimalayaConfig {
-  ximalaya::X2MContentKey x2m_content_key;
-  ximalaya::ScrambleTable x2m_scramble_table;
-  std::optional<ximalaya::XmlyScrambleTableParameter> x2m_scramble_table_parameters;
+  ximalaya::X2MContentKey x2m_content_key = {};
+  ximalaya::ScrambleTable x2m_scramble_table = {};
+  std::optional<ximalaya::XmlyScrambleTableParameter> x2m_scramble_table_parameters = {};
 
-  ximalaya::X3MContentKey x3m_content_key;
-  ximalaya::ScrambleTable x3m_scramble_table;
-  std::optional<ximalaya::XmlyScrambleTableParameter> x3m_scramble_table_parameters;
+  ximalaya::X3MContentKey x3m_content_key = {};
+  ximalaya::ScrambleTable x3m_scramble_table = {};
+  std::optional<ximalaya::XmlyScrambleTableParameter> x3m_scramble_table_parameters = {};
 };
 
 struct DecryptionConfig {
-  KugouConfig kugou;
-  KuwoConfig kuwo;
-  NeteaseConfig netease;
-  JooxConfig joox;
-  QMCConfig qmc;
-  XimalayaConfig ximalaya;
+  KugouConfig kugou = {};
+  KuwoConfig kuwo = {};
+  NeteaseConfig netease = {};
+  JooxConfig joox = {};
+  QMCConfig qmc = {};
+  XimalayaConfig ximalaya = {};
 };
 
 }  // namespace config
