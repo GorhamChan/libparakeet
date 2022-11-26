@@ -5,7 +5,7 @@
 
 namespace parakeet_crypto::utils {
 
-std::string Hex(const std::vector<uint8_t>& v) {
+std::string Hex(const std::span<const uint8_t> v) {
   CryptoPP::HexEncoder encoder(nullptr, false, 2, " ");
   encoder.Put(v.data(), v.size());
   encoder.MessageEnd();
@@ -25,7 +25,7 @@ std::string HexCompactLowercase(const std::span<const uint8_t> data) {
   return result;
 }
 
-std::vector<uint8_t> Unhex(const std::string& str) {
+std::vector<uint8_t> UnHex(const std::string& str) {
   CryptoPP::HexDecoder decoder;
   decoder.Put(reinterpret_cast<const uint8_t*>(str.data()), str.size());
   decoder.MessageEnd();

@@ -92,7 +92,7 @@ inline void VerifyHash(const void* data, std::size_t len, const Hash_SHA256& exp
 }
 
 inline void VerifyHash(const void* data, std::size_t len, const std::string& hash) {
-  auto hash_bytes = utils::Unhex(hash);
+  auto hash_bytes = utils::UnHex(hash);
   Hash_SHA256 hash_array;
   ASSERT_EQ(hash_array.size(), hash_bytes.size()) << "parsed hash [" << hash << "] does not match SHA256 digest size.";
   std::copy(hash_bytes.begin(), hash_bytes.end(), hash_array.begin());
