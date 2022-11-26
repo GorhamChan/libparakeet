@@ -16,8 +16,8 @@ typedef std::array<uint8_t, kX3MContentKeySize> X3MContentKey;
 typedef std::array<uint16_t, kScrambleTableSize> ScrambleTable;
 
 struct XmlyScrambleTableParameter {
-  double init_value;
-  double step_value;
+  double init_value = 0;
+  double step_value = 0;
 };
 
 class XimalayaFileLoader : public DecryptionStream {

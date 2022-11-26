@@ -120,7 +120,7 @@ class QMCKeyDeriverImpl : public QMCKeyDeriver {
       decode_key_2.resize(len);
     }
 
-    key = utils::Base64Decode(std::string(decode_key_2.begin(), decode_key_2.end()));
+    key = utils::Base64Decode(decode_key_2);
     return true;
   }
 };
