@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2022-11-27
+
+### Changed
+
+- (breaking) `parakeet_crypto::utils::Unhex` renamed to `parakeet_crypto::utils::UnHex`.
+- Make utils functions to take `std::span<uint8_t>` instead of `std::vector` / `std::string`, with wrappers to provide
+  backward compatibility.
+
 ## [0.2.3] - 2022-11-22
 
 ### Changed
