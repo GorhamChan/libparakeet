@@ -25,9 +25,9 @@ std::string HexCompactLowercase(const std::span<const uint8_t> data) {
   return result;
 }
 
-std::vector<uint8_t> UnHex(const std::span<const char> hex_str) {
+std::vector<uint8_t> UnHex(const std::span<const uint8_t> hex_str) {
   CryptoPP::HexDecoder decoder;
-  decoder.Put(reinterpret_cast<const uint8_t*>(hex_str.data()), hex_str.size());
+  decoder.Put(hex_str.data(), hex_str.size());
   decoder.MessageEnd();
 
   std::vector<uint8_t> result(decoder.MaxRetrievable());
