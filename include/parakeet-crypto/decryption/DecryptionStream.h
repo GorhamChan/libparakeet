@@ -3,15 +3,13 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <span>
 #include <string>
 #include <vector>
 
 #include <cstddef>
 
 namespace parakeet_crypto::decryption {
-
-constexpr std::size_t kDetectionBufferLen = 4096;
-typedef std::array<uint8_t, kDetectionBufferLen> DetectionBuffer;
 
 class DecryptionStream {
  public:
@@ -31,7 +29,7 @@ class DecryptionStream {
    * @param buf
    * @return std::size_t Bytes to reserve and don't seed to this decryptor.
    */
-  virtual std::size_t InitWithFileFooter(const DetectionBuffer& buf) { return 0; }
+  virtual std::size_t InitWithFileFooter(const std::span<uint8_t>& buf) { return 0; }
 
   /**
    * @brief Write encrypted data stream to the file loader.

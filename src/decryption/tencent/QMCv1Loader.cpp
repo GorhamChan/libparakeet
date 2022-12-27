@@ -87,7 +87,7 @@ class QMCv1LoaderImpl : public QMCv1Loader {
     parser_ = parser;  //
   }
 
-  virtual std::size_t InitWithFileFooter(const DetectionBuffer& buf) {
+  virtual std::size_t InitWithFileFooter(const std::span<uint8_t>& buf) {
     if constexpr (Type == QMCv1Type::kStaticCipher) return 0;
 
     if (parser_) {

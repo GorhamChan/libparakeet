@@ -7,15 +7,12 @@
 具体调用与用例还需要调整。
 
 ```cpp
-#include <parakeet-crypto/DecryptionManager.h>
-
 #include <fstream>
 #include <iostream>
 
 void main() {
   std::ifstream input_file("./test.bin", input_file.binary);
-  parakeet_crypto::decryption::DecryptionManager manager;
-  manager.SetConfig(...);
+  // FIXME: Add example code of DecryptionFactory.
   auto detection = manager.DetectDecryptor(input_file);
   if (detection) {
     std::cout << "detected " << detection->decryptor->GetName() << std::endl;
