@@ -1,5 +1,5 @@
 #pragma once
-#include "parakeet-crypto/decryption/DecryptionStream.h"
+#include "parakeet-crypto/decryptor/DecryptionStream.h"
 #include "utils/StringHelper.h"
 #include "utils/hex.h"
 
