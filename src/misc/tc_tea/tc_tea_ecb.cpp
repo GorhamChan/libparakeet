@@ -1,6 +1,6 @@
 #include "tc_tea.h"
 
-#include "internal/EndianHelper.h"
+#include "utils/EndianHelper.h"
 
 #include <algorithm>
 

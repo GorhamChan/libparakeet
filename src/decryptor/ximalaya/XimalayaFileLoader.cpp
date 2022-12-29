@@ -1,6 +1,6 @@
 #include "XimalayaScrambleTableGeneration.h"
 
-#include "internal/XorHelper.h"
+#include "utils/XorHelper.h"
 #include "parakeet-crypto/decryptor/ximalaya/XimalayaFileLoader.h"
 #include "utils/StringHelper.h"
 

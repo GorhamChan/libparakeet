@@ -1,8 +1,8 @@
 #include "parakeet-crypto/decryptor/netease/NCMFileLoader.h"
-#include "internal/EndianHelper.h"
+#include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
 
-#include "internal/XorHelper.h"
+#include "utils/XorHelper.h"
 
 #include "cryptopp/aes.h"
 #include "cryptopp/filters.h"

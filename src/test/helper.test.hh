@@ -18,7 +18,7 @@ constexpr std::size_t kSize3MiB = 3 * kSize1MiB;
 constexpr std::size_t kSize4MiB = 4 * kSize1MiB;
 constexpr std::size_t kSize32MiB = 8 * kSize4MiB;
 
-typedef std::array<uint8_t, 256 / 8> Hash_SHA256;
+using Hash_SHA256 = std::array<uint8_t, 256 / 8>;
 
 /**
  * @brief Deterministic random data generator

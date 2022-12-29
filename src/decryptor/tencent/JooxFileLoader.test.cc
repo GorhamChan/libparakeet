@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "parakeet-crypto/decryptor/tencent/JooxFileLoader.h"
-#include "internal/EndianHelper.h"
+#include "utils/EndianHelper.h"
 #include "test/helper.test.hh"
 
 using ::testing::ElementsAreArray;

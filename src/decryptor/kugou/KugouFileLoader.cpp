@@ -3,8 +3,8 @@
 #include "KGMDecryptor.h"
 #include "KugouHeader.h"
 
-#include "internal/XorHelper.h"
-#include "internal/EndianHelper.h"
+#include "utils/XorHelper.h"
+#include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
 
 #include <cassert>

@@ -1,7 +1,7 @@
 #include "parakeet-crypto/decryptor/xiami/XiamiFileLoader.h"
 
-#include "internal/XorHelper.h"
-#include "internal/EndianHelper.h"
+#include "utils/XorHelper.h"
+#include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
 
 namespace parakeet_crypto::decryption::xiami {
