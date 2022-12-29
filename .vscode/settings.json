@@ -1,6 +1,7 @@
 {
   "C_Cpp.autoAddFileAssociations": false,
   "editor.formatOnSave": true,
+  "sonarlint.pathToCompileCommands": "${workspaceFolder}/build/compile_commands.json",
   "editor.rulers": [
     120
   ],
