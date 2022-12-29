@@ -31,7 +31,7 @@ class QMCv2LoaderImpl : public QMCv2Loader {
     }
   }
 
-  virtual std::size_t InitWithFileFooter(const std::span<uint8_t>& buf) {
+  virtual std::size_t InitWithFileFooter(std::span<const uint8_t> buf) {
     if (parser_) {
       auto parsed = parser_->Parse(buf.data(), buf.size());
       if (parsed && parsed->key.size() >= 300) {

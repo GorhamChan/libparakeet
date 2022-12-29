@@ -31,7 +31,7 @@ class StreamDecryptor {
    * @param buf
    * @return std::size_t Bytes to reserve and don't seed to this decryptor.
    */
-  virtual std::size_t InitWithFileFooter(const std::span<uint8_t>& buf) { return 0; }
+  virtual std::size_t InitWithFileFooter(std::span<const uint8_t> buf) { return 0; }
 
   /**
    * @brief Write encrypted data stream to the file loader.
