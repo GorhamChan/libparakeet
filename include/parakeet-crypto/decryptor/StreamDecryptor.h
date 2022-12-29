@@ -137,8 +137,13 @@ class StreamDecryptor {
     return &buf_out_[pos];
   }
 
-  inline void ConsumeInput(std::size_t len) {
+  inline void EraseInput(std::size_t len) {
+    // Prevent auto format to one-liner
     buf_in_.erase(buf_in_.begin(), buf_in_.begin() + len);
+  }
+
+  inline void ConsumeInput(std::size_t len) {
+    EraseInput(len);
     offset_ += len;
   }
 
