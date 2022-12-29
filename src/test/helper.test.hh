@@ -119,7 +119,7 @@ inline void VerifyHash(const std::array<uint8_t, Size>& in, const std::string& e
 
 template <class Loader>
 inline std::vector<uint8_t> DecryptTestContent(std::unique_ptr<Loader> loader, const std::vector<uint8_t>& test_data) {
-  std::span<uint8_t> footer;
+  std::array<uint8_t, 4096> footer;
 
   if (test_data.size() < footer.size()) {
     throw std::runtime_error("not enough data to init from footer");

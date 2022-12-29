@@ -8,11 +8,11 @@
 #include <vector>
 
 #include "parakeet-crypto/decryptor/tencent/QMCv2Loader.h"
-#include "utils/EndianHelper.h"
 #include "parakeet-crypto/misc/QMCFooterParser.h"
 #include "parakeet-crypto/misc/QMCKeyDeriver.h"
-#include "utils/base64.h"
 #include "test/helper.test.hh"
+#include "utils/EndianHelper.h"
+#include "utils/base64.h"
 
 using ::testing::ElementsAreArray;
 
@@ -39,11 +39,11 @@ TEST(QMCv2, RC4Cipher) {
   ASSERT_EQ(key_deriver->FromEKey(parsed_file_key, ekey), true);
   ASSERT_THAT(parsed_file_key, ElementsAreArray(file_key));
 
-  auto ekey_b64 = utils::Base64Encode(ekey);
+  auto ekey_b64 = utils::Base64Encode(std::span{ekey.data(), ekey.size()});
   ekey.assign(ekey_b64.begin(), ekey_b64.end());
-  uint32_t payload_size = SwapHostToLittleEndian(static_cast<uint32_t>(ekey.size()));
-  ekey.insert(ekey.end(), reinterpret_cast<uint8_t*>(&payload_size),
-              reinterpret_cast<uint8_t*>(&payload_size) + sizeof(payload_size));
+  std::array<uint8_t, sizeof(uint32_t)> payload_size = {};
+  WriteLittleEndian(&payload_size, static_cast<uint32_t>(ekey.size()));
+  ekey.insert(ekey.end(), payload_size.begin(), payload_size.end());
 
   test_data.insert(test_data.end(), ekey.begin(), ekey.end());
 

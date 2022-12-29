@@ -109,10 +109,10 @@ class QMCv2LoaderImpl : public QMCv2Loader {
   void DecryptFirstSegment() {
     std::size_t N = N_;
     auto p_out = ExpandOutputBuffer(kFirstSegmentSize);
-    uint8_t* p_in = buf_in_.data();
+    const uint8_t* p_in = buf_in_.data();
 
     for (std::size_t i = 0; i < kFirstSegmentSize; i++) {
-      const uint64_t seed = uint64_t{key_[i % N]};
+      auto seed = uint64_t{key_[i % N]};
       p_out[i] = p_in[i] ^ key_[GetSegmentKey(i, seed) % N];
     }
 
