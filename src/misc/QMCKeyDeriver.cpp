@@ -4,6 +4,7 @@
 #include "tc_tea/tc_tea.h"
 
 #include <algorithm>
+#include <iterator>
 
 #include <cassert>
 #include <cmath>
