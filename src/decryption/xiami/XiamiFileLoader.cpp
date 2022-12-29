@@ -2,7 +2,7 @@
 
 #include "internal/XorHelper.h"
 #include "internal/EndianHelper.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/StringHelper.h"
 
 namespace parakeet_crypto::decryption::xiami {
 

@@ -1,7 +1,7 @@
 #include "parakeet-crypto/misc/QMCFooterParser.h"
 
 #include "internal/EndianHelper.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/StringHelper.h"
 
 #include <algorithm>
 

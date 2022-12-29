@@ -5,7 +5,7 @@
 
 #include "internal/XorHelper.h"
 #include "internal/EndianHelper.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/StringHelper.h"
 
 #include <cassert>
 #include <cstring>

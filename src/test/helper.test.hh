@@ -1,7 +1,7 @@
 #pragma once
 #include "parakeet-crypto/decryption/DecryptionStream.h"
-#include "parakeet-crypto/utils/StringHelper.h"
-#include "parakeet-crypto/utils/hex.h"
+#include "utils/StringHelper.h"
+#include "utils/hex.h"
 
 #include <cryptopp/sha.h>
 #include <gmock/gmock.h>

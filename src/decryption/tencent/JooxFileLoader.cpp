@@ -9,7 +9,7 @@
 #include <cassert>
 
 #include <iostream>
-#include "parakeet-crypto/utils/hex.h"
+#include "utils/hex.h"
 
 namespace parakeet_crypto::decryption::tencent {
 

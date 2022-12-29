@@ -11,7 +11,7 @@
 #include "internal/EndianHelper.h"
 #include "parakeet-crypto/misc/QMCFooterParser.h"
 #include "parakeet-crypto/misc/QMCKeyDeriver.h"
-#include "parakeet-crypto/utils/base64.h"
+#include "utils/base64.h"
 #include "test/helper.test.hh"
 
 using ::testing::ElementsAreArray;

@@ -1,5 +1,5 @@
 #include "parakeet-crypto/misc/QMCKeyDeriver.h"
-#include "parakeet-crypto/utils/base64.h"
+#include "utils/base64.h"
 
 #include "tc_tea/tc_tea.h"
 

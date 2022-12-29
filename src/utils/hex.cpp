@@ -1,5 +1,5 @@
-#include "parakeet-crypto/utils/hex.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/hex.h"
+#include "utils/StringHelper.h"
 
 #include <cryptopp/hex.h>
 

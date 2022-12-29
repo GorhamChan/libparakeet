@@ -1,5 +1,5 @@
 #include "KGMDecryptor.h"
-#include "parakeet-crypto/utils/md5.h"
+#include "utils/md5.h"
 
 namespace parakeet_crypto::decryption::kugou {
 

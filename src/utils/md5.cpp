@@ -1,4 +1,4 @@
-#include "parakeet-crypto/utils/md5.h"
+#include "utils/md5.h"
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include <cryptopp/md5.h>

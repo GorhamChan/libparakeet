@@ -1,8 +1,8 @@
 #include "KGMDecryptor.h"
 
-#include "parakeet-crypto/utils/base64.h"
-#include "parakeet-crypto/utils/hex.h"
-#include "parakeet-crypto/utils/md5.h"
+#include "utils/base64.h"
+#include "utils/hex.h"
+#include "utils/md5.h"
 
 #include <span>
 

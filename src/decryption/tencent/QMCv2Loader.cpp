@@ -1,5 +1,5 @@
 #include "parakeet-crypto/decryption/tencent/QMCv2Loader.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/StringHelper.h"
 
 #include <cstddef>
 

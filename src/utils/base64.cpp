@@ -1,5 +1,5 @@
-#include "parakeet-crypto/utils/base64.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/base64.h"
+#include "utils/StringHelper.h"
 
 #include <cryptopp/base64.h>
 

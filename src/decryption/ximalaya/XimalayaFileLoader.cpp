@@ -2,7 +2,7 @@
 
 #include "internal/XorHelper.h"
 #include "parakeet-crypto/decryption/ximalaya/XimalayaFileLoader.h"
-#include "parakeet-crypto/utils/StringHelper.h"
+#include "utils/StringHelper.h"
 
 #include <array>
 #include <cassert>
