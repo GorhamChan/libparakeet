@@ -1,7 +1,6 @@
 #include "parakeet-crypto/misc/QMCFooterParser.h"
 
 #include "parakeet-crypto/endian.h"
-#include "parakeet-crypto/utils/DetectAudioType.h"
 #include "parakeet-crypto/utils/StringHelper.h"
 
 #include <algorithm>
