@@ -19,7 +19,7 @@ CPMAddPackage(
 CPMAddPackage(
   NAME libtctea
   GITHUB_REPOSITORY jixunmoe/libtc_tea
-  GIT_TAG main
+  GIT_TAG v0.1.0
   OPTIONS
     "TC_TEA_BUILD_TESTING OFF"
 )
