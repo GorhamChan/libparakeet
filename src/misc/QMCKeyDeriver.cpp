@@ -4,91 +4,84 @@
 #include "tc_tea/tc_tea.h"
 
 #include <algorithm>
+
+#include <cassert>
 #include <cmath>
 
 namespace parakeet_crypto::misc::tencent {
 
 namespace detail {
-constexpr auto DecryptTencentTEA = tc_tea::cbc::Decrypt;
-constexpr auto EncryptTencentTEA = tc_tea::cbc::Encrypt;
-
-const static std::string enc_v2_prefix = std::string("QQMusic EncV2,Key:");
+const static std::array<char, 18> kEncV2Prefix = {'Q', 'Q', 'M', 'u', 's', 'i', 'c', ' ', 'E',
+                                                  'n', 'c', 'V', '2', ',', 'K', 'e', 'y', ':'};
+constexpr std::size_t kEncV2PrefixSize = kEncV2Prefix.size();
 
 class QMCKeyDeriverImpl : public QMCKeyDeriver {
+ public:
+  QMCKeyDeriverImpl(uint8_t seed, QMCEncV2Stage1Key enc_v2_stage1_key, QMCEncV2Stage2Key enc_v2_stage2_key)
+      : seed_(seed), enc_v2_stage1_key_(enc_v2_stage1_key), enc_v2_stage2_key_(enc_v2_stage2_key) {}
+
+  bool FromEKey(std::vector<uint8_t>& out, const std::string& ekey_b64) const override {
+    std::vector<uint8_t> ekey = utils::Base64Decode(ekey_b64);
+    return FromEKey(out, ekey);
+  }
+
+  bool FromEKey(std::vector<uint8_t>& out, std::span<const uint8_t> ekey) const override {
+    out.resize(0);
+
+    if (std::equal(kEncV2Prefix.begin(), kEncV2Prefix.end(), ekey.begin())) {
+      auto encryptedKeyBody = std::span{ekey.begin() + kEncV2PrefixSize, ekey.size() - kEncV2PrefixSize};
+      auto v2KeyDecrypted = DecryptEncV2Key(encryptedKeyBody);
+      if (v2KeyDecrypted.empty()) {
+        return false;
+      }
+      return FromEKey(out, v2KeyDecrypted);
+    }
+
+    const auto ekey_len = ekey.size();
+    if (ekey_len < 8) {
+      return false;
+    }
+
+    auto tea_key = DeriveTEAKey(ekey);
+    auto key = tc_tea::CBC_Decrypt(std::span{&ekey[8], ekey_len - 8}, tea_key);
+    if (key.empty()) {
+      return false;
+    }
+
+    std::merge(ekey.begin(), ekey.begin() + 8, key.begin(), key.end(), std::back_inserter(out));
+    return true;
+  }
+
+  bool ToEKey(std::vector<uint8_t>& ekey, const std::span<const uint8_t> key) const override {
+    ekey.resize(0);
+    auto tea_key = DeriveTEAKey(key);
+
+    if (auto cipher = tc_tea::CBC_Encrypt(std::span{&key[8], key.size() - 8}, tea_key); !cipher.empty()) {
+      std::merge(key.begin(), key.begin() + 8, cipher.begin(), cipher.end(), std::back_inserter(ekey));
+      return true;
+    }
+
+    return false;
+  }
+
  private:
   uint8_t seed_;
   QMCEncV2Stage1Key enc_v2_stage1_key_;
   QMCEncV2Stage2Key enc_v2_stage2_key_;
 
- public:
-  QMCKeyDeriverImpl(uint8_t seed, QMCEncV2Stage1Key enc_v2_stage1_key, QMCEncV2Stage2Key enc_v2_stage2_key)
-      : seed_(seed), enc_v2_stage1_key_(enc_v2_stage1_key), enc_v2_stage2_key_(enc_v2_stage2_key) {}
-
-  bool FromEKey(std::vector<uint8_t>& out, const std::string ekey_b64) const override {
-    std::vector<uint8_t> ekey = utils::Base64Decode(ekey_b64);
-    return FromEKey(out, ekey);
-  }
-
-  bool FromEKey(std::vector<uint8_t>& out, const std::vector<uint8_t> input_ekey) const override {
-    std::vector<uint8_t> ekey(input_ekey);
-    if (std::equal(enc_v2_prefix.begin(), enc_v2_prefix.end(), ekey.begin())) {
-      ekey.erase(ekey.begin(), ekey.begin() + enc_v2_prefix.size());
-      if (!DecodeEncV2Key(ekey)) {
-        out.resize(0);
-        return false;
-      }
-    }
-
-    const auto ekey_len = ekey.size();
-    if (ekey_len < 8) {
-      out.resize(0);
-      return false;
-    }
-
-    auto tea_key = DeriveTEAKey(ekey);
-    out.resize(ekey_len);
-    std::copy_n(ekey.begin(), 8u, out.begin());
-
-    auto data_len = ekey_len - 8;
-    auto p_key = tea_key.data();
-
-    size_t out_len;
-    if (!DecryptTencentTEA(&out[8], out_len, &ekey[8], data_len, p_key)) {
-      out.resize(0);
-      return false;
-    };
-
-    out.resize(8 + out_len);
-    return true;
-  }
-
-  bool ToEKey(std::vector<uint8_t>& out, const std::vector<uint8_t> key) const override {
-    auto& ekey = out;
-    ekey.resize(8 + tc_tea::cbc::GetEncryptedSize(key.size()));
-    std::copy_n(key.begin(), 8, ekey.begin());
-
-    auto tea_key = DeriveTEAKey(ekey);
-    std::size_t cipher_len;
-    if (!EncryptTencentTEA(&ekey[8], cipher_len, &key[8], key.size() - 8, tea_key.data())) {
-      ekey.resize(0);
-      return false;
-    }
-    ekey.resize(8 + cipher_len);
-    return true;
-  }
-
- private:
-  inline void MakeSimpleKey(std::vector<uint8_t>& out) const {
-    double seed = static_cast<double>(seed_);
+  inline void MakeSimpleKey(std::span<uint8_t> out) const {
+    auto seed = static_cast<double>(seed_);
     for (auto& byte : out) {
       byte = static_cast<uint8_t>(fabs(tan(seed)) * 100.0);
       seed += 0.1;
     }
   }
 
-  inline std::vector<uint8_t> DeriveTEAKey(const std::vector<uint8_t> ekey) const {
-    std::vector<uint8_t> tea_key(16);
-    std::vector<uint8_t> simple_key(8);
+  inline auto DeriveTEAKey(std::span<const uint8_t> ekey) const -> std::array<uint8_t, 16> {
+    assert(ekey.size() >= 8);
+
+    std::array<uint8_t, 16> tea_key = {};
+    std::array<uint8_t, 8> simple_key = {};
     MakeSimpleKey(simple_key);
 
     for (int i = 0; i < 16; i += 2) {
@@ -99,29 +92,15 @@ class QMCKeyDeriverImpl : public QMCKeyDeriver {
     return tea_key;
   }
 
-  inline bool DecodeEncV2Key(std::vector<uint8_t>& key) const {
-    std::vector<uint8_t> decode_key_1(key.size());
-    std::vector<uint8_t> decode_key_2(key.size());
+  inline std::vector<uint8_t> DecryptEncV2Key(std::span<const uint8_t> cipher) const {
+    auto stage1 = tc_tea::CBC_Decrypt(cipher, enc_v2_stage1_key_);
+    auto stage2 = tc_tea::CBC_Decrypt(stage1, enc_v2_stage2_key_);
 
-    {
-      std::size_t len = decode_key_1.size();
-      if (!DecryptTencentTEA(decode_key_1.data(), len, key.data(), key.size(), enc_v2_stage1_key_.data())) {
-        return false;
-      }
-      decode_key_1.resize(len);
+    if (stage1.empty() || stage2.empty()) {
+      return {};
     }
 
-    {
-      std::size_t len = decode_key_2.size();
-      if (!DecryptTencentTEA(decode_key_2.data(), len, decode_key_1.data(), decode_key_1.size(),
-                             enc_v2_stage2_key_.data())) {
-        return false;
-      }
-      decode_key_2.resize(len);
-    }
-
-    key = utils::Base64Decode(decode_key_2);
-    return true;
+    return utils::Base64Decode(stage2);
   }
 };
 

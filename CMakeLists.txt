@@ -16,6 +16,14 @@ CPMAddPackage(
     "CRYPTOPP_BUILD_TESTING OFF"
 )
 
+CPMAddPackage(
+  NAME libtctea
+  GITHUB_REPOSITORY jixunmoe/libtc_tea
+  GIT_TAG main
+  OPTIONS
+    "TC_TEA_BUILD_TESTING OFF"
+)
+
 if (!MSVC)
 	link_libraries(m)
 
@@ -49,14 +57,18 @@ add_library(parakeet_crypro STATIC ${SOURCES})
 add_library(ParakeetCrypto::core ALIAS parakeet_crypro)
 
 target_include_directories(parakeet_crypro
-  PUBLIC 
-    $<INSTALL_INTERFACE:include>    
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
     src
     "${PROJECT_BINARY_DIR}/src"
 )
-target_link_libraries(parakeet_crypro PRIVATE cryptopp::cryptopp)
+target_link_libraries(parakeet_crypro
+  PRIVATE 
+    cryptopp::cryptopp
+    JixunMoe::LibTcTEA
+)
 target_compile_features(parakeet_crypro PRIVATE cxx_std_20)
 
 include(GNUInstallDirs)
