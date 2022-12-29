@@ -1,5 +1,5 @@
 #include "parakeet-crypto/decryption/tencent/JooxFileLoader.h"
-#include "parakeet-crypto/endian.h"
+#include "internal/EndianHelper.h"
 
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>

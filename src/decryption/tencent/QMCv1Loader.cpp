@@ -1,5 +1,5 @@
 #include "parakeet-crypto/decryption/tencent/QMCv1Loader.h"
-#include "parakeet-crypto/endian.h"
+#include "internal/EndianHelper.h"
 #include "parakeet-crypto/utils/StringHelper.h"
 
 #include <cassert>

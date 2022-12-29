@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "parakeet-crypto/decryption/tencent/QMCv2Loader.h"
-#include "parakeet-crypto/endian.h"
+#include "internal/EndianHelper.h"
 #include "parakeet-crypto/misc/QMCFooterParser.h"
 #include "parakeet-crypto/misc/QMCKeyDeriver.h"
 #include "parakeet-crypto/utils/base64.h"

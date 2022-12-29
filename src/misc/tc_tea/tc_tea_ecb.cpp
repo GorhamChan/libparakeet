@@ -1,6 +1,6 @@
 #include "tc_tea.h"
 
-#include "parakeet-crypto/endian.h"
+#include "internal/EndianHelper.h"
 
 #include <algorithm>
 
