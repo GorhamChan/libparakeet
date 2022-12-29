@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 #pragma pack(push, 4)
 struct kgm_file_header {
@@ -20,4 +20,4 @@ struct kgm_file_header {
 };
 #pragma pack(pop)
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

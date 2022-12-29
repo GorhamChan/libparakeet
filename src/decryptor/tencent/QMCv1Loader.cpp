@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-namespace parakeet_crypto::decryption::tencent {
+namespace parakeet_crypto::decryptor::tencent {
 
 // Private implementation
 
@@ -147,4 +147,4 @@ std::unique_ptr<QMCv1Loader> QMCv1Loader::Create(std::shared_ptr<misc::tencent::
   return cipher;
 }
 
-}  // namespace parakeet_crypto::decryption::tencent
+}  // namespace parakeet_crypto::decryptor::tencent

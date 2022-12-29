@@ -8,7 +8,7 @@
 #include "cryptopp/filters.h"
 #include "cryptopp/modes.h"
 
-namespace parakeet_crypto::decryption::netease {
+namespace parakeet_crypto::decryptor::netease {
 
 namespace detail {
 
@@ -232,4 +232,4 @@ std::unique_ptr<NCMFileLoader> NCMFileLoader::Create(const NCMContentKeyProtecti
   return std::make_unique<detail::NCMFileLoaderImpl>(key);
 }
 
-}  // namespace parakeet_crypto::decryption::netease
+}  // namespace parakeet_crypto::decryptor::netease

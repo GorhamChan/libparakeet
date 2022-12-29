@@ -12,7 +12,7 @@
 
 using ::testing::ElementsAreArray;
 
-using namespace parakeet_crypto::decryption::netease;
+using namespace parakeet_crypto::decryptor::netease;
 using namespace parakeet_crypto;
 
 NCMContentKeyProtectionKey kAESKey = []() {

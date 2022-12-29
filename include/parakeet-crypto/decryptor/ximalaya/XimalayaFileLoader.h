@@ -1,11 +1,11 @@
 #pragma once
 
-#include "parakeet-crypto/decryptor/DecryptionStream.h"
+#include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
 #include <array>
 #include <span>
 
-namespace parakeet_crypto::decryption::ximalaya {
+namespace parakeet_crypto::decryptor::ximalaya {
 
 constexpr std::size_t kX2MContentKeySize = 0x04;
 constexpr std::size_t kX3MContentKeySize = 0x20;
@@ -20,7 +20,7 @@ struct XmlyScrambleTableParameter {
   double step_value = 0;
 };
 
-class XimalayaFileLoader : public DecryptionStream {
+class XimalayaFileLoader : public StreamDecryptor {
  public:
   virtual const std::string GetName() const override { return "Ximalaya"; };
 
@@ -38,4 +38,4 @@ class XimalayaFileLoader : public DecryptionStream {
                                                     const XmlyScrambleTableParameter& table_parameters);
 };
 
-}  // namespace parakeet_crypto::decryption::ximalaya
+}  // namespace parakeet_crypto::decryptor::ximalaya

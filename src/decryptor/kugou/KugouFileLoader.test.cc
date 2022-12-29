@@ -5,8 +5,8 @@
 #include "KugouHeader.h"
 #include "parakeet-crypto/decryptor/kugou/KugouFileLoader.h"
 
-using namespace parakeet_crypto::decryption::kugou;
-using namespace parakeet_crypto::decryption;
+using namespace parakeet_crypto::decryptor::kugou;
+using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
 static const uint8_t kgm_header_v2[64] = {0x7C, 0xD5, 0x32, 0xEB, 0x86, 0x02, 0x7F, 0x4B, 0xA8, 0xAF, 0xA6, 0x8E, 0x0F,

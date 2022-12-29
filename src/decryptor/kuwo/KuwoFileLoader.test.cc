@@ -12,7 +12,7 @@
 
 using ::testing::ElementsAreArray;
 
-using namespace parakeet_crypto::decryption::kuwo;
+using namespace parakeet_crypto::decryptor::kuwo;
 using namespace parakeet_crypto;
 
 KuwoKey kKuwoKey = []() {

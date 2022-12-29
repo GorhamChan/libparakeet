@@ -13,7 +13,7 @@
 
 using ::testing::ElementsAreArray;
 
-using namespace parakeet_crypto::decryption::ximalaya;
+using namespace parakeet_crypto::decryptor::ximalaya;
 using namespace parakeet_crypto;
 
 TEST(Ximalaya, ScrambleTable) {

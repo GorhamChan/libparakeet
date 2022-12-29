@@ -1,7 +1,7 @@
 #include "KGMDecryptor.h"
 #include "utils/md5.h"
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 std::array<uint8_t, 16> md5_type_3(const std::span<const uint8_t> data) {
   std::array<uint8_t, 16> result;
@@ -63,4 +63,4 @@ void KGMCrypto3::Decrypt(uint64_t offset, uint8_t* buffer, size_t n) {
   }
 }
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

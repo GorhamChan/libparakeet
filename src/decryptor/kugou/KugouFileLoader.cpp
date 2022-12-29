@@ -10,7 +10,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 // Private implementation
 
 namespace detail {
@@ -102,4 +102,4 @@ std::unique_ptr<KugouFileLoader> KugouFileLoader::Create(
   return std::make_unique<detail::KugouFileLoaderImpl>(config);
 }
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

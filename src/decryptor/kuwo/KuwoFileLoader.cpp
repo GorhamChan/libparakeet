@@ -6,7 +6,7 @@
 
 #include <cinttypes>
 
-namespace parakeet_crypto::decryption::kuwo {
+namespace parakeet_crypto::decryptor::kuwo {
 
 namespace detail {
 
@@ -91,4 +91,4 @@ std::unique_ptr<KuwoFileLoader> KuwoFileLoader::Create(const KuwoKey& key) {
   return std::make_unique<detail::KuwoFileLoaderImpl>(key);
 }
 
-}  // namespace parakeet_crypto::decryption::kuwo
+}  // namespace parakeet_crypto::decryptor::kuwo

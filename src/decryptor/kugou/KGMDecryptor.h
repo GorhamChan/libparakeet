@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 struct KGMCryptoConfig {
   std::map<uint32_t, std::vector<uint8_t>> slot_keys;
@@ -72,4 +72,4 @@ class KGMCrypto4 : public KGMCrypto {
   std::vector<uint8_t> file_key_;
 };
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

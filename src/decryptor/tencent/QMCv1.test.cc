@@ -12,7 +12,7 @@
 
 using ::testing::ElementsAreArray;
 
-using namespace parakeet_crypto::decryption::tencent;
+using namespace parakeet_crypto::decryptor::tencent;
 using namespace parakeet_crypto;
 
 TEST(QMCv1, StaticCipher) {

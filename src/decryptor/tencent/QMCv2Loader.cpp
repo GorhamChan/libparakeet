@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace parakeet_crypto::decryption::tencent {
+namespace parakeet_crypto::decryptor::tencent {
 
 namespace detail {
 
@@ -198,4 +198,4 @@ std::unique_ptr<QMCv2Loader> QMCv2Loader::Create(std::shared_ptr<misc::tencent::
   return std::make_unique<detail::QMCv2LoaderImpl>(parser);
 }
 
-}  // namespace parakeet_crypto::decryption::tencent
+}  // namespace parakeet_crypto::decryptor::tencent

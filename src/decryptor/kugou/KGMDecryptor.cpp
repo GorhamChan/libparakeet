@@ -5,7 +5,7 @@
 #include <cstring>
 #include <span>
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 inline std::unique_ptr<KGMCrypto> create_kgm_crypto(const kgm_file_header& header, const KGMCryptoConfig& config) {
   auto slot_key_it = config.slot_keys.find(header.key_slot);
@@ -85,4 +85,4 @@ std::unique_ptr<KGMCrypto> create_kugou_decryptor(const kgm_file_header& header,
   return kgm_crypto;
 }
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

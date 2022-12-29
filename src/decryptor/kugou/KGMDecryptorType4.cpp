@@ -6,7 +6,7 @@
 
 #include <span>
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 constexpr size_t V4_DIGEST_SIZE = 31;
 std::array<uint8_t, V4_DIGEST_SIZE> md5_type_4(const std::span<const uint8_t> data) {
@@ -104,4 +104,4 @@ void KGMCrypto4::Decrypt(uint64_t offset, uint8_t* buffer, size_t n) {
   }
 }
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

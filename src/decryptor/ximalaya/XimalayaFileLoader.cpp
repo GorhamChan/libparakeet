@@ -7,7 +7,7 @@
 #include <array>
 #include <cassert>
 
-namespace parakeet_crypto::decryption::ximalaya {
+namespace parakeet_crypto::decryptor::ximalaya {
 
 namespace detail {
 
@@ -103,4 +103,4 @@ std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const std::span<c
   return nullptr;
 }
 
-}  // namespace parakeet_crypto::decryption::ximalaya
+}  // namespace parakeet_crypto::decryptor::ximalaya

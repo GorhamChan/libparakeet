@@ -1,6 +1,6 @@
 #include "KGMDecryptor.h"
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 bool KGMCrypto2::Configure(const KGMCryptoConfig& config,
                            const std::vector<uint8_t>& slot_key,
@@ -33,4 +33,4 @@ void KGMCrypto2::Decrypt(uint64_t offset, uint8_t* buffer, size_t n) {
   }
 }
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

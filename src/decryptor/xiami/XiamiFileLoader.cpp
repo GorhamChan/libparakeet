@@ -4,7 +4,7 @@
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
 
-namespace parakeet_crypto::decryption::xiami {
+namespace parakeet_crypto::decryptor::xiami {
 
 namespace detail {
 
@@ -99,4 +99,4 @@ std::unique_ptr<XiamiFileLoader> XiamiFileLoader::Create() {
   return std::make_unique<detail::XiamiFileLoaderImpl>();
 }
 
-}  // namespace parakeet_crypto::decryption::xiami
+}  // namespace parakeet_crypto::decryptor::xiami

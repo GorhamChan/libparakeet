@@ -1,17 +1,17 @@
 #pragma once
 
-#include "parakeet-crypto/decryptor/DecryptionStream.h"
+#include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
 #include <map>
 
-namespace parakeet_crypto::decryption::kugou {
+namespace parakeet_crypto::decryptor::kugou {
 
 typedef std::vector<uint8_t> KugouSingleSlotKey;
 typedef std::map<uint32_t, KugouSingleSlotKey> KugouSlotKeys;
 typedef std::vector<uint8_t> KugouV4SlotKeyExpansionTable;
 typedef std::vector<uint8_t> KugouV4FileKeyExpansionTable;
 
-class KugouFileLoader : public DecryptionStream {
+class KugouFileLoader : public StreamDecryptor {
  public:
   virtual const std::string GetName() const override { return "Kugou"; };
 
@@ -23,4 +23,4 @@ class KugouFileLoader : public DecryptionStream {
                                                  const KugouV4FileKeyExpansionTable& v4_file_key_expansion_table);
 };
 
-}  // namespace parakeet_crypto::decryption::kugou
+}  // namespace parakeet_crypto::decryptor::kugou

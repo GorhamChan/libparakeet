@@ -9,10 +9,12 @@
 
 #include <cstddef>
 
-namespace parakeet_crypto::decryption {
+namespace parakeet_crypto::decryptor {
 
-class DecryptionStream {
+class StreamDecryptor {
  public:
+  StreamDecryptor() = default;
+  virtual ~StreamDecryptor() = default;
   /**
    * @brief Reset and seek to begin of file.
    *
@@ -146,4 +148,4 @@ class DecryptionStream {
   }
 };
 
-}  // namespace parakeet_crypto::decryption
+}  // namespace parakeet_crypto::decryptor

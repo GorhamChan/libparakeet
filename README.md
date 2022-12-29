@@ -12,7 +12,7 @@
 
 void main() {
   std::ifstream input_file("./test.bin", input_file.binary);
-  // FIXME: Add example code of DecryptionFactory.
+  // FIXME: Add example code of StreamDecryptorFactory.
   auto detection = manager.DetectDecryptor(input_file);
   if (detection) {
     std::cout << "detected " << detection->decryptor->GetName() << std::endl;

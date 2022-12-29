@@ -1,14 +1,14 @@
 #pragma once
 
-#include "parakeet-crypto/decryptor/DecryptionStream.h"
+#include "parakeet-crypto/decryptor/StreamDecryptor.h"
 #include "parakeet-crypto/misc/QMCFooterParser.h"
 #include "parakeet-crypto/misc/QMCKeyDeriver.h"
 
-namespace parakeet_crypto::decryption::tencent {
+namespace parakeet_crypto::decryptor::tencent {
 
 typedef std::vector<uint8_t> QMCv1Key;
 
-class QMCv1Loader : public DecryptionStream {
+class QMCv1Loader : public StreamDecryptor {
  public:
   virtual const std::string GetName() const override { return "QMCv1(static/map)"; };
 
@@ -16,4 +16,4 @@ class QMCv1Loader : public DecryptionStream {
   static std::unique_ptr<QMCv1Loader> Create(std::shared_ptr<misc::tencent::QMCFooterParser> parser);
 };
 
-}  // namespace parakeet_crypto::decryption::tencent
+}  // namespace parakeet_crypto::decryptor::tencent

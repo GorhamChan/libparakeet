@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace parakeet_crypto::decryption::ximalaya {
+namespace parakeet_crypto::decryptor::ximalaya {
 
 std::vector<uint16_t> generate_ximalaya_scramble_table(double mul_init, double mul_step, std::size_t n) {
   assert(("mul_init is out of range.", mul_init >= 0.00 && mul_init <= 1.00));
@@ -36,4 +36,4 @@ std::vector<uint16_t> generate_ximalaya_scramble_table(double mul_init, double m
   return indexes;
 }
 
-}  // namespace parakeet_crypto::decryption::ximalaya
+}  // namespace parakeet_crypto::decryptor::ximalaya

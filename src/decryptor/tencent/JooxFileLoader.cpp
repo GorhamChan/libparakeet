@@ -11,7 +11,7 @@
 #include <iostream>
 #include "utils/hex.h"
 
-namespace parakeet_crypto::decryption::tencent {
+namespace parakeet_crypto::decryptor::tencent {
 
 // Private implementation
 
@@ -164,4 +164,4 @@ std::unique_ptr<JooxFileLoader> JooxFileLoader::Create(const std::string& instal
   return std::make_unique<detail_joox_v4::JooxFileLoaderImpl>(install_uuid, salt);
 }
 
-}  // namespace parakeet_crypto::decryption::tencent
+}  // namespace parakeet_crypto::decryptor::tencent

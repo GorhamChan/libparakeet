@@ -1,5 +1,5 @@
 #pragma once
-#include "parakeet-crypto/decryptor/DecryptionStream.h"
+#include "parakeet-crypto/decryptor/StreamDecryptor.h"
 #include "utils/StringHelper.h"
 #include "utils/hex.h"
 
@@ -131,12 +131,12 @@ inline std::vector<uint8_t> DecryptTestContent(std::unique_ptr<Loader> loader, c
   if (!loader->Write(test_data.data(), test_data.size() - reserved_size)) {
     auto err = loader->GetErrorMessage();
     throw std::runtime_error(
-        utils::Format("invoke DecryptionStream::Write failed, error: %s", loader->GetErrorMessage().c_str()));
+        utils::Format("invoke StreamDecryptor::Write failed, error: %s", loader->GetErrorMessage().c_str()));
   }
 
   if (loader->InErrorState()) {
     throw std::runtime_error(
-        utils::Format("error from DecryptionStream::InErrorState: %s", loader->GetErrorMessage().c_str()));
+        utils::Format("error from StreamDecryptor::InErrorState: %s", loader->GetErrorMessage().c_str()));
   }
 
   std::vector<uint8_t> result;
