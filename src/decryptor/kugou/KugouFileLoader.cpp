@@ -3,20 +3,20 @@
 #include "KGMDecryptor.h"
 #include "KugouHeader.h"
 
-#include "utils/XorHelper.h"
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
+#include "utils/XorHelper.h"
 
 #include <cassert>
 #include <cstring>
 
-namespace parakeet_crypto::decryptor::kugou {
+namespace parakeet_crypto::decryptor {
 // Private implementation
 
-namespace detail {
+namespace kugou::detail {
 
 constexpr std::size_t kMinimalHeaderSize = 0x2c;
-typedef std::array<uint8_t, 4> KugouSlotKey1;
+using KugouSlotKey1 = std::array<uint8_t, 4>;
 
 enum class State {
   kReadFileMagic = 0,
@@ -25,9 +25,10 @@ enum class State {
   kDecrypt,
 };
 
-class KugouFileLoaderImpl : public KugouFileLoader {
+class KugouFileLoaderImpl : public StreamDecryptor {
  public:
   KugouFileLoaderImpl(const KGMCryptoConfig& config) : config_(config) {}
+  virtual const std::string GetName() const override { return "Kugou"; };
 
  private:
   size_t header_size_ = 0;
@@ -86,20 +87,22 @@ class KugouFileLoaderImpl : public KugouFileLoader {
   virtual bool End() override { return true; }
 };
 
-}  // namespace detail
+}  // namespace kugou::detail
 
 // Public interface
 
-std::unique_ptr<KugouFileLoader> KugouFileLoader::Create(
-    const KugouSlotKeys& slot_keys,
-    const KugouV4SlotKeyExpansionTable& v4_slot_key_expansion_table,
-    const KugouV4FileKeyExpansionTable& v4_file_key_expansion_table) {
-  auto config = KGMCryptoConfig{
+std::unique_ptr<StreamDecryptor> CreateKugouDecryptor(const KugouSlotKeys& slot_keys,
+                                                      std::span<const uint8_t> v4_slot_key_expansion_table,
+                                                      std::span<const uint8_t> v4_file_key_expansion_table) {
+  std::vector<uint8_t> v4_slot_key_table_vec(v4_slot_key_expansion_table.begin(), v4_slot_key_expansion_table.end());
+  std::vector<uint8_t> v4_file_key_table_vec(v4_file_key_expansion_table.begin(), v4_file_key_expansion_table.end());
+
+  auto config = kugou::KGMCryptoConfig{
       .slot_keys = slot_keys,
-      .v4_slot_key_expansion_table = v4_slot_key_expansion_table,
-      .v4_file_key_expansion_table = v4_file_key_expansion_table,
+      .v4_slot_key_expansion_table = v4_slot_key_table_vec,
+      .v4_file_key_expansion_table = v4_file_key_table_vec,
   };
-  return std::make_unique<detail::KugouFileLoaderImpl>(config);
+  return std::make_unique<kugou::detail::KugouFileLoaderImpl>(config);
 }
 
-}  // namespace parakeet_crypto::decryptor::kugou
+}  // namespace parakeet_crypto::decryptor

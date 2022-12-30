@@ -3,24 +3,20 @@
 #include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
 #include <map>
+#include <span>
+#include <vector>
 
-namespace parakeet_crypto::decryptor::kugou {
+namespace parakeet_crypto::decryptor {
 
-typedef std::vector<uint8_t> KugouSingleSlotKey;
-typedef std::map<uint32_t, KugouSingleSlotKey> KugouSlotKeys;
-typedef std::vector<uint8_t> KugouV4SlotKeyExpansionTable;
-typedef std::vector<uint8_t> KugouV4FileKeyExpansionTable;
+using KugouSingleSlotKey = std::vector<uint8_t>;
+using KugouSlotKeys = std::map<uint32_t, KugouSingleSlotKey>;
+using KugouV4SlotKeyExpansionTable = std::vector<uint8_t>;
+using KugouV4FileKeyExpansionTable = std::vector<uint8_t>;
 
-class KugouFileLoader : public StreamDecryptor {
- public:
-  virtual const std::string GetName() const override { return "Kugou"; };
-
-  /**
-   * @brief Create KugouFileLoader for KGM / VPR.
-   */
-  static std::unique_ptr<KugouFileLoader> Create(const KugouSlotKeys& slot_keys,
-                                                 const KugouV4SlotKeyExpansionTable& v4_slot_key_expansion_table,
-                                                 const KugouV4FileKeyExpansionTable& v4_file_key_expansion_table);
-};
-
-}  // namespace parakeet_crypto::decryptor::kugou
+/**
+ * @brief Create KugouFileLoader for KGM / VPR.
+ */
+std::unique_ptr<StreamDecryptor> CreateKugouDecryptor(const KugouSlotKeys& slot_keys,
+                                                      std::span<const uint8_t> v4_slot_key_expansion_table,
+                                                      std::span<const uint8_t> v4_file_key_expansion_table);
+}  // namespace parakeet_crypto::decryptor

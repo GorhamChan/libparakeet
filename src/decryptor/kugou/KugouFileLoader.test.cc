@@ -109,14 +109,14 @@ unsigned char kgm_v4_slot_key_table[712] = {
     0x69, 0x64, 0x20, 0x73, 0x6F, 0x6C, 0x6C, 0x69, 0x63, 0x69, 0x74, 0x75, 0x64, 0x69, 0x6E, 0x20, 0x64, 0x75, 0x69,
     0x20, 0x6D, 0x61, 0x78, 0x69, 0x6D, 0x75, 0x73, 0x2E};
 
-std::unique_ptr<KugouFileLoader> create_test_kgm_decryptor() {
+std::unique_ptr<StreamDecryptor> create_test_kgm_decryptor() {
   KugouSlotKeys slot_keys;
   slot_keys[1] = std::vector(&kgm_key_slot_1_key[0], &kgm_key_slot_1_key[sizeof(kgm_key_slot_1_key)]);
   KugouV4SlotKeyExpansionTable v4_slot_key_table(&kgm_v4_slot_key_table[0],
                                                  &kgm_v4_slot_key_table[sizeof(kgm_v4_slot_key_table)]);
   KugouV4FileKeyExpansionTable v4_file_key_table(&kgm_v4_file_key_table[0],
                                                  &kgm_v4_file_key_table[sizeof(kgm_v4_file_key_table)]);
-  return KugouFileLoader::Create(slot_keys, v4_slot_key_table, v4_file_key_table);
+  return CreateKugouDecryptor(slot_keys, v4_slot_key_table, v4_file_key_table);
 }
 
 TEST(KugouFileLoader, KGMv2) {
