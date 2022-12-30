@@ -1,5 +1,7 @@
 #include "KGMDecryptor.h"
 
+#include <utils/BufferHelper.h>
+
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -17,13 +19,13 @@ inline std::unique_ptr<KGMCrypto> create_kgm_crypto(const kgm_file_header& heade
 
   switch (header.encryption_type) {
     case 2:
-      kgm_crypto = std::make_unique<KGMCrypto2>();
+      kgm_crypto = CreateKGMDecryptorType2();
       break;
     case 3:
-      kgm_crypto = std::make_unique<KGMCrypto3>();
+      kgm_crypto = CreateKGMDecryptorType3();
       break;
     case 4:
-      kgm_crypto = std::make_unique<KGMCrypto4>();
+      kgm_crypto = CreateKGMDecryptorType4();
       break;
 
     default:
@@ -55,7 +57,7 @@ const std::array<uint8_t, 16> kVPRChallengeBytes = {
 
 enum class KGMType { kUnknown = 0, kKGM, kVPR };
 
-std::unique_ptr<KGMCrypto> create_kugou_decryptor(const kgm_file_header& header, const KGMCryptoConfig& config) {
+std::unique_ptr<KGMCrypto> CreateKGMDecryptor(const kgm_file_header& header, const KGMCryptoConfig& config) {
   KGMType kgm_type = KGMType::kUnknown;
   if (std::equal(kKGMFileMagic.begin(), kKGMFileMagic.end(), header.magic)) {
     kgm_type = KGMType::kKGM;
@@ -71,14 +73,10 @@ std::unique_ptr<KGMCrypto> create_kugou_decryptor(const kgm_file_header& header,
   }
 
   // Validate the file key.
-  std::span challenge(&header.key_challenge[0], sizeof(header.key_challenge));
-  std::array<uint8_t, sizeof(header.key_challenge)> challenge_buffer;
-  std::copy(challenge.begin(), challenge.end(), challenge_buffer.begin());
-  kgm_crypto->Decrypt(0, challenge_buffer.data(), sizeof(challenge_buffer));
+  std::array<uint8_t, sizeof(header.key_challenge)> response = std::to_array(header.key_challenge);
+  kgm_crypto->Decrypt(0, response);
 
-  auto challenge_expected = kgm_type == KGMType::kKGM ? kKGMChallengeBytes : kVPRChallengeBytes;
-
-  if (!std::equal(challenge_buffer.begin(), challenge_buffer.end(), challenge_expected.begin())) {
+  if (!utils::BufferEqual<uint8_t>(kgm_type == KGMType::kKGM ? kKGMChallengeBytes : kVPRChallengeBytes, response)) {
     return nullptr;
   }
 

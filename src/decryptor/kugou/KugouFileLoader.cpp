@@ -40,7 +40,7 @@ class KugouFileLoaderImpl : public StreamDecryptor {
     auto p_out = ExpandOutputBuffer(len);
     std::copy_n(in, len, p_out);
 
-    decryptor_->Decrypt(offset_, p_out, len);
+    decryptor_->Decrypt(offset_, std::span{p_out, len});
 
     offset_ += len;
     len = 0;
@@ -55,7 +55,7 @@ class KugouFileLoaderImpl : public StreamDecryptor {
             memcpy(&header, buf_in_.data(), sizeof(header));
             header_size_ = header.offset_to_data;
 
-            decryptor_ = create_kugou_decryptor(header, config_);
+            decryptor_ = CreateKGMDecryptor(header, config_);
             if (decryptor_ == nullptr) {
               error_ = true;
               return false;

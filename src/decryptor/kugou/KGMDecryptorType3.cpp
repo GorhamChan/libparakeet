@@ -1,66 +1,82 @@
 #include "KGMDecryptor.h"
 #include "utils/md5.h"
 
+#include <algorithm>
+#include <memory>
+
 namespace parakeet_crypto::decryptor::kugou {
 
-std::array<uint8_t, 16> md5_type_3(const std::span<const uint8_t> data) {
-  std::array<uint8_t, 16> result;
-  auto digest = utils::md5(data);
-  for (int i = 0; i < 16; i += 2) {
-    result[i + 0] = digest[14 - i + 0];
-    result[i + 1] = digest[14 - i + 1];
+class KGMCryptoType3 : public KGMCrypto {
+ private:
+  std::array<uint8_t, 16> slot_key_;
+
+  // file key is 17 bytes.
+  // we are using a buffer of 32 bytes so we can let compiler to optimise.
+  std::array<uint8_t, 32> file_key_;
+
+  static inline std::array<uint8_t, 16> hash_type3(const std::span<const uint8_t> data) {
+    std::array<uint8_t, 16> result;
+    auto digest = utils::md5(data);
+    // Reverse 2-bytes at a time.
+    for (int i = 0; i < 16; i += 2) {
+      result[i + 0] = digest[14 - i + 0];
+      result[i + 1] = digest[14 - i + 1];
+    }
+    return result;
   }
-  return result;
-}
 
-bool KGMCrypto3::Configure(const KGMCryptoConfig& config,
-                           const std::vector<uint8_t>& slot_key,
-                           const kgm_file_header& header) {
-  slot_key_ = md5_type_3(slot_key);
+ public:
+  ~KGMCryptoType3() override = default;
 
-  auto file_key = md5_type_3(std::span{header.key});
-  std::copy(file_key.begin(), file_key.end(), file_key_.begin());
-  file_key_[16] = 0x6b;
+  bool Configure(const KGMCryptoConfig& config,
+                 const std::vector<uint8_t>& slot_key,
+                 const kgm_file_header& header) override {
+    slot_key_ = hash_type3(slot_key);
 
-  return true;
-}
+    auto file_key = hash_type3(header.key);
+    std::copy_n(file_key.begin(), file_key.size(), file_key_.begin());
+    file_key_[16] = 0x6b;
+    // fill the rest of file_key... 15 bytes
+    std::copy_n(file_key.begin(), 15, file_key_.begin() + 17);
 
-void KGMCrypto3::Encrypt(uint64_t offset, uint8_t* buffer, size_t n) {
-  uint8_t* p = buffer;
-  auto slot_key_size = slot_key_.size();
-  auto file_key_size = file_key_.size();
-
-  for (size_t i = 0; i < n; i++, p++, offset++) {
-    uint8_t offset_key = xor_u32_bytes(static_cast<uint32_t>(offset));
-    uint8_t slot_key = slot_key_[offset % slot_key_size];
-    uint8_t file_key = file_key_[offset % file_key_size];
-
-    uint8_t temp = *p;
-    temp ^= offset_key;
-    temp ^= slot_key;
-    temp ^= temp << 4;
-    temp ^= file_key;
-    *p = temp;
+    return true;
   }
-}
 
-void KGMCrypto3::Decrypt(uint64_t offset, uint8_t* buffer, size_t n) {
-  uint8_t* p = buffer;
-  auto slot_key_size = slot_key_.size();
-  auto file_key_size = file_key_.size();
+  void Encrypt(uint64_t offset, std::span<uint8_t> buffer) override {
+    std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [&offset, this](auto v) {
+      uint8_t offset_key = xor_u32_bytes(static_cast<uint32_t>(offset));
+      uint8_t slot_key = slot_key_[offset % slot_key_.size()];
+      uint8_t file_key = file_key_[offset % file_key_.size()];
 
-  for (size_t i = 0; i < n; i++, p++, offset++) {
-    uint8_t offset_key = xor_u32_bytes(static_cast<uint32_t>(offset));
-    uint8_t slot_key = slot_key_[offset % slot_key_size];
-    uint8_t file_key = file_key_[offset % file_key_size];
+      v ^= offset_key;
+      v ^= slot_key;
+      v ^= v << 4;
+      v ^= file_key;
 
-    uint8_t temp = *p;
-    temp ^= file_key;
-    temp ^= temp << 4;
-    temp ^= slot_key;
-    temp ^= offset_key;
-    *p = temp;
+      offset++;
+      return v;
+    });
   }
+
+  void Decrypt(uint64_t offset, std::span<uint8_t> buffer) override {
+    std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [&offset, this](auto v) {
+      uint8_t offset_key = xor_u32_bytes(static_cast<uint32_t>(offset));
+      uint8_t slot_key = slot_key_[offset % slot_key_.size()];
+      uint8_t file_key = file_key_[offset % file_key_.size()];
+
+      v ^= file_key;
+      v ^= v << 4;
+      v ^= slot_key;
+      v ^= offset_key;
+
+      offset++;
+      return v;
+    });
+  }
+};
+
+std::unique_ptr<KGMCrypto> CreateKGMDecryptorType3() {
+  return std::make_unique<KGMCryptoType3>();
 }
 
 }  // namespace parakeet_crypto::decryptor::kugou
