@@ -59,7 +59,7 @@ class KugouFileLoaderImpl : public StreamDecryptor {
             memcpy(&header, buf_in_.data(), sizeof(header));
             header_size_ = header.offset_to_data;
 
-            decryptor_ = CreateKGMCrypto(header, config_);
+            decryptor_ = CreateKGMDecryptor(header, config_);
             if (decryptor_ == nullptr) {
                 error_ = "could not find a valid decryptor";
             } else {

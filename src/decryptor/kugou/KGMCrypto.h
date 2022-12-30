@@ -34,6 +34,7 @@ class KGMCrypto {
 };
 
 std::unique_ptr<KGMCrypto> CreateKGMCrypto(const kgm_file_header& header, const KGMCryptoConfig& config);
+std::unique_ptr<KGMCrypto> CreateKGMDecryptor(const kgm_file_header& header, const KGMCryptoConfig& config);
 
 std::unique_ptr<KGMCrypto> CreateKGMCryptoType2();
 std::unique_ptr<KGMCrypto> CreateKGMCryptoType3();
