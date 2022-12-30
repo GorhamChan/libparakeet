@@ -1,7 +1,7 @@
 #include "parakeet-crypto/decryptor/kugou/KugouFileLoader.h"
 
 #include "KGMCrypto.h"
-#include "KugouHeader.h"
+#include "KGMHeaderStruct.h"
 
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"

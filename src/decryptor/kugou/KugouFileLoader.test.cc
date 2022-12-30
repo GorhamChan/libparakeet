@@ -2,7 +2,7 @@
 
 #include <span>
 #include <vector>
-#include "KugouHeader.h"
+#include "KGMHeaderStruct.h"
 #include "parakeet-crypto/decryptor/kugou/KugouFileLoader.h"
 
 using namespace parakeet_crypto::decryptor::kugou;

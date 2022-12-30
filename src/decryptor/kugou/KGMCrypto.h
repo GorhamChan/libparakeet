@@ -1,6 +1,6 @@
 #pragma once
 
-#include "KugouHeader.h"
+#include "KGMHeaderStruct.h"
 
 #include <cstdint>
 #include <map>
