@@ -45,7 +45,7 @@ class StreamDecryptor {
      */
     virtual bool End() = 0;
 
-    virtual const std::string GetName() const = 0;
+    virtual std::string GetName() const = 0;
 
     /**
      * @brief Return true if the decryptor is in an error state.

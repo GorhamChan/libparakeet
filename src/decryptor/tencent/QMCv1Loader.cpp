@@ -63,7 +63,7 @@ class QMCv1LoaderImpl : public QMCv1Loader {
         }
     }
 
-    virtual const std::string GetName() const override { return name_; };
+    virtual std::string GetName() const override { return name_; };
 
     inline void SetKey(const QMCv1Key& key) {
         if (key.empty()) {

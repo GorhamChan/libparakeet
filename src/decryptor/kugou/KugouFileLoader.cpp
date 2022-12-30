@@ -27,7 +27,7 @@ enum class State {
 class KugouFileLoaderImpl : public StreamDecryptor {
    public:
     explicit KugouFileLoaderImpl(const KGMCryptoConfig& config) : config_(config) {}
-    const std::string GetName() const override { return "Kugou"; };
+    std::string GetName() const override { return "Kugou"; };
 
    private:
     size_t header_size_ = 0;

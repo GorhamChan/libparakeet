@@ -32,7 +32,7 @@ class XimalayaFileLoaderImpl : public XimalayaFileLoader {
         name_ = utils::Format("Ximalaya(%s)", subtype);
     }
 
-    virtual const std::string GetName() const override { return name_; };
+    virtual std::string GetName() const override { return name_; };
 
     void DoHeaderDecryption() {
         auto p_out = ExpandOutputBuffer(kScrambleTableSize);

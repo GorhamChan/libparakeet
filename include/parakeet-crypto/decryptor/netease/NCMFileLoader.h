@@ -16,7 +16,7 @@ typedef std::array<uint8_t, kNCMContentKeyProtectionKeySize> NCMContentKeyProtec
 
 class NCMFileLoader : public StreamDecryptor {
    public:
-    virtual const std::string GetName() const override { return "NCM"; };
+    virtual std::string GetName() const override { return "NCM"; };
 
     static std::unique_ptr<NCMFileLoader> Create(const NCMContentKeyProtectionKey& key);
 };

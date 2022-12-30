@@ -44,7 +44,7 @@ class XiamiFileLoaderImpl : public XiamiFileLoader {
    public:
     XiamiFileLoaderImpl() = default;
 
-    virtual const std::string GetName() const override { return "Xiami"; };
+    virtual std::string GetName() const override { return "Xiami"; };
 
     bool ParseFileHeader() {
         if (ReadBigEndian<uint32_t>(&buf_in_[kMagicHeaderOffset1]) != kMagicHeader1 ||

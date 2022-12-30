@@ -22,7 +22,7 @@ struct XmlyScrambleTableParameter {
 
 class XimalayaFileLoader : public StreamDecryptor {
    public:
-    virtual const std::string GetName() const override { return "Ximalaya"; };
+    virtual std::string GetName() const override { return "Ximalaya"; };
 
     static std::unique_ptr<XimalayaFileLoader> Create(const X2MContentKey& key, const ScrambleTable& scramble_table);
     static std::unique_ptr<XimalayaFileLoader> Create(const X3MContentKey& key, const ScrambleTable& scramble_table);
