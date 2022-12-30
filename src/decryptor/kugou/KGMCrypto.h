@@ -33,11 +33,11 @@ class KGMCrypto {
     virtual void Decrypt(uint64_t offset, std::span<uint8_t> buffer) = 0;
 };
 
-std::unique_ptr<KGMCrypto> CreateKGMDecryptor(const kgm_file_header& header, const KGMCryptoConfig& config);
+std::unique_ptr<KGMCrypto> CreateKGMCrypto(const kgm_file_header& header, const KGMCryptoConfig& config);
 
-std::unique_ptr<KGMCrypto> CreateKGMDecryptorType2();
-std::unique_ptr<KGMCrypto> CreateKGMDecryptorType3();
-std::unique_ptr<KGMCrypto> CreateKGMDecryptorType4();
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType2();
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType3();
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType4();
 
 // Copy-paste of decryptor definitions...
 

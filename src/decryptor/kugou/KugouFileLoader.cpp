@@ -1,6 +1,6 @@
 #include "parakeet-crypto/decryptor/kugou/KugouFileLoader.h"
 
-#include "KGMDecryptor.h"
+#include "KGMCrypto.h"
 #include "KugouHeader.h"
 
 #include "utils/EndianHelper.h"
@@ -59,7 +59,7 @@ class KugouFileLoaderImpl : public StreamDecryptor {
             memcpy(&header, buf_in_.data(), sizeof(header));
             header_size_ = header.offset_to_data;
 
-            decryptor_ = CreateKGMDecryptor(header, config_);
+            decryptor_ = CreateKGMCrypto(header, config_);
             if (decryptor_ == nullptr) {
                 error_ = "could not find a valid decryptor";
             } else {

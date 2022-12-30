@@ -1,4 +1,4 @@
-#include "KGMDecryptor.h"
+#include "KGMCrypto.h"
 #include "utils/md5.h"
 
 #include <algorithm>
@@ -75,7 +75,7 @@ class KGMCryptoType3 : public KGMCrypto {
     }
 };
 
-std::unique_ptr<KGMCrypto> CreateKGMDecryptorType3() {
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType3() {
     return std::make_unique<KGMCryptoType3>();
 }
 

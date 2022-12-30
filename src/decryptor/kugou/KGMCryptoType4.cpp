@@ -1,4 +1,4 @@
-#include "KGMDecryptor.h"
+#include "KGMCrypto.h"
 
 #include "utils/base64.h"
 #include "utils/hex.h"
@@ -111,7 +111,7 @@ class KGMCryptoType4 : public KGMCrypto {
     }
 };
 
-std::unique_ptr<KGMCrypto> CreateKGMDecryptorType4() {
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType4() {
     return std::make_unique<KGMCryptoType4>();
 }
 

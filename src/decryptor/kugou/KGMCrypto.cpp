@@ -1,4 +1,4 @@
-#include "KGMDecryptor.h"
+#include "KGMCrypto.h"
 
 #include <utils/BufferHelper.h>
 
@@ -19,13 +19,13 @@ inline std::unique_ptr<KGMCrypto> create_kgm_crypto(const kgm_file_header& heade
 
     switch (header.encryption_type) {
         case 2:
-            kgm_crypto = CreateKGMDecryptorType2();
+            kgm_crypto = CreateKGMCryptoType2();
             break;
         case 3:
-            kgm_crypto = CreateKGMDecryptorType3();
+            kgm_crypto = CreateKGMCryptoType3();
             break;
         case 4:
-            kgm_crypto = CreateKGMDecryptorType4();
+            kgm_crypto = CreateKGMCryptoType4();
             break;
 
         default:
@@ -57,7 +57,7 @@ const std::array<uint8_t, 16> kVPRChallengeBytes = {
 
 enum class KGMType { kUnknown = 0, kKGM, kVPR };
 
-std::unique_ptr<KGMCrypto> CreateKGMDecryptor(const kgm_file_header& header, const KGMCryptoConfig& config) {
+std::unique_ptr<KGMCrypto> CreateKGMCrypto(const kgm_file_header& header, const KGMCryptoConfig& config) {
     KGMType kgm_type = KGMType::kUnknown;
     if (std::equal(kKGMFileMagic.begin(), kKGMFileMagic.end(), header.magic)) {
         kgm_type = KGMType::kKGM;
