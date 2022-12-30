@@ -21,13 +21,13 @@ class QMCKeyDeriverImpl : public QMCKeyDeriver {
   QMCKeyDeriverImpl(uint8_t seed, QMCEncV2Stage1Key enc_v2_stage1_key, QMCEncV2Stage2Key enc_v2_stage2_key)
       : seed_(seed), enc_v2_stage1_key_(enc_v2_stage1_key), enc_v2_stage2_key_(enc_v2_stage2_key) {}
 
-  bool FromEKey(std::vector<uint8_t>& out, const std::string& ekey_b64) const override {
+  bool FromEKey(std::vector<uint8_t>& file_key, const std::string& ekey_b64) const override {
     std::vector<uint8_t> ekey = utils::Base64Decode(ekey_b64);
-    return FromEKey(out, ekey);
+    return FromEKey(file_key, ekey);
   }
 
-  bool FromEKey(std::vector<uint8_t>& out, std::span<const uint8_t> ekey) const override {
-    out.resize(0);
+  bool FromEKey(std::vector<uint8_t>& file_key, std::span<const uint8_t> ekey) const override {
+    file_key.resize(0);
 
     if (std::equal(kEncV2Prefix.begin(), kEncV2Prefix.end(), ekey.begin())) {
       auto encryptedKeyBody = std::span{ekey.begin() + kEncV2PrefixSize, ekey.size() - kEncV2PrefixSize};
@@ -35,7 +35,7 @@ class QMCKeyDeriverImpl : public QMCKeyDeriver {
       if (v2KeyDecrypted.empty()) {
         return false;
       }
-      return FromEKey(out, v2KeyDecrypted);
+      return FromEKey(file_key, v2KeyDecrypted);
     }
 
     const auto ekey_len = ekey.size();
@@ -49,16 +49,18 @@ class QMCKeyDeriverImpl : public QMCKeyDeriver {
       return false;
     }
 
-    std::merge(ekey.begin(), ekey.begin() + 8, key.begin(), key.end(), std::back_inserter(out));
+    file_key.assign(ekey.begin(), ekey.begin() + 8);
+    file_key.insert(file_key.end(), key.begin(), key.end());
     return true;
   }
 
-  bool ToEKey(std::vector<uint8_t>& ekey, const std::span<const uint8_t> key) const override {
+  bool ToEKey(std::vector<uint8_t>& ekey, const std::span<const uint8_t> file_key) const override {
     ekey.resize(0);
-    auto tea_key = DeriveTEAKey(key);
+    auto tea_key = DeriveTEAKey(file_key);
 
-    if (auto cipher = tc_tea::CBC_Encrypt(std::span{&key[8], key.size() - 8}, tea_key); !cipher.empty()) {
-      std::merge(key.begin(), key.begin() + 8, cipher.begin(), cipher.end(), std::back_inserter(ekey));
+    if (auto cipher = tc_tea::CBC_Encrypt(std::span{&file_key[8], file_key.size() - 8}, tea_key); !cipher.empty()) {
+      ekey.assign(file_key.begin(), file_key.begin() + 8);
+      ekey.insert(ekey.end(), cipher.begin(), cipher.end());
       return true;
     }
 
