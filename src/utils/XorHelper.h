@@ -12,14 +12,14 @@ namespace parakeet_crypto {
  * @param len
  */
 inline void XorBlock(void* p_in_out, const void* p_key, std::size_t len) {
-  for (std::size_t i = 0; i < len; i++) {
-    reinterpret_cast<uint8_t*>(p_in_out)[i] ^= reinterpret_cast<const uint8_t*>(p_key)[i];
-  }
+    for (std::size_t i = 0; i < len; i++) {
+        reinterpret_cast<uint8_t*>(p_in_out)[i] ^= reinterpret_cast<const uint8_t*>(p_key)[i];
+    }
 }
 
 template <std::integral T>
 inline void XorInt(void* p_in_out, const void* p_key) {
-  *reinterpret_cast<T*>(p_in_out) ^= *reinterpret_cast<const T*>(p_key);
+    *reinterpret_cast<T*>(p_in_out) ^= *reinterpret_cast<const T*>(p_key);
 }
 
 /**
@@ -32,10 +32,10 @@ inline void XorInt(void* p_in_out, const void* p_key) {
  * @param len
  */
 inline void XorBlock(void* p_out, const void* p_in1, const void* p_in2, std::size_t len) {
-  for (std::size_t i = 0; i < len; i++) {
-    reinterpret_cast<uint8_t*>(p_out)[i] =
-        reinterpret_cast<const uint8_t*>(p_in1)[i] ^ reinterpret_cast<const uint8_t*>(p_in2)[i];
-  }
+    for (std::size_t i = 0; i < len; i++) {
+        reinterpret_cast<uint8_t*>(p_out)[i] =
+            reinterpret_cast<const uint8_t*>(p_in1)[i] ^ reinterpret_cast<const uint8_t*>(p_in2)[i];
+    }
 }
 
 /**
@@ -53,10 +53,10 @@ inline void XorBlock(void* p_in_out,
                      const void* key,
                      std::size_t key_len,
                      std::size_t key_offset) {
-  const std::size_t j = key_offset % key_len;
-  for (std::size_t i = 0; i < out_len; i++) {
-    reinterpret_cast<uint8_t*>(p_in_out)[i] ^= reinterpret_cast<const uint8_t*>(key)[(j + i) % key_len];
-  }
+    const std::size_t j = key_offset % key_len;
+    for (std::size_t i = 0; i < out_len; i++) {
+        reinterpret_cast<uint8_t*>(p_in_out)[i] ^= reinterpret_cast<const uint8_t*>(key)[(j + i) % key_len];
+    }
 }
 
 /**
@@ -76,11 +76,11 @@ inline void XorBlock(void* p_out,
                      const void* key,
                      std::size_t key_len,
                      std::size_t key_offset) {
-  const std::size_t j = key_offset % key_len;
-  for (std::size_t i = 0; i < len; i++) {
-    reinterpret_cast<uint8_t*>(p_out)[i] =
-        reinterpret_cast<const uint8_t*>(p_in1)[i] ^ reinterpret_cast<const uint8_t*>(key)[(j + i) % key_len];
-  }
+    const std::size_t j = key_offset % key_len;
+    for (std::size_t i = 0; i < len; i++) {
+        reinterpret_cast<uint8_t*>(p_out)[i] =
+            reinterpret_cast<const uint8_t*>(p_in1)[i] ^ reinterpret_cast<const uint8_t*>(key)[(j + i) % key_len];
+    }
 }
 
 }  // namespace parakeet_crypto

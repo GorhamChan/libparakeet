@@ -10,33 +10,33 @@
 namespace parakeet_crypto::decryptor::kugou {
 
 inline std::unique_ptr<KGMCrypto> create_kgm_crypto(const kgm_file_header& header, const KGMCryptoConfig& config) {
-  auto slot_key_it = config.slot_keys.find(header.key_slot);
-  if (slot_key_it == config.slot_keys.end()) {
-    return nullptr;
-  }
+    auto slot_key_it = config.slot_keys.find(header.key_slot);
+    if (slot_key_it == config.slot_keys.end()) {
+        return nullptr;
+    }
 
-  std::unique_ptr<KGMCrypto> kgm_crypto;
+    std::unique_ptr<KGMCrypto> kgm_crypto;
 
-  switch (header.encryption_type) {
-    case 2:
-      kgm_crypto = CreateKGMDecryptorType2();
-      break;
-    case 3:
-      kgm_crypto = CreateKGMDecryptorType3();
-      break;
-    case 4:
-      kgm_crypto = CreateKGMDecryptorType4();
-      break;
+    switch (header.encryption_type) {
+        case 2:
+            kgm_crypto = CreateKGMDecryptorType2();
+            break;
+        case 3:
+            kgm_crypto = CreateKGMDecryptorType3();
+            break;
+        case 4:
+            kgm_crypto = CreateKGMDecryptorType4();
+            break;
 
-    default:
-      return nullptr;
-  }
+        default:
+            return nullptr;
+    }
 
-  if (!kgm_crypto->Configure(config, slot_key_it->second, header)) {
-    return nullptr;
-  }
+    if (!kgm_crypto->Configure(config, slot_key_it->second, header)) {
+        return nullptr;
+    }
 
-  return kgm_crypto;
+    return kgm_crypto;
 }
 
 const std::array<uint8_t, 16> kKGMFileMagic = {
@@ -58,29 +58,29 @@ const std::array<uint8_t, 16> kVPRChallengeBytes = {
 enum class KGMType { kUnknown = 0, kKGM, kVPR };
 
 std::unique_ptr<KGMCrypto> CreateKGMDecryptor(const kgm_file_header& header, const KGMCryptoConfig& config) {
-  KGMType kgm_type = KGMType::kUnknown;
-  if (std::equal(kKGMFileMagic.begin(), kKGMFileMagic.end(), header.magic)) {
-    kgm_type = KGMType::kKGM;
-  } else if (std::equal(kVPRFileMagic.begin(), kVPRFileMagic.end(), header.magic)) {
-    kgm_type = KGMType::kVPR;
-  } else {
-    return nullptr;
-  }
+    KGMType kgm_type = KGMType::kUnknown;
+    if (std::equal(kKGMFileMagic.begin(), kKGMFileMagic.end(), header.magic)) {
+        kgm_type = KGMType::kKGM;
+    } else if (std::equal(kVPRFileMagic.begin(), kVPRFileMagic.end(), header.magic)) {
+        kgm_type = KGMType::kVPR;
+    } else {
+        return nullptr;
+    }
 
-  auto kgm_crypto = create_kgm_crypto(header, config);
-  if (!kgm_crypto) {
-    return nullptr;
-  }
+    auto kgm_crypto = create_kgm_crypto(header, config);
+    if (!kgm_crypto) {
+        return nullptr;
+    }
 
-  // Validate the file key.
-  std::array<uint8_t, sizeof(header.key_challenge)> response = std::to_array(header.key_challenge);
-  kgm_crypto->Decrypt(0, response);
+    // Validate the file key.
+    std::array<uint8_t, sizeof(header.key_challenge)> response = std::to_array(header.key_challenge);
+    kgm_crypto->Decrypt(0, response);
 
-  if (!utils::BufferEqual<uint8_t>(kgm_type == KGMType::kKGM ? kKGMChallengeBytes : kVPRChallengeBytes, response)) {
-    return nullptr;
-  }
+    if (!utils::BufferEqual<uint8_t>(kgm_type == KGMType::kKGM ? kKGMChallengeBytes : kVPRChallengeBytes, response)) {
+        return nullptr;
+    }
 
-  return kgm_crypto;
+    return kgm_crypto;
 }
 
 }  // namespace parakeet_crypto::decryptor::kugou

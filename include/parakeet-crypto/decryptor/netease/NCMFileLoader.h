@@ -15,10 +15,10 @@ constexpr std::size_t kNCMContentKeyProtectionKeySize = 128 / 8;
 typedef std::array<uint8_t, kNCMContentKeyProtectionKeySize> NCMContentKeyProtectionKey;
 
 class NCMFileLoader : public StreamDecryptor {
- public:
-  virtual const std::string GetName() const override { return "NCM"; };
+   public:
+    virtual const std::string GetName() const override { return "NCM"; };
 
-  static std::unique_ptr<NCMFileLoader> Create(const NCMContentKeyProtectionKey& key);
+    static std::unique_ptr<NCMFileLoader> Create(const NCMContentKeyProtectionKey& key);
 };
 
 }  // namespace parakeet_crypto::decryptor::netease

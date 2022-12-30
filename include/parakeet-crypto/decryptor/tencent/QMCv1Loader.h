@@ -6,14 +6,14 @@
 
 namespace parakeet_crypto::decryptor::tencent {
 
-typedef std::vector<uint8_t> QMCv1Key;
+using QMCv1Key = std::vector<uint8_t>;
 
 class QMCv1Loader : public StreamDecryptor {
- public:
-  virtual const std::string GetName() const override { return "QMCv1(static/map)"; };
+   public:
+    virtual const std::string GetName() const override { return "QMCv1(static/map)"; };
 
-  static std::unique_ptr<QMCv1Loader> Create(const QMCv1Key& key);
-  static std::unique_ptr<QMCv1Loader> Create(std::shared_ptr<misc::tencent::QMCFooterParser> parser);
+    static std::unique_ptr<QMCv1Loader> Create(const QMCv1Key& key);
+    static std::unique_ptr<QMCv1Loader> Create(std::shared_ptr<misc::tencent::QMCFooterParser> parser);
 };
 
 }  // namespace parakeet_crypto::decryptor::tencent

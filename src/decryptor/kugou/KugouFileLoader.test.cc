@@ -110,29 +110,29 @@ unsigned char kgm_v4_slot_key_table[712] = {
     0x20, 0x6D, 0x61, 0x78, 0x69, 0x6D, 0x75, 0x73, 0x2E};
 
 std::unique_ptr<StreamDecryptor> create_test_kgm_decryptor() {
-  KugouSlotKeys slot_keys;
-  slot_keys[1] = std::vector(&kgm_key_slot_1_key[0], &kgm_key_slot_1_key[sizeof(kgm_key_slot_1_key)]);
-  KugouV4SlotKeyExpansionTable v4_slot_key_table(&kgm_v4_slot_key_table[0],
-                                                 &kgm_v4_slot_key_table[sizeof(kgm_v4_slot_key_table)]);
-  KugouV4FileKeyExpansionTable v4_file_key_table(&kgm_v4_file_key_table[0],
-                                                 &kgm_v4_file_key_table[sizeof(kgm_v4_file_key_table)]);
-  return CreateKugouDecryptor(slot_keys, v4_slot_key_table, v4_file_key_table);
+    KugouSlotKeys slot_keys;
+    slot_keys[1] = std::vector(&kgm_key_slot_1_key[0], &kgm_key_slot_1_key[sizeof(kgm_key_slot_1_key)]);
+    KugouV4SlotKeyExpansionTable v4_slot_key_table(&kgm_v4_slot_key_table[0],
+                                                   &kgm_v4_slot_key_table[sizeof(kgm_v4_slot_key_table)]);
+    KugouV4FileKeyExpansionTable v4_file_key_table(&kgm_v4_file_key_table[0],
+                                                   &kgm_v4_file_key_table[sizeof(kgm_v4_file_key_table)]);
+    return CreateKugouDecryptor(slot_keys, v4_slot_key_table, v4_file_key_table);
 }
 
 TEST(KugouFileLoader, KGMv2) {
-  auto d = create_test_kgm_decryptor();
-  ASSERT_TRUE(d->Write(&kgm_header_v2[0], sizeof(kgm_header_v2))) << "should accept our kgm header";
-  ASSERT_TRUE(d->End()) << "should end successfully";
+    auto d = create_test_kgm_decryptor();
+    ASSERT_TRUE(d->Write(&kgm_header_v2[0], sizeof(kgm_header_v2))) << "should accept our kgm header";
+    ASSERT_TRUE(d->End()) << "should end successfully";
 }
 
 TEST(KugouFileLoader, KGMv3) {
-  auto d = create_test_kgm_decryptor();
-  ASSERT_TRUE(d->Write(&kgm_header_v3[0], sizeof(kgm_header_v3))) << "should accept our kgm header";
-  ASSERT_TRUE(d->End()) << "should end successfully";
+    auto d = create_test_kgm_decryptor();
+    ASSERT_TRUE(d->Write(&kgm_header_v3[0], sizeof(kgm_header_v3))) << "should accept our kgm header";
+    ASSERT_TRUE(d->End()) << "should end successfully";
 }
 
 TEST(KugouFileLoader, KGMv4) {
-  auto d = create_test_kgm_decryptor();
-  ASSERT_TRUE(d->Write(&kgm_header_v4[0], sizeof(kgm_header_v4))) << "should accept our kgm header";
-  ASSERT_TRUE(d->End()) << "should end successfully";
+    auto d = create_test_kgm_decryptor();
+    ASSERT_TRUE(d->Write(&kgm_header_v4[0], sizeof(kgm_header_v4))) << "should accept our kgm header";
+    ASSERT_TRUE(d->End()) << "should end successfully";
 }

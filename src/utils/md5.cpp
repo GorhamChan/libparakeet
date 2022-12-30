@@ -7,13 +7,13 @@
 namespace parakeet_crypto::utils {
 
 std::array<uint8_t, MD5_DIGEST_SIZE> md5(const std::span<const uint8_t> data) {
-  std::array<uint8_t, MD5_DIGEST_SIZE> digest;
+    std::array<uint8_t, MD5_DIGEST_SIZE> digest;
 
-  CryptoPP::Weak::MD5 hash;
-  hash.Update(data.data(), data.size());
-  hash.Final(&digest[0]);
+    CryptoPP::Weak::MD5 hash;
+    hash.Update(data.data(), data.size());
+    hash.Final(&digest[0]);
 
-  return digest;
+    return digest;
 }
 
 }  // namespace parakeet_crypto::utils
