@@ -1,8 +1,11 @@
 #include "KGMCrypto.h"
 
-#include <algorithm>
 #include <cassert>
+
+#include <algorithm>
+#include <array>
 #include <memory>
+#include <vector>
 
 namespace parakeet_crypto::decryptor::kugou {
 
