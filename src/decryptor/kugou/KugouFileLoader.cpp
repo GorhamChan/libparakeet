@@ -19,24 +19,23 @@ constexpr std::size_t kMinimalHeaderSize = 0x2c;
 using KugouSlotKey1 = std::array<uint8_t, 4>;
 
 enum class State {
-  kReadFileMagic = 0,
-  kWaitForHeader,
-  kSeekToBody,
-  kDecrypt,
+  kReadHeader = 0,
+  kSeekToEncryptedContent,
+  kDecryptContent,
 };
 
 class KugouFileLoaderImpl : public StreamDecryptor {
  public:
-  KugouFileLoaderImpl(const KGMCryptoConfig& config) : config_(config) {}
-  virtual const std::string GetName() const override { return "Kugou"; };
+  explicit KugouFileLoaderImpl(const KGMCryptoConfig& config) : config_(config) {}
+  const std::string GetName() const override { return "Kugou"; };
 
  private:
   size_t header_size_ = 0;
   std::unique_ptr<KGMCrypto> decryptor_ = nullptr;
   KGMCryptoConfig config_;
-  State state_ = State::kReadFileMagic;
+  State state_ = State::kReadHeader;
 
-  inline void DecryptInput(const uint8_t*& in, std::size_t& len) {
+  inline void HandleDecryptContent(const uint8_t*& in, std::size_t& len) {
     auto p_out = ExpandOutputBuffer(len);
     std::copy_n(in, len, p_out);
 
@@ -46,45 +45,56 @@ class KugouFileLoaderImpl : public StreamDecryptor {
     len = 0;
   }
 
+  inline void HandleSeekToContent(const uint8_t*& in, std::size_t& len) {
+    if (ReadUntilOffset(in, len, header_size_)) {
+      buf_in_.erase(buf_in_.begin(), buf_in_.begin() + header_size_);
+      offset_ = 0;
+      state_ = State::kDecryptContent;
+    }
+  }
+
+  inline void HandleReadFileHeader(const uint8_t*& in, std::size_t& len) {
+    if (ReadUntilOffset(in, len, sizeof(kgm_file_header))) {
+      kgm_file_header header;
+      memcpy(&header, buf_in_.data(), sizeof(header));
+      header_size_ = header.offset_to_data;
+
+      decryptor_ = CreateKGMDecryptor(header, config_);
+      if (decryptor_ == nullptr) {
+        error_ = "could not find a valid decryptor";
+      } else {
+        state_ = State::kSeekToEncryptedContent;
+      }
+    }
+  }
+
   bool Write(const uint8_t* in, std::size_t len) override {
-    while (len) {
+    while (len && InErrorState()) {
+      using enum State;
+
       switch (state_) {
-        case State::kReadFileMagic:
-          if (ReadUntilOffset(in, len, sizeof(kgm_file_header))) {
-            kgm_file_header header;
-            memcpy(&header, buf_in_.data(), sizeof(header));
-            header_size_ = header.offset_to_data;
-
-            decryptor_ = CreateKGMDecryptor(header, config_);
-            if (decryptor_ == nullptr) {
-              error_ = true;
-              return false;
-            }
-
-            state_ = State::kSeekToBody;
-          }
+        case kReadHeader:
+          HandleReadFileHeader(in, len);
           break;
 
-        case State::kSeekToBody:
-          if (ReadUntilOffset(in, len, header_size_)) {
-            buf_in_.erase(buf_in_.begin(), buf_in_.begin() + header_size_);
-            offset_ = 0;
-            state_ = State::kDecrypt;
-          }
+        case kSeekToEncryptedContent:
+          HandleSeekToContent(in, len);
           break;
 
-        case State::kDecrypt:
-          DecryptInput(in, len);
+        case kDecryptContent:
+          HandleDecryptContent(in, len);
+          break;
+
+        default:
+          error_ = "unexpected state";
           break;
       }
     }
 
-    assert(len == 0);
-
-    return true;
+    return !InErrorState();
   }
 
-  virtual bool End() override { return true; }
+  bool End() override { return true; }
 };
 
 }  // namespace kugou::detail
