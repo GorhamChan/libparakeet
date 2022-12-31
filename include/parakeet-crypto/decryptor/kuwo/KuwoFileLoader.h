@@ -2,16 +2,13 @@
 
 #include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
-namespace parakeet_crypto::decryptor::kuwo {
+#include <span>
+
+namespace parakeet_crypto::decryptor {
 
 constexpr std::size_t kKuwoDecryptionKeySize = 0x20;
-typedef std::array<uint8_t, kKuwoDecryptionKeySize> KuwoKey;
+using KuwoKey = std::array<uint8_t, kKuwoDecryptionKeySize>;
 
-class KuwoFileLoader : public StreamDecryptor {
-   public:
-    virtual std::string GetName() const override { return "Kuwo"; };
+std::unique_ptr<StreamDecryptor> CreateKuwoDecryptor(std::span<const uint8_t, kKuwoDecryptionKeySize> key);
 
-    static std::unique_ptr<KuwoFileLoader> Create(const KuwoKey& key);
-};
-
-}  // namespace parakeet_crypto::decryptor::kuwo
+}  // namespace parakeet_crypto::decryptor

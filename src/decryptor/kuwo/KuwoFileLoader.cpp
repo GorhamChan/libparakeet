@@ -6,35 +6,32 @@
 
 #include <cinttypes>
 
-namespace parakeet_crypto::decryptor::kuwo {
+#include <algorithm>
 
-namespace detail {
+namespace parakeet_crypto::decryptor {
+
+namespace kuwo::detail {
 
 constexpr std::size_t kFileHeaderSize = 0x20;
 constexpr std::size_t kFileKeyOffset = 0x18;
 constexpr std::size_t kFullHeaderSize = 0x400;
 
-const std::array<uint8_t, 0x10> kKuwoMagicHeader1 = {
-    0x79, 0x65, 0x65, 0x6c, 0x69, 0x6f, 0x6e, 0x2d, 0x6b, 0x75, 0x77, 0x6f, 0x2d, 0x74, 0x6d, 0x65,
-};
-
-const std::array<uint8_t, 0x10> kKuwoMagicHeader2 = {
-    0x79, 0x65, 0x65, 0x6c, 0x69, 0x6f, 0x6e, 0x2d, 0x6b, 0x75, 0x77, 0x6f, 0x00, 0x00, 0x00, 0x00,
-};
-
 enum class State {
-    kWaitForHeader = 0,
-    kSeekToBody,
-    kDecrypt,
+    kParseHeader = 0,
+    kSeekToDecryptionContent,
+    kDecryptContent,
 };
 
-class KuwoFileLoaderImpl : public KuwoFileLoader {
+class KuwoFileLoaderImpl : public StreamDecryptor {
    private:
     KuwoKey key_;
-    State state_ = State::kWaitForHeader;
+    State state_ = State::kParseHeader;
 
    public:
-    KuwoFileLoaderImpl(const KuwoKey& key) : key_(key) {}
+    explicit KuwoFileLoaderImpl(std::span<const uint8_t, kKuwoDecryptionKeySize> key) {
+        std::ranges::copy(key.begin(), key.end(), key_.begin());
+    }
+    std::string GetName() const override { return "Kuwo"; };
 
     inline void InitCache() {
         uint64_t resource_id = ReadLittleEndian<uint64_t>(&buf_in_[kFileKeyOffset]);
@@ -42,7 +39,33 @@ class KuwoFileLoaderImpl : public KuwoFileLoader {
         XorBlock(key_.data(), key_.size(), rid_str.data(), rid_str.length(), 0);
     }
 
-    inline void Decrypt(const uint8_t* in, std::size_t len) {
+    inline void HandleParseHeader(const uint8_t*& in, std::size_t& len) {
+        if (ReadUntilOffset(in, len, kFileHeaderSize)) {
+            const static auto kKuwoMagicHeader1 = std::to_array<uint8_t>(
+                {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-', 'k', 'u', 'w', 'o', '-', 't', 'm', 'e'});
+
+            const static auto kKuwoMagicHeader2 = std::to_array<uint8_t>(
+                {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-', 'k', 'u', 'w', 'o', 0x00, 0x00, 0x00, 0x00});
+
+            // Validate header.
+            if (!std::equal(buf_in_.begin(), buf_in_.begin() + kKuwoMagicHeader1.size(), kKuwoMagicHeader1.begin()) &&
+                !std::equal(buf_in_.begin(), buf_in_.begin() + kKuwoMagicHeader2.size(), kKuwoMagicHeader2.begin())) {
+                error_ = "file header magic not found";
+            } else {
+                InitCache();
+                state_ = State::kSeekToDecryptionContent;
+            }
+        }
+    }
+
+    inline void HandleSeekToDecryptionContent(const uint8_t* in, std::size_t len) {
+        if (ReadUntilOffset(in, len, kFullHeaderSize)) {
+            EraseInput(kFullHeaderSize);
+            state_ = State::kDecryptContent;
+        }
+    }
+
+    inline void HandleDecryptContent(const uint8_t* in, std::size_t len) {
         uint8_t* p_out = ExpandOutputBuffer(len);
 
         XorBlock(p_out, in, len, key_.data(), key_.size(), offset_);
@@ -50,45 +73,34 @@ class KuwoFileLoaderImpl : public KuwoFileLoader {
     }
 
     bool Write(const uint8_t* in, std::size_t len) override {
-        while (len) {
+        while (len && !InErrorState()) {
+            using enum State;
+
             switch (state_) {
-                case State::kWaitForHeader:
-                    if (ReadUntilOffset(in, len, kFileHeaderSize)) {
-                        // Validate header.
-                        if (!std::equal(kKuwoMagicHeader1.begin(), kKuwoMagicHeader1.end(), buf_in_.begin()) &&
-                            !std::equal(kKuwoMagicHeader2.begin(), kKuwoMagicHeader2.end(), buf_in_.begin())) {
-                            error_ = "file header magic not found";
-                            return false;
-                        }
-
-                        InitCache();
-                        state_ = State::kSeekToBody;
-                    }
+                case kParseHeader:
+                    HandleParseHeader(in, len);
                     break;
 
-                case State::kSeekToBody:
-                    if (ReadUntilOffset(in, len, kFullHeaderSize)) {
-                        buf_in_.erase(buf_in_.begin(), buf_in_.begin() + kFullHeaderSize);
-                        state_ = State::kDecrypt;
-                    }
+                case kSeekToDecryptionContent:
+                    HandleSeekToDecryptionContent(in, len);
                     break;
 
-                case State::kDecrypt:
-                    Decrypt(in, len);
+                case kDecryptContent:
+                    HandleDecryptContent(in, len);
                     return true;
             }
         }
 
-        return len == 0;
+        return !InErrorState();
     };
 
     bool End() override { return !InErrorState(); }
 };
 
-}  // namespace detail
+}  // namespace kuwo::detail
 
-std::unique_ptr<KuwoFileLoader> KuwoFileLoader::Create(const KuwoKey& key) {
-    return std::make_unique<detail::KuwoFileLoaderImpl>(key);
+std::unique_ptr<StreamDecryptor> CreateKuwoDecryptor(std::span<const uint8_t, kKuwoDecryptionKeySize> key) {
+    return std::make_unique<kuwo::detail::KuwoFileLoaderImpl>(key);
 }
 
-}  // namespace parakeet_crypto::decryptor::kuwo
+}  // namespace parakeet_crypto::decryptor

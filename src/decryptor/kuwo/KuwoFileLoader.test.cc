@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -12,10 +13,10 @@
 
 using ::testing::ElementsAreArray;
 
-using namespace parakeet_crypto::decryptor::kuwo;
+using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-KuwoKey kKuwoKey = []() {
+const KuwoKey kKuwoKey = []() {
     KuwoKey result;
     test::GenerateTestData(result, "kuwo-test-key");
     return result;
@@ -26,14 +27,13 @@ TEST(KuwoFileLoader, SimpleCase) {
 
     test::GenerateTestData(test_data, "kuwo-data-1");
 
-    std::vector<uint8_t> header_override = {
+    auto header_override = std::to_array<uint8_t>({
         0x79, 0x65, 0x65, 0x6c, 0x69, 0x6f, 0x6e, 0x2d, 0x6b, 0x75, 0x77, 0x6f, 0x2d, 0x74, 0x6d, 0x65,
-
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xEE, 0xDD, 0x11, 0x22, 0x33, 0x00, 0x00,
-    };
-    std::copy(header_override.begin(), header_override.end(), test_data.begin());
+    });
+    std::ranges::copy(header_override.begin(), header_override.end(), test_data.begin());
 
-    auto result = test::DecryptTestContent(KuwoFileLoader::Create(kKuwoKey), test_data);
+    auto result = test::DecryptTestContent(CreateKuwoDecryptor(kKuwoKey), test_data);
 
     test::VerifyHash(result, "aefad6b6f75ecb915fd0211f02eeacbd9c28e51b22c06c6d1bb3c61c963feaae");
 }
