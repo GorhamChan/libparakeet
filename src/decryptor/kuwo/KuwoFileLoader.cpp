@@ -1,12 +1,11 @@
 #include "parakeet-crypto/decryptor/kuwo/KuwoFileLoader.h"
+
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
-
 #include "utils/XorHelper.h"
 
-#include <cinttypes>
-
 #include <algorithm>
+#include <cinttypes>
 
 namespace parakeet_crypto::decryptor {
 
