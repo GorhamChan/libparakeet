@@ -71,13 +71,11 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
     inline void HandleDecryptContent(const uint8_t*& in, std::size_t& len) {
         uint8_t* p_out = ExpandOutputBuffer(len);
 
-        auto offset = offset_;
-        for (std::size_t i = 0; i < len; i++) {
-            p_out[i] = in[i] ^ key_[offset % key_.size()];
-            offset++;
-        }
+        // FIXME: test does not pass
+        utils::XorBlockWithOffset(std::span{p_out, len}, std::span{in, len},
+                                  std::span<uint8_t, kKuwoDecryptionKeySize>{key_}, offset_);
 
-        offset_ = offset;
+        offset_ += len;
         in += len;
         len = 0;
     }
