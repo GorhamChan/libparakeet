@@ -1,86 +1,43 @@
 #pragma once
 
+#include <cstddef>
+
+#include <algorithm>
 #include <concepts>
+#include <ranges>
+#include <span>
 
-namespace parakeet_crypto {
+namespace parakeet_crypto::utils {
 
-/**
- * @brief XOR operation of two blocks.
- *
- * @param p_in_out
- * @param p_key
- * @param len
- */
-inline void XorBlock(void* p_in_out, const void* p_key, std::size_t len) {
-    for (std::size_t i = 0; i < len; i++) {
-        reinterpret_cast<uint8_t*>(p_in_out)[i] ^= reinterpret_cast<const uint8_t*>(p_key)[i];
+template <std::size_t KEY_SIZE, std::unsigned_integral T, typename S1, typename S2>
+    requires(KEY_SIZE % 4 == 0) && std::is_same_v<uint8_t, typename std::remove_const_t<S1>> &&
+            std::is_same_v<uint8_t, typename std::remove_const_t<S2>>
+inline void XorBlockWithOffset(std::span<uint8_t> dest, std::span<S1> src, std::span<S2, KEY_SIZE> key, T offset) {
+    if (offset % KEY_SIZE != 0) {
+        auto src_offset = offset % KEY_SIZE;
+        auto len = KEY_SIZE - offset % KEY_SIZE;
+        std::ranges::transform(src.begin(), src.begin() + len, key.begin() + src_offset, key.end(), dest.begin(),
+                               [](const auto& v1, const auto& v2) { return v1 ^ v2; });
+
+        dest = std::span{dest.begin() + len, dest.size() - len};
+        src = std::span{src.begin() + len, src.size() - len};
     }
+
+    // Process in blocks, that can be optimised by compiler.
+    std::size_t len_in_block = dest.size() - dest.size() % KEY_SIZE;
+    for (std::size_t i = 0; i < len_in_block; i += KEY_SIZE)
+        for (std::size_t j = 0; j < KEY_SIZE; j++)
+            dest[i + j] ^= key[j];
+
+    dest = std::span{dest.begin() + len_in_block, dest.size() - len_in_block};
+    src = std::span{src.begin() + len_in_block, src.size() - len_in_block};
+    std::ranges::transform(src, key, dest.begin(), [](const auto& v1, const auto& v2) { return v1 ^ v2; });
 }
 
-template <std::integral T>
-inline void XorInt(void* p_in_out, const void* p_key) {
-    *reinterpret_cast<T*>(p_in_out) ^= *reinterpret_cast<const T*>(p_key);
+template <std::size_t KEY_SIZE, std::unsigned_integral T, typename S1>
+    requires(KEY_SIZE % 4 == 0) && std::is_same_v<uint8_t, typename std::remove_const_t<S1>>
+inline void XorBlockWithOffset(std::span<uint8_t> dst, std::span<S1, KEY_SIZE> src, T offset) {
+    XorBlockWithOffset(dst, dst, src, offset);
 }
 
-/**
- * @brief XOR operation of two blocks (in1 & in2),
- *        then store its result to p_out.
- *
- * @param p_out
- * @param p_in1
- * @param p_in2
- * @param len
- */
-inline void XorBlock(void* p_out, const void* p_in1, const void* p_in2, std::size_t len) {
-    for (std::size_t i = 0; i < len; i++) {
-        reinterpret_cast<uint8_t*>(p_out)[i] =
-            reinterpret_cast<const uint8_t*>(p_in1)[i] ^ reinterpret_cast<const uint8_t*>(p_in2)[i];
-    }
-}
-
-/**
- * @brief XOR operation of a data block and key block.
- *        Once key offset had reached the end, it will reset to index 0.
- *
- * @param p_in_out
- * @param out_len
- * @param key
- * @param key_len
- * @param key_offset
- */
-inline void XorBlock(void* p_in_out,
-                     std::size_t out_len,
-                     const void* key,
-                     std::size_t key_len,
-                     std::size_t key_offset) {
-    const std::size_t j = key_offset % key_len;
-    for (std::size_t i = 0; i < out_len; i++) {
-        reinterpret_cast<uint8_t*>(p_in_out)[i] ^= reinterpret_cast<const uint8_t*>(key)[(j + i) % key_len];
-    }
-}
-
-/**
- * @brief XOR operation of a data block and key block, then stored in p_out.
- *        Once key offset had reached the end, it will reset to index 0.
- *
- * @param p_out
- * @param p_in1
- * @param int1_len
- * @param key
- * @param key_len
- * @param key_offset
- */
-inline void XorBlock(void* p_out,
-                     const void* p_in1,
-                     std::size_t len,
-                     const void* key,
-                     std::size_t key_len,
-                     std::size_t key_offset) {
-    const std::size_t j = key_offset % key_len;
-    for (std::size_t i = 0; i < len; i++) {
-        reinterpret_cast<uint8_t*>(p_out)[i] =
-            reinterpret_cast<const uint8_t*>(p_in1)[i] ^ reinterpret_cast<const uint8_t*>(key)[(j + i) % key_len];
-    }
-}
-
-}  // namespace parakeet_crypto
+}  // namespace parakeet_crypto::utils
