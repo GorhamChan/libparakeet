@@ -36,7 +36,11 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
     inline void InitCache() {
         uint64_t resource_id = ReadLittleEndian<uint64_t>(&buf_in_[kFileKeyOffset]);
         auto rid_str = utils::Format("%" PRIu64, resource_id);
-        XorBlock(key_.data(), key_.size(), rid_str.data(), rid_str.length(), 0);
+        auto rid_span = std::span{rid_str};
+
+        for (auto i = 0; i < key_.size(); i++) {
+            key_[i] ^= static_cast<uint8_t>(rid_span[i % rid_span.size()]);
+        }
     }
 
     inline void HandleParseHeader(const uint8_t*& in, std::size_t& len) {
@@ -48,8 +52,8 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
                 {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-', 'k', 'u', 'w', 'o', 0x00, 0x00, 0x00, 0x00});
 
             // Validate header.
-            if (!std::equal(buf_in_.begin(), buf_in_.begin() + kKuwoMagicHeader1.size(), kKuwoMagicHeader1.begin()) &&
-                !std::equal(buf_in_.begin(), buf_in_.begin() + kKuwoMagicHeader2.size(), kKuwoMagicHeader2.begin())) {
+            if (!std::equal(kKuwoMagicHeader1.cbegin(), kKuwoMagicHeader1.cend(), buf_in_.cbegin()) &&
+                !std::equal(kKuwoMagicHeader2.cbegin(), kKuwoMagicHeader2.cend(), buf_in_.cbegin())) {
                 error_ = "file header magic not found";
             } else {
                 InitCache();
@@ -58,18 +62,25 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
         }
     }
 
-    inline void HandleSeekToDecryptionContent(const uint8_t* in, std::size_t len) {
+    inline void HandleSeekToDecryptionContent(const uint8_t*& in, std::size_t& len) {
         if (ReadUntilOffset(in, len, kFullHeaderSize)) {
             EraseInput(kFullHeaderSize);
             state_ = State::kDecryptContent;
         }
     }
 
-    inline void HandleDecryptContent(const uint8_t* in, std::size_t len) {
+    inline void HandleDecryptContent(const uint8_t*& in, std::size_t& len) {
         uint8_t* p_out = ExpandOutputBuffer(len);
 
-        XorBlock(p_out, in, len, key_.data(), key_.size(), offset_);
-        offset_ += len;
+        auto offset = offset_;
+        for (std::size_t i = 0; i < len; i++) {
+            p_out[i] = in[i] ^ key_[offset % key_.size()];
+            offset++;
+        }
+
+        offset_ = offset;
+        in += len;
+        len = 0;
     }
 
     bool Write(const uint8_t* in, std::size_t len) override {
@@ -87,7 +98,7 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
 
                 case kDecryptContent:
                     HandleDecryptContent(in, len);
-                    return true;
+                    break;
             }
         }
 
