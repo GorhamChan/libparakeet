@@ -1,0 +1,42 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 1
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-debug",
+      "displayName": "Ninja (dbg)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Ninja (rel)",
+      "inherits": [
+        "ninja-debug"
+      ],
+      "binaryDir": "${sourceDir}/build/ninja-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-debug",
+      "configurePreset": "ninja-debug",
+      "displayName": "Debug"
+    },
+    {
+      "name": "ninja-release",
+      "configurePreset": "ninja-release",
+      "displayName": "Release"
+    }
+  ]
+}
