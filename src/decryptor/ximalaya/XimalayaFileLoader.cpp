@@ -82,7 +82,7 @@ void UpgradeX2MKey(std::span<uint8_t, kX3MContentKeySize> x3m_key,
                    std::span<const uint8_t, kX2MContentKeySize> x2m_key) {
     static_assert(kX3MContentKeySize % kX2MContentKeySize == 0, "Should be a complete block");
     for (std::size_t i = 0; i < kX3MContentKeySize; i += kX2MContentKeySize) {
-        std::ranges::copy(x2m_key.begin(), x2m_key.end(), x3m_key.begin() + i);
+        std::copy_n(x2m_key.begin(), kX2MContentKeySize, x3m_key.begin() + i);
     }
 }
 
@@ -97,8 +97,8 @@ std::unique_ptr<StreamDecryptor> CreateXimalayaDecryptor(
         }
 
         case kX3MContentKeySize:
-            return std::make_unique<ximalaya::detail::XimalayaFileLoaderImpl>(
-                std::span<const uint8_t, kX3MContentKeySize>{content_key}, scramble_table, "X3M");
+            return std::make_unique<ximalaya::detail::XimalayaFileLoaderImpl>(content_key.first<kX3MContentKeySize>(),
+                                                                              scramble_table, "X3M");
 
         default:
             return nullptr;
