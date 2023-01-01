@@ -15,15 +15,6 @@ class StreamDecryptor {
    public:
     StreamDecryptor() = default;
     virtual ~StreamDecryptor() = default;
-    /**
-     * @brief Reset and seek to begin of file.
-     *
-     */
-    virtual void Reset() {
-        buf_in_.resize(0);
-        buf_out_.resize(0);
-        offset_ = 0;
-    }
 
     /**
      * @brief Initialise decryptor with data found in file footer.
@@ -40,6 +31,7 @@ class StreamDecryptor {
      * @param len
      */
     virtual bool Write(const uint8_t* in, std::size_t len) = 0;
+
     /**
      * @brief Notify stream transformer that we have reached end of file.
      */
@@ -62,18 +54,22 @@ class StreamDecryptor {
      */
     virtual const std::string& GetErrorMessage() const { return error_; }
 
-    inline std::size_t GetOutputSize() { return buf_out_.size(); }
-    inline std::size_t Peek(uint8_t* out, std::size_t len) {
-        len = std::min(len, buf_out_.size());
-        std::copy_n(buf_out_.begin(), len, out);
+    inline std::size_t GetOutputSize() const { return buf_out_.size(); }
+
+    inline std::size_t PeekDecryptedContent(std::span<uint8_t> content) {
+        std::size_t len = std::min(buf_out_.size(), content.size());
+        std::copy_n(buf_out_.begin(), len, content.begin());
         return len;
     }
-    inline std::size_t Read(uint8_t* out, std::size_t len) {
-        std::size_t read_len = Peek(out, len);
-        buf_out_.erase(buf_out_.begin(), buf_out_.begin() + read_len);
-        return read_len;
+
+    inline std::size_t ReadDecryptedContent(std::span<uint8_t> content) {
+        std::size_t len = std::min(buf_out_.size(), content.size());
+        std::copy_n(buf_out_.begin(), len, content.begin());
+        buf_out_.erase(buf_out_.begin(), buf_out_.begin() + len);
+        return len;
     }
-    inline void ReadAll(std::vector<uint8_t>& out) { out = std::move(buf_out_); }
+
+    inline void ReadAllDecryptedContent(std::vector<uint8_t>& out) { out = std::move(buf_out_); }
 
    protected:
     std::size_t offset_ = 0;
@@ -147,8 +143,9 @@ class StreamDecryptor {
         offset_ += len;
     }
 
-    inline void ConsumeInput(void* out, std::size_t len) {
-        std::copy_n(buf_in_.begin(), len, reinterpret_cast<uint8_t*>(out));
+    inline void ConsumeInput(std::span<uint8_t> input_buffer) {
+        const auto len = input_buffer.size();
+        std::copy_n(buf_in_.begin(), len, input_buffer.begin());
         ConsumeInput(len);
     }
 };

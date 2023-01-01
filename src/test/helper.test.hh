@@ -141,7 +141,7 @@ inline std::vector<uint8_t> DecryptTestContent(std::unique_ptr<Loader> loader, c
     }
 
     std::vector<uint8_t> result;
-    loader->ReadAll(result);
+    loader->ReadAllDecryptedContent(result);
     return result;
 }
 
