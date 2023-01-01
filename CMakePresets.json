@@ -81,5 +81,31 @@
       "displayName": "Release",
       "configuration": "Release"
     }
+  ],
+  "testPresets": [
+    {
+      "name": "ninja-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "ninja-debug"
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "ninja-release"
+    },
+    {
+      "name": "msvc-2022-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msvc-2022-debug"
+    },
+    {
+      "name": "msvc-2022-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msvc-2022-release"
+    }
   ]
 }

@@ -28,8 +28,7 @@ jobs:
 
     runs-on: windows-2022
     env:
-      CMAKE_BUILD_PARALLEL_LEVEL: "3"
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-bc
+      PRESET_NAME: msvc-2022-release
 
     steps:
       - name: "⏳ Clone repo..."
@@ -39,22 +38,21 @@ jobs:
 
       - name: "🔧 CMake: Configure"
         shell: bash
-        run: |
-          cmake --preset msvc-2022-release -A "${{ matrix.vs_arch }}"
+        run: cmake --preset "$PRESET_NAME" -A "${{ matrix.vs_arch }}"
 
       - name: "🛠️ CMake: Build"
-        run: cmake --build --preset msvc-2022-release
+        run: cmake --build --preset "$PRESET_NAME"
 
       - name: "💣 Test um-crypto ..."
         working-directory: build
-        run: ctest --output-on-failure
+        run: ctest --preset "$PRESET_NAME" --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
         run: |
           DIST_SOURCE="dist/libparakeet-${{ matrix.win_ver }}/"
           mkdir -p "${DIST_SOURCE}/libparakeet"
-          cp -R out/build/msvc-2022-release/Release "${DIST_SOURCE}/libparakeet/lib"
+          cp -R "out/build/$PRESET_NAME/Release" "${DIST_SOURCE}/libparakeet/lib"
           cp -R include "${DIST_SOURCE}/libparakeet"
           cp README.md CHANGELOG.md LICENSE.txt "${DIST_SOURCE}"
 
