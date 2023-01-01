@@ -21,7 +21,6 @@ jobs:
       matrix:
         win_ver: ["win32", "win64"]
         include:
-          - vs_ver: "2022"
           - win_ver: win32
             vs_arch: "Win32"
           - win_ver: win64
@@ -44,16 +43,11 @@ jobs:
 
       - name: "🔧 CMake: Configure"
         shell: bash
-        working-directory: build
         run: |
-          cmake \
-            -D"CMAKE_BUILD_TYPE"="Release" \
-            -A "${{ matrix.vs_arch }}" \
-            ..
+          cmake --preset msvc-2022-release -A "${{ matrix.vs_arch }}"
 
       - name: "🛠️ CMake: Build"
-        working-directory: build
-        run: cmake --build . --config Release
+        run: cmake --build --preset msvc-2022-release
 
       - name: "💣 Test um-crypto ..."
         working-directory: build
@@ -64,7 +58,7 @@ jobs:
         run: |
           DIST_SOURCE="dist/libparakeet-${{ matrix.win_ver }}/"
           mkdir -p "${DIST_SOURCE}/libparakeet"
-          cp -R build/Release "${DIST_SOURCE}/libparakeet/lib"
+          cp -R out/build/msvc-2022-release "${DIST_SOURCE}/libparakeet/lib"
           cp -R include "${DIST_SOURCE}/libparakeet"
           cp README.md CHANGELOG.md LICENSE.txt "${DIST_SOURCE}"
 

@@ -10,7 +10,7 @@
       "name": "ninja-debug",
       "displayName": "Ninja (dbg)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/ninja-debug",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -21,9 +21,40 @@
       "inherits": [
         "ninja-debug"
       ],
-      "binaryDir": "${sourceDir}/build/ninja-release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS": "-O2"
+      }
+    },
+    {
+      "name": "msvc-2022-debug",
+      "displayName": "msvc-2022 (dbg)",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "Windows"
+          ]
+        }
+      }
+    },
+    {
+      "name": "msvc-2022-release",
+      "displayName": "msvc-2022 (rel)",
+      "inherits": [
+        "msvc-2022-debug"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS": "/O2"
       }
     }
   ],
@@ -36,6 +67,16 @@
     {
       "name": "ninja-release",
       "configurePreset": "ninja-release",
+      "displayName": "Release"
+    },
+    {
+      "name": "msvc-2022-debug",
+      "configurePreset": "msvc-2022-debug",
+      "displayName": "Debug"
+    },
+    {
+      "name": "msvc-2022-release",
+      "configurePreset": "msvc-2022-release",
       "displayName": "Release"
     }
   ]
