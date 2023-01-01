@@ -22,8 +22,7 @@
         "ninja-debug"
       ],
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_CXX_FLAGS": "-O2"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
@@ -53,8 +52,7 @@
         "msvc-2022-debug"
       ],
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_CXX_FLAGS": "/O2"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     }
   ],
@@ -62,22 +60,26 @@
     {
       "name": "ninja-debug",
       "configurePreset": "ninja-debug",
-      "displayName": "Debug"
+      "displayName": "Debug",
+      "configuration": "Debug"
     },
     {
       "name": "ninja-release",
       "configurePreset": "ninja-release",
-      "displayName": "Release"
+      "displayName": "Release",
+      "configuration": "Release"
     },
     {
       "name": "msvc-2022-debug",
       "configurePreset": "msvc-2022-debug",
-      "displayName": "Debug"
+      "displayName": "Debug",
+      "configuration": "Debug"
     },
     {
       "name": "msvc-2022-release",
       "configurePreset": "msvc-2022-release",
-      "displayName": "Release"
+      "displayName": "Release",
+      "configuration": "Release"
     }
   ]
 }

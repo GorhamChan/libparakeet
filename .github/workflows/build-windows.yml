@@ -37,10 +37,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: "🖼️ Setup scene..."
-        shell: bash
-        run: mkdir -p build
-
       - name: "🔧 CMake: Configure"
         shell: bash
         run: |
@@ -58,7 +54,7 @@ jobs:
         run: |
           DIST_SOURCE="dist/libparakeet-${{ matrix.win_ver }}/"
           mkdir -p "${DIST_SOURCE}/libparakeet"
-          cp -R out/build/msvc-2022-release "${DIST_SOURCE}/libparakeet/lib"
+          cp -R out/build/msvc-2022-release/Release "${DIST_SOURCE}/libparakeet/lib"
           cp -R include "${DIST_SOURCE}/libparakeet"
           cp README.md CHANGELOG.md LICENSE.txt "${DIST_SOURCE}"
 

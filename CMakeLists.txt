@@ -4,8 +4,6 @@ project(parakeet_crypro VERSION 0.2.4 LANGUAGES CXX)
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_program(CCACHE_TOOL_PATH ccache) # Optional
-
 include(cmake/CPM-Loader.cmake)
 include(cmake/git-info.cmake)
 
@@ -27,15 +25,6 @@ CPMAddPackage(
 
 if (!MSVC)
     link_libraries(m)
-
-    # Enable Ccache.
-    if (CCACHE_TOOL_PATH)
-        CPMAddPackage(
-        NAME Ccache.cmake
-        GITHUB_REPOSITORY TheLartians/Ccache.cmake
-        VERSION 1.2
-        )
-    endif()
 endif()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
