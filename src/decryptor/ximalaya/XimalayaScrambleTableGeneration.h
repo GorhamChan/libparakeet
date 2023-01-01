@@ -1,11 +1,11 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <vector>
+
+#include <span>
 
 namespace parakeet_crypto::decryptor::ximalaya {
 
-std::vector<uint16_t> generate_ximalaya_scramble_table(double mul_init, double mul_step, std::size_t n);
+void GenerateScrambleTable(std::span<uint16_t> result, double mul_init, double mul_step);
 
 }  // namespace parakeet_crypto::decryptor::ximalaya

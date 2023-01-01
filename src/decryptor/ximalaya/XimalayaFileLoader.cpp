@@ -4,53 +4,59 @@
 #include "utils/StringHelper.h"
 #include "utils/XorHelper.h"
 
+#include <algorithm>
 #include <array>
+
 #include <cassert>
 
-namespace parakeet_crypto::decryptor::ximalaya {
+namespace parakeet_crypto::decryptor {
 
-namespace detail {
+namespace ximalaya::detail {
 
 enum class State {
     kDecryptHeader = 0,
     kPassThrough,
 };
 
-template <std::size_t ContentKeySize>
-class XimalayaFileLoaderImpl : public XimalayaFileLoader {
+class XimalayaFileLoaderImpl : public StreamDecryptor {
    private:
     std::string name_;
-    std::array<uint8_t, ContentKeySize> content_key_;
-    ScrambleTable scramble_table_;
+    std::array<uint8_t, kX3MContentKeySize> content_key_;
+    ximalaya::ScrambleTable scramble_table_;
     State state_ = State::kDecryptHeader;
 
    public:
-    XimalayaFileLoaderImpl(const std::array<uint8_t, ContentKeySize>& content_key,
-                           const ScrambleTable& scramble_table,
-                           const char* subtype)
-        : content_key_(content_key), scramble_table_(scramble_table) {
+    XimalayaFileLoaderImpl(std::span<const uint8_t, kX3MContentKeySize> content_key,
+                           std::span<const uint16_t, kXmlyScrambleTableSize> scramble_table,
+                           const char* subtype) {
         name_ = utils::Format("Ximalaya(%s)", subtype);
+        std::ranges::copy(content_key.begin(), content_key.end(), content_key_.begin());
+        std::ranges::copy(scramble_table.begin(), scramble_table.end(), scramble_table_.begin());
     }
 
-    virtual std::string GetName() const override { return name_; };
+    std::string GetName() const override { return name_; };
 
-    void DoHeaderDecryption() {
-        auto p_out = ExpandOutputBuffer(kScrambleTableSize);
+    inline void HandleHeaderDecryption(const uint8_t*& in, std::size_t& len) {
+        if (ReadUntilOffset(in, len, kXmlyScrambleTableSize)) {
+            auto p_out = ExpandOutputBuffer(kXmlyScrambleTableSize);
+            auto p_in = std::span{buf_in_.cbegin(), kXmlyScrambleTableSize};
 
-        for (std::size_t i = 0; i < kScrambleTableSize; i++) {
-            std::size_t idx = scramble_table_[i];
-            p_out[i] = buf_in_[idx] ^ content_key_[i % ContentKeySize];
+            for (std::size_t i = 0; i < kXmlyScrambleTableSize; i++) {
+                p_out[i] = p_in[scramble_table_[i]];
+            }
+
+            utils::XorBlockWithOffset(std::span{p_out, kXmlyScrambleTableSize}, std::span{content_key_}, 0u);
+
+            EraseInput(kXmlyScrambleTableSize);
+            state_ = State::kPassThrough;
         }
     }
 
     bool Write(const uint8_t* in, std::size_t len) override {
-        while (len) {
+        while (len && !InErrorState()) {
             switch (state_) {
                 case State::kDecryptHeader:
-                    if (ReadUntilOffset(in, len, kScrambleTableSize)) {
-                        DoHeaderDecryption();
-                        state_ = State::kPassThrough;
-                    }
+                    HandleHeaderDecryption(in, len);
                     break;
 
                 case State::kPassThrough:
@@ -59,48 +65,51 @@ class XimalayaFileLoaderImpl : public XimalayaFileLoader {
             }
         }
 
-        return len == 0;
+        return !InErrorState();
     };
 
     bool End() override { return !InErrorState(); }
 };
 
-X3MContentKey FromShorterContentKey(const std::span<const uint8_t>& key) {
-    assert(("key.size() size should be a factor of kX3MContentKeySize", kX3MContentKeySize % key.size() == 0));
+}  // namespace ximalaya::detail
 
-    X3MContentKey new_key;
-    for (std::size_t i = 0; i < kX3MContentKeySize; i += key.size()) {
-        std::copy(key.begin(), key.end(), &new_key[i]);
+using ximalaya::kX2MContentKeySize;
+using ximalaya::kX3MContentKeySize;
+using ximalaya::kXmlyScrambleTableSize;
+using ximalaya::ScrambleTable;
+
+void UpgradeX2MKey(std::span<uint8_t, kX3MContentKeySize> x3m_key,
+                   std::span<const uint8_t, kX2MContentKeySize> x2m_key) {
+    static_assert(kX3MContentKeySize % kX2MContentKeySize == 0, "Should be a complete block");
+    for (std::size_t i = 0; i < kX3MContentKeySize; i += kX2MContentKeySize) {
+        std::ranges::copy(x2m_key.begin(), x2m_key.end(), x3m_key.begin() + i);
     }
-
-    return new_key;
 }
 
-}  // namespace detail
+std::unique_ptr<StreamDecryptor> CreateXimalayaDecryptor(
+    std::span<const uint8_t> content_key,
+    std::span<const uint16_t, kXmlyScrambleTableSize> scramble_table) {
+    switch (content_key.size()) {
+        case kX2MContentKeySize: {
+            std::array<uint8_t, kX3MContentKeySize> upgraded_key;
+            UpgradeX2MKey(upgraded_key, std::span<const uint8_t, kX2MContentKeySize>{content_key});
+            return std::make_unique<ximalaya::detail::XimalayaFileLoaderImpl>(upgraded_key, scramble_table, "X2M");
+        }
 
-std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const X2MContentKey& key,
-                                                               const ScrambleTable& scramble_table) {
-    return std::make_unique<detail::XimalayaFileLoaderImpl<kX3MContentKeySize>>(detail::FromShorterContentKey(key),
-                                                                                scramble_table, "X2M");
+        case kX3MContentKeySize:
+            return std::make_unique<ximalaya::detail::XimalayaFileLoaderImpl>(
+                std::span<const uint8_t, kX3MContentKeySize>{content_key}, scramble_table, "X3M");
+
+        default:
+            return nullptr;
+    }
 }
 
-std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const X3MContentKey& key,
-                                                               const ScrambleTable& scramble_table) {
-    return std::make_unique<detail::XimalayaFileLoaderImpl<kX3MContentKeySize>>(key, scramble_table, "X3M");
-}
-
-std::unique_ptr<XimalayaFileLoader> XimalayaFileLoader::Create(const std::span<const uint8_t>& key,
-                                                               const XmlyScrambleTableParameter& table_parameters) {
-    auto scramble_table_vec =
-        generate_ximalaya_scramble_table(table_parameters.init_value, table_parameters.step_value, kScrambleTableSize);
+std::unique_ptr<StreamDecryptor> CreateXimalayaDecryptor(std::span<const uint8_t> content_key,
+                                                         double init_value,
+                                                         double step_value) {
     ScrambleTable scramble_table;
-    std::copy(scramble_table_vec.begin(), scramble_table_vec.end(), scramble_table.begin());
-
-    if (key.size() == kX2MContentKeySize || key.size() == kX3MContentKeySize) {
-        return Create(detail::FromShorterContentKey(key), scramble_table);
-    }
-
-    return nullptr;
+    ximalaya::GenerateScrambleTable(scramble_table, init_value, step_value);
+    return CreateXimalayaDecryptor(content_key, scramble_table);
 }
-
-}  // namespace parakeet_crypto::decryptor::ximalaya
+}  // namespace parakeet_crypto::decryptor

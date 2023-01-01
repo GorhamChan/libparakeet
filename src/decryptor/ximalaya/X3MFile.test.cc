@@ -15,6 +15,7 @@
 using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto::decryptor::ximalaya;
+using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
 TEST(Ximalaya, X3MTestCase) {
@@ -36,7 +37,6 @@ TEST(Ximalaya, X3MTestCase) {
         std::swap(x3m_scramble_table[i], x3m_scramble_table[j]);
     }
 
-    auto result = test::DecryptTestContent(XimalayaFileLoader::Create(x3m_content_key, x3m_scramble_table), test_data);
-
+    auto result = test::DecryptTestContent(CreateXimalayaDecryptor(x3m_content_key, x3m_scramble_table), test_data);
     test::VerifyHash(result, "a10bbfdcdbd388373361da6baf35c80b725f7310c3eca29d7dcf228e397a8c5a");
 }
