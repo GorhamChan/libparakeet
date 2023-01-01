@@ -95,6 +95,10 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
                 case kDecryptContent:
                     HandleDecryptContent(in, len);
                     break;
+
+                default:
+                    error_ = "unexpected state";
+                    break;
             }
         }
 
