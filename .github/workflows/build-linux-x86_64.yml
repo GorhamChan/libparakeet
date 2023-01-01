@@ -20,7 +20,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     env:
-      PRESET_NAME: msvc-2022-release
+      PRESET_NAME: ninja-release
       CXX: g++-11
 
     steps:
