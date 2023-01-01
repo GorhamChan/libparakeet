@@ -67,7 +67,7 @@ std::unique_ptr<KGMCrypto> CreateKGMDecryptor(const kgm_file_header& header, con
     }
 
     // Validate the file key.
-    std::array<uint8_t, sizeof(header.key_challenge)> response = std::to_array(header.key_challenge);
+    auto response = std::to_array(header.key_challenge);
     kgm_crypto->Decrypt(0, response);
 
     const static std::array<const uint8_t, 16> kKGMChallengeBytes = {
