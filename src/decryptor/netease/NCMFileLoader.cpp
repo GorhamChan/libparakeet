@@ -212,9 +212,8 @@ class NCMFileLoaderImpl : public NCMFileLoader {
 
                 case State::kDecryptAudio: {
                     auto p_out = ExpandOutputBuffer(len);
-                    std::copy_n(in, len, p_out);
 
-                    utils::XorBlockWithOffset(std::span{p_out, len}, std::span{final_audio_xor_key_},
+                    utils::XorBlockWithOffset(std::span{p_out, len}, std::span{in, len}, std::span{final_audio_xor_key_},
                                               audio_data_offset_);
                     offset_ += len;
                     audio_data_offset_ += len;
