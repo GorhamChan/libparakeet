@@ -27,7 +27,7 @@ inline void XorBlockWithOffset(std::span<uint8_t> dest, std::span<S1> src, std::
     std::size_t len_in_block = dest.size() - dest.size() % KEY_SIZE;
     for (std::size_t i = 0; i < len_in_block; i += KEY_SIZE)
         for (std::size_t j = 0; j < KEY_SIZE; j++)
-            dest[i + j] ^= key[j];
+            dest[i + j] = src[i + j] ^ key[j];
 
     dest = std::span{dest.begin() + len_in_block, dest.size() - len_in_block};
     src = std::span{src.begin() + len_in_block, src.size() - len_in_block};

@@ -71,7 +71,6 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
     inline void HandleDecryptContent(const uint8_t*& in, std::size_t& len) {
         uint8_t* p_out = ExpandOutputBuffer(len);
 
-        // FIXME: test does not pass
         utils::XorBlockWithOffset(std::span{p_out, len}, std::span{in, len},
                                   std::span<uint8_t, kKuwoDecryptionKeySize>{key_}, offset_);
 
