@@ -41,10 +41,11 @@ jobs:
         run: cmake --preset "$PRESET_NAME" -A "${{ matrix.vs_arch }}"
 
       - name: "🛠️ CMake: Build"
+        shell: bash
         run: cmake --build --preset "$PRESET_NAME"
 
       - name: "💣 Test um-crypto ..."
-        working-directory: build
+        shell: bash
         run: ctest --preset "$PRESET_NAME" --output-on-failure
 
       - name: "📦 Package static libs..."
