@@ -42,7 +42,7 @@ class JooxFileLoaderImpl : public StreamDecryptor {
         std::copy_n(salt.begin(), std::min(salt_.size(), salt.size()), salt_.begin());
     }
     ~JooxFileLoaderImpl() final = default;
-    virtual std::string GetName() const override { return "joox"; };
+    std::string GetName() const override { return "joox"; };
 
    private:
     CryptoAES aes_;
@@ -182,7 +182,7 @@ class JooxFileLoaderImpl : public StreamDecryptor {
 
 // Public interface
 
-std::unique_ptr<StreamDecryptor> CreateJooxDecryptor(const std::string& install_uuid, std::span<const uint8_t> salt) {
+std::unique_ptr<StreamDecryptor> CreateJooxDecryptor(const std::string& install_uuid, joox::JooxSaltInput salt) {
     return std::make_unique<joox::detail_joox_v4::JooxFileLoaderImpl>(install_uuid, salt);
 }
 

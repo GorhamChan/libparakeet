@@ -128,9 +128,7 @@ class QMCv1LoaderImpl : public QMCv1Loader {
         return true;
     }
 
-    bool End() override {
-        return !InErrorState();  //
-    }
+    bool End() override { return !InErrorState(); }
 };
 
 }  // namespace detail

@@ -23,7 +23,7 @@ TEST(Joox, SimpleTest) {
     test::GenerateTestData(test_data, "joox test data");
 
     std::string uuid(32, 'f');
-    JooxSalt salt;
+    joox::JooxSalt salt;
 
     test::GenerateTestData(uuid, "joox uuid");
     test::GenerateTestData(salt, "joox salt");

@@ -4,9 +4,9 @@
 #include "utils/StringHelper.h"
 #include "utils/XorHelper.h"
 
-namespace parakeet_crypto::decryptor::xiami {
+namespace parakeet_crypto::decryptor {
 
-namespace detail {
+namespace xiami::detail {
 
 constexpr std::size_t kHeaderSize = 0x10;
 
@@ -35,7 +35,7 @@ enum class State {
 //   0x10  Plaintext data
 //   ????  Encrypted data
 
-class XiamiFileLoaderImpl : public XiamiFileLoader {
+class XiamiFileLoaderImpl : public StreamDecryptor {
    private:
     State state_ = State::kReadHeader;
     std::size_t bytes_to_copy_ = 0;
@@ -44,7 +44,7 @@ class XiamiFileLoaderImpl : public XiamiFileLoader {
    public:
     XiamiFileLoaderImpl() = default;
 
-    virtual std::string GetName() const override { return "Xiami"; };
+    std::string GetName() const override { return "Xiami"; };
 
     bool ParseFileHeader() {
         if (ReadBigEndian<uint32_t>(&buf_in_[kMagicHeaderOffset1]) != kMagicHeader1 ||
@@ -96,16 +96,18 @@ class XiamiFileLoaderImpl : public XiamiFileLoader {
 
     bool Write(const uint8_t* in, std::size_t len) override {
         while (len && !InErrorState()) {
+            using enum State;
+
             switch (state_) {
-                case State::kReadHeader:
+                case kReadHeader:
                     HandleFileHeader(in, len);
                     break;
 
-                case State::kTransparentCopy:
+                case kTransparentCopy:
                     HandleTransparentCopy(in, len);
                     break;
 
-                case State::kDecryptWithKey:
+                case kDecryptWithKey:
                     HandleDecryptWithKey(in, len);
                     break;
 
@@ -121,10 +123,10 @@ class XiamiFileLoaderImpl : public XiamiFileLoader {
     bool End() override { return !InErrorState(); }
 };
 
-}  // namespace detail
+}  // namespace xiami::detail
 
-std::unique_ptr<XiamiFileLoader> XiamiFileLoader::Create() {
-    return std::make_unique<detail::XiamiFileLoaderImpl>();
+std::unique_ptr<StreamDecryptor> CreateXiamiDecryptor() {
+    return std::make_unique<xiami::detail::XiamiFileLoaderImpl>();
 }
 
-}  // namespace parakeet_crypto::decryptor::xiami
+}  // namespace parakeet_crypto::decryptor

@@ -4,11 +4,8 @@
 
 #include <memory>
 
-namespace parakeet_crypto::decryptor::xiami {
+namespace parakeet_crypto::decryptor {
 
-class XiamiFileLoader : public StreamDecryptor {
-   public:
-    static std::unique_ptr<XiamiFileLoader> Create();
-};
+std::unique_ptr<StreamDecryptor> CreateXiamiDecryptor();
 
-}  // namespace parakeet_crypto::decryptor::xiami
+}  // namespace parakeet_crypto::decryptor

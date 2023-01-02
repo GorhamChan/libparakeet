@@ -62,6 +62,10 @@ class XimalayaFileLoaderImpl : public StreamDecryptor {
                 case State::kPassThrough:
                     buf_out_.insert(buf_out_.end(), in, in + len);
                     return true;
+
+                default:
+                    error_ = "decryptor: bad state";
+                    return false;
             }
         }
 

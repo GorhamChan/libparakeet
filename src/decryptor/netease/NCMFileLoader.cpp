@@ -208,6 +208,10 @@ class NCMFileLoaderImpl : public StreamDecryptor {
                 case kDecryptAudio:
                     HandleAudioContentDecryption(in, len);
                     break;
+
+                default:
+                    error_ = "decryptor: bad state";
+                    return false;
             }
         }
 

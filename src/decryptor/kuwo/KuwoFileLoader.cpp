@@ -35,10 +35,9 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
     inline void InitCache() {
         uint64_t resource_id = ReadLittleEndian<uint64_t>(&buf_in_[kFileKeyOffset]);
         auto rid_str = utils::Format("%" PRIu64, resource_id);
-        auto rid_span = std::span{rid_str};
 
         for (auto i = 0; i < key_.size(); i++) {
-            key_[i] ^= static_cast<uint8_t>(rid_span[i % rid_span.size()]);
+            key_[i] ^= static_cast<uint8_t>(rid_str[i % rid_str.size()]);
         }
     }
 
@@ -110,7 +109,7 @@ class KuwoFileLoaderImpl : public StreamDecryptor {
 
 }  // namespace kuwo::detail
 
-std::unique_ptr<StreamDecryptor> CreateKuwoDecryptor(std::span<const uint8_t, kKuwoDecryptionKeySize> key) {
+std::unique_ptr<StreamDecryptor> CreateKuwoDecryptor(kuwo::KuwoKeyInput key) {
     return std::make_unique<kuwo::detail::KuwoFileLoaderImpl>(key);
 }
 

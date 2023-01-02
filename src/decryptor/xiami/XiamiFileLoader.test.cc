@@ -12,7 +12,7 @@
 
 using ::testing::ElementsAreArray;
 
-using namespace parakeet_crypto::decryptor::xiami;
+using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
 TEST(Xiami, SimpleCase) {
@@ -28,7 +28,7 @@ TEST(Xiami, SimpleCase) {
     };
     std::copy(header_override.begin(), header_override.end(), test_data.begin());
 
-    auto result = test::DecryptTestContent(XiamiFileLoader::Create(), test_data);
+    auto result = test::DecryptTestContent(CreateXiamiDecryptor(), test_data);
 
     test::VerifyHash(result, "2fa2586f0533398dc84ec2651d14efe39ad5e78b5d1983e9ce70928f94006e30");
 }

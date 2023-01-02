@@ -84,10 +84,6 @@ class KugouFileLoaderImpl : public StreamDecryptor {
                 case kDecryptContent:
                     HandleDecryptContent(in, len);
                     break;
-
-                default:
-                    error_ = "unexpected state";
-                    break;
             }
         }
 
@@ -101,9 +97,11 @@ class KugouFileLoaderImpl : public StreamDecryptor {
 
 // Public interface
 
-std::unique_ptr<StreamDecryptor> CreateKugouDecryptor(const KugouSlotKeys& slot_keys,
-                                                      std::span<const uint8_t> v4_slot_key_expansion_table,
-                                                      std::span<const uint8_t> v4_file_key_expansion_table) {
+std::unique_ptr<StreamDecryptor> CreateKugouDecryptor(
+    const kugou::KugouSlotKeys& slot_keys,
+    kugou::KugouV4SlotKeyExpansionTableInput v4_slot_key_expansion_table,
+    kugou::KugouV4FileKeyExpansionTableInput v4_file_key_expansion_table) {
+    // Init keys
     std::vector<uint8_t> v4_slot_key_table_vec(v4_slot_key_expansion_table.begin(), v4_slot_key_expansion_table.end());
     std::vector<uint8_t> v4_file_key_table_vec(v4_file_key_expansion_table.begin(), v4_file_key_expansion_table.end());
 

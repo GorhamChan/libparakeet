@@ -6,8 +6,13 @@
 
 namespace parakeet_crypto::decryptor {
 
-using JooxSalt = std::array<uint8_t, 16>;
+namespace joox {
 
-std::unique_ptr<StreamDecryptor> CreateJooxDecryptor(const std::string& install_uuid, std::span<const uint8_t> salt);
+using JooxSalt = std::array<uint8_t, 16>;
+using JooxSaltInput = std::span<const uint8_t, 16>;
+
+}  // namespace joox
+
+std::unique_ptr<StreamDecryptor> CreateJooxDecryptor(const std::string& install_uuid, joox::JooxSaltInput salt);
 
 }  // namespace parakeet_crypto::decryptor
