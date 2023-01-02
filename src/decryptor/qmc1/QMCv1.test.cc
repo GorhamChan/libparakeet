@@ -7,12 +7,13 @@
 #include <memory>
 #include <vector>
 
-#include "parakeet-crypto/decryptor/tencent/QMCv1Loader.h"
+#include "parakeet-crypto/decryptor/qmc1/QMCv1Loader.h"
 #include "test/helper.test.hh"
 
 using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto::decryptor::tencent;
+using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
 TEST(QMCv1, StaticCipher) {
@@ -22,26 +23,10 @@ TEST(QMCv1, StaticCipher) {
     QMCv1Key key(256);
     test::GenerateTestData(key, "qmcv1 static key");
 
-    auto result = test::DecryptTestContent(QMCv1Loader::Create(key), test_data);
+    auto result = test::DecryptTestContent(CreateQMCv1StaticDecryptor(key), test_data);
 
     test::VerifyHash(result, "2f9c936ed130a654911e0e2bc872fec33c90288e78df2a0aa41d352164c3b4e3");
 }
-
-class QMCFooterParserMock : public parakeet_crypto::misc::tencent::QMCFooterParser {
-   private:
-    std::vector<uint8_t> key_;
-
-   public:
-    QMCFooterParserMock(std::vector<uint8_t> key) : key_(key) {}
-
-    std::unique_ptr<parakeet_crypto::misc::tencent::QMCFooterParseResult> Parse(const uint8_t* p_in,
-                                                                                std::size_t len) const override {
-        auto result = std::make_unique<parakeet_crypto::misc::tencent::QMCFooterParseResult>();
-        result->eof_bytes_ignore = 0;
-        result->key = key_;
-        return result;
-    }
-};
 
 TEST(QMCv1, MapCipher) {
     std::vector<uint8_t> test_data(test::kSize4MiB);
@@ -50,8 +35,7 @@ TEST(QMCv1, MapCipher) {
     QMCv1Key key(256);
     test::GenerateTestData(key, "qmcv1 map cipher derived key");
 
-    auto qmc_footer_parser = std::make_shared<QMCFooterParserMock>(key);
-    auto result = test::DecryptTestContent(QMCv1Loader::Create(qmc_footer_parser), test_data);
+    auto result = test::DecryptTestContent(CreateQMCv1MapDecryptor(key), test_data);
 
     test::VerifyHash(result, "ce84e9ac24ef5b2f02a11f74ffa8eb7008fe2898855617596c5ee217139fc214");
 }
