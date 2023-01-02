@@ -3,6 +3,7 @@
 #include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
 #include <map>
+#include <memory>
 #include <span>
 #include <vector>
 

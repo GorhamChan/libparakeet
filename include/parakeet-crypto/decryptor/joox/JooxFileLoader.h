@@ -2,6 +2,8 @@
 
 #include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
+#include <memory>
+
 namespace parakeet_crypto::decryptor {
 
 using JooxSalt = std::array<uint8_t, 16>;

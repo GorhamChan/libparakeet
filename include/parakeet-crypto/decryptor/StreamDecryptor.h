@@ -1,13 +1,11 @@
 #pragma once
 
+#include <cstddef>
+
 #include <algorithm>
-#include <array>
-#include <memory>
 #include <span>
 #include <string>
 #include <vector>
-
-#include <cstddef>
 
 namespace parakeet_crypto::decryptor {
 
@@ -148,6 +146,8 @@ class StreamDecryptor {
         std::copy_n(buf_in_.begin(), len, input_buffer.begin());
         ConsumeInput(len);
     }
+
+    inline void ConsumeInput(uint32_t* value) { ConsumeInput(std::span{(uint8_t*)value, sizeof(*value)}); }
 };
 
 }  // namespace parakeet_crypto::decryptor

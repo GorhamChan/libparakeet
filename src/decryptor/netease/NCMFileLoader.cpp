@@ -1,16 +1,20 @@
 #include "parakeet-crypto/decryptor/netease/NCMFileLoader.h"
+
+#include "NeteaseRC4.h"
+
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
-
 #include "utils/XorHelper.h"
 
 #include "cryptopp/aes.h"
 #include "cryptopp/filters.h"
 #include "cryptopp/modes.h"
 
-namespace parakeet_crypto::decryptor::netease {
+#include <ranges>
 
-namespace detail {
+namespace parakeet_crypto::decryptor {
+
+namespace netease::detail {
 
 /**
  * @brief NCM file format
@@ -26,110 +30,74 @@ namespace detail {
  */
 
 constexpr std::size_t kFileHeaderSize = 10;  // 'CTENFDAM'
-constexpr uint64_t kNCMFileMagic = 0x43'54'45'4E'46'44'41'4D;
-
-// "neteasecloudmusic"
-std::array<uint8_t, 17> kContentKeyPrefix = {
-    'n', 'e', 't', 'e', 'a', 's', 'e', 'c', 'l', 'o', 'u', 'd', 'm', 'u', 's', 'i', 'c',
-};
 
 enum class State {
     kReadFileMagic = 0,
 
     kParseFileKey,
     kReadMetaBlock,
-    kReadCoverFrameSize,
     kReadCoverBlock,
     kSkipCoverPadding,
     kDecryptAudio
 };
 
-class NCMFileLoaderImpl : public NCMFileLoader {
+class NCMFileLoaderImpl : public StreamDecryptor {
    private:
     State state_ = State::kReadFileMagic;
     NCMContentKeyProtectionKey key_;
-    std::vector<uint8_t> content_key_;
 
     uint32_t content_key_size_ = 0;
     uint32_t metadata_size_ = 0;
-    uint32_t cover_frame_size_ = 0;
+    uint32_t cover_container_size_ = 0;
     uint32_t cover_size_ = 0;
 
+    std::size_t audio_data_offset_ = 0;
+    std::array<uint8_t, 0x100> final_audio_xor_key_;
+
    public:
-    explicit NCMFileLoaderImpl(const NCMContentKeyProtectionKey& key) : key_(key) {}
+    explicit NCMFileLoaderImpl(NCMContentKeyProtectionKeyInput key) { std::ranges::copy(key, key_.begin()); }
+    std::string GetName() const override { return "NCM"; };
 
     bool ParseFileKey() {
         using AES = CryptoPP::ECB_Mode<CryptoPP::AES>::Decryption;
         using Filter = CryptoPP::StreamTransformationFilter;
 
+        std::vector<uint8_t> content_key;
+
         std::vector<uint8_t> file_key(content_key_size_);
-        ConsumeInput(std::span{file_key.begin(), content_key_size_});
-        for (auto& key : file_key) {
-            key ^= 0x64;
-        }
+        ConsumeInput(file_key);
+        std::ranges::transform(file_key, file_key.begin(), [](auto key) { return key ^ 0x64; });
 
         try {
             AES aes(key_.data(), key_.size());
             Filter decryptor(aes, nullptr, Filter::PKCS_PADDING);
             decryptor.PutMessageEnd(file_key.data(), file_key.size());
-            content_key_.resize(decryptor.MaxRetrievable());
-            decryptor.Get(content_key_.data(), content_key_.size());
-        } catch (const std::exception& ex) {
+            content_key.resize(decryptor.MaxRetrievable());
+            decryptor.Get(content_key.data(), content_key.size());
+        } catch (const CryptoPP::Exception& ex) {
             error_ = utils::Format("could not decrypt content key: ", ex.what());
             return false;
         }
 
-        if (!std::equal(kContentKeyPrefix.begin(), kContentKeyPrefix.end(), content_key_.begin())) {
+        const static auto kContentKeyPrefix = std::to_array<uint8_t>(
+            {'n', 'e', 't', 'e', 'a', 's', 'e', 'c', 'l', 'o', 'u', 'd', 'm', 'u', 's', 'i', 'c'});
+
+        if (!std::equal(kContentKeyPrefix.cbegin(), kContentKeyPrefix.cend(), content_key.cbegin())) {
             error_ = "invalid key prefix";
             return false;
         }
 
-        content_key_.erase(content_key_.begin(), content_key_.begin() + kContentKeyPrefix.size());
+        RC4 rc4(std::span{content_key.cbegin() + kContentKeyPrefix.size(), content_key.cend()});
+        rc4.Derive(final_audio_xor_key_);
+
         return true;
-    }
-
-    std::size_t audio_data_offset_ = 0;
-    std::array<uint8_t, 0x100> final_audio_xor_key_;
-    void InitXorCipherKey() {
-        std::array<uint8_t, 0x100> S = {};
-
-        /* Standard RC4 setup */ {
-            auto& key = content_key_;
-            std::size_t key_len = key.size();
-
-            for (std::size_t i = 0; i <= 0xff; i++) {
-                S[i] = uint8_t(i);
-            }
-
-            uint8_t j = 0;
-            for (std::size_t i = 0; i <= 0xff; i++) {
-                j += S[i] + key[i % key_len];
-                std::swap(S[i], S[j]);
-            }
-        }
-
-        /* RC4(NCM variant) - Key Derivation */ {
-            // Looks like an non-standard RC4 PRNG derivation?
-            // Was this done on purpose, to compensate for the fact that RC4 can't
-            //   seek?
-
-            uint8_t i = 0;
-
-            // Derive some keys...
-            std::ranges::for_each(final_audio_xor_key_.begin(), final_audio_xor_key_.end(), [&S, &i](auto& v) {
-                i++;
-                uint8_t j = S[i] + i;  // In a standard RC4, this would be `j += S[i]`
-                                       //   followed by `swap(S[i], S[j])`
-                v = S[uint8_t(S[i] + S[j])];
-            });
-        }
     }
 
     bool ReadNextSizedBlock(const uint8_t*& in, std::size_t& len, uint32_t& next_block_size, std::size_t padding = 0) {
         if (InErrorState()) return false;
 
         if (next_block_size == 0 && ReadBlock(in, len, sizeof(uint32_t))) {
-            ConsumeInput(std::span{reinterpret_cast<uint8_t*>(&next_block_size), sizeof(uint32_t)});
+            ConsumeInput(&next_block_size);
             next_block_size = SwapLittleEndianToHost(next_block_size) + static_cast<uint32_t>(padding);
 
             if (next_block_size == 0) {
@@ -145,91 +113,116 @@ class NCMFileLoaderImpl : public NCMFileLoader {
         return false;
     }
 
+    inline void HandleReadFileMagic(const uint8_t*& in, std::size_t& len) {
+        if (ReadUntilOffset(in, len, kFileHeaderSize)) {
+            std::array<uint8_t, kFileHeaderSize> file_header;
+            ConsumeInput(file_header);
+
+            const static auto kNCMFileMagic = std::to_array<uint8_t>({'C', 'T', 'E', 'N', 'F', 'D', 'A', 'M'});
+            if (!std::equal(kNCMFileMagic.cbegin(), kNCMFileMagic.cend(), file_header.cbegin())) {
+                error_ = "not a valid ncm file";
+            } else {
+                state_ = State::kParseFileKey;
+            }
+        }
+    }
+
+    inline void HandleParseFileKey(const uint8_t*& in, std::size_t& len) {
+        if (ReadNextSizedBlock(in, len, content_key_size_)) {
+            if (!ParseFileKey()) {
+                error_ = "Could not parse file key";
+            } else {
+                state_ = State::kReadMetaBlock;
+            }
+        }
+    }
+
+    inline void HandleMetaBlock(const uint8_t*& in, std::size_t& len) {
+        // unknown 5 bytes padding;
+        if (ReadNextSizedBlock(in, len, metadata_size_, 5)) {
+            ConsumeInput(std::size_t{metadata_size_});  // discard
+            state_ = State::kReadCoverBlock;
+        }
+    }
+
+    inline void HandleCoverBlock(const uint8_t*& in, std::size_t& len) {
+        if (cover_container_size_ == 0 && ReadBlock(in, len, sizeof(cover_container_size_))) {
+            // Get the container size.
+            ConsumeInput(&cover_container_size_);
+            cover_container_size_ = SwapLittleEndianToHost(cover_container_size_);
+        }
+
+        if (cover_container_size_ != 0 && ReadNextSizedBlock(in, len, cover_size_)) {
+            if (cover_container_size_ < cover_size_) {
+                error_ = "cover container size is smaller than cover size.";
+            } else {
+                ConsumeInput(std::size_t{cover_size_});
+                state_ = State::kSkipCoverPadding;
+            }
+        }
+    }
+
+    inline void HandleSkipCoverPadding(const uint8_t*& in, std::size_t& len) {
+        if (ReadBlock(in, len, cover_container_size_ - cover_size_)) {
+            ConsumeInput(std::size_t{cover_container_size_ - cover_size_});
+            state_ = State::kDecryptAudio;
+        }
+    }
+
+    inline void HandleAudioContentDecryption(const uint8_t*& in, std::size_t& len) {
+        auto p_out = ExpandOutputBuffer(len);
+
+        utils::XorBlockWithOffset(std::span{p_out, len}, std::span{in, len}, std::span{final_audio_xor_key_},
+                                  audio_data_offset_);
+
+        offset_ += len;
+        audio_data_offset_ += len;
+        len = 0;
+    }
+
     bool Write(const uint8_t* in, std::size_t len) override {
-        while (len) {
+        while (len && !InErrorState()) {
+            using enum State;
+
             switch (state_) {
-                case State::kReadFileMagic:
-                    if (ReadUntilOffset(in, len, kFileHeaderSize)) {
-                        if (ReadBigEndian<uint64_t>(buf_in_.data()) != kNCMFileMagic) {
-                            error_ = "not a valid ncm file";
-                            return false;
-                        }
-
-                        ConsumeInput(kFileHeaderSize);
-                        state_ = State::kParseFileKey;
-                    }
+                case kReadFileMagic:
+                    HandleReadFileMagic(in, len);
                     break;
 
-                case State::kParseFileKey:
-                    if (ReadNextSizedBlock(in, len, content_key_size_)) {
-                        if (!ParseFileKey()) {
-                            return false;
-                        }
-                        state_ = State::kReadMetaBlock;
-                    }
+                case kParseFileKey:
+                    HandleParseFileKey(in, len);
                     break;
 
-                case State::kReadMetaBlock:
-                    // unknown 5 bytes padding;
-                    if (ReadNextSizedBlock(in, len, metadata_size_, 5)) {
-                        ConsumeInput(std::size_t{metadata_size_});
-                        state_ = State::kReadCoverFrameSize;
-                    }
+                case kReadMetaBlock:
+                    HandleMetaBlock(in, len);
                     break;
 
-                case State::kReadCoverFrameSize:
-                    if (ReadBlock(in, len, sizeof(cover_frame_size_))) {
-                        ConsumeInput(
-                            std::span{reinterpret_cast<uint8_t*>(&cover_frame_size_), sizeof(cover_frame_size_)});
-                        cover_frame_size_ = SwapLittleEndianToHost(cover_frame_size_);
-                        state_ = State::kReadCoverBlock;
-                    }
+                case kReadCoverBlock:
+                    HandleCoverBlock(in, len);
                     break;
 
-                case State::kReadCoverBlock:
-                    if (ReadNextSizedBlock(in, len, cover_size_)) {
-                        if (cover_frame_size_ < cover_size_) {
-                            error_ = "cover frame size is smaller than cover size.";
-                            return false;
-                        }
-
-                        ConsumeInput(std::size_t{cover_size_});
-                        InitXorCipherKey();
-                        audio_data_offset_ = 0;
-
-                        state_ = State::kSkipCoverPadding;
-                    }
+                case kSkipCoverPadding:
+                    HandleSkipCoverPadding(in, len);
                     break;
 
-                case State::kSkipCoverPadding:
-                    if (ReadBlock(in, len, cover_frame_size_ - cover_size_)) {
-                        ConsumeInput(std::size_t{cover_frame_size_ - cover_size_});
-                        state_ = State::kDecryptAudio;
-                    }
+                case kDecryptAudio:
+                    HandleAudioContentDecryption(in, len);
                     break;
-
-                case State::kDecryptAudio: {
-                    auto p_out = ExpandOutputBuffer(len);
-
-                    utils::XorBlockWithOffset(std::span{p_out, len}, std::span{in, len},
-                                              std::span{final_audio_xor_key_}, audio_data_offset_);
-                    offset_ += len;
-                    audio_data_offset_ += len;
-                    return true;
-                }
             }
         }
 
-        return len == 0;
+        return !InErrorState();
     };
 
     bool End() override { return !InErrorState(); };
 };
 
-}  // namespace detail
+}  // namespace netease::detail
 
-std::unique_ptr<NCMFileLoader> NCMFileLoader::Create(const NCMContentKeyProtectionKey& key) {
-    return std::make_unique<detail::NCMFileLoaderImpl>(key);
+using netease::detail::NCMFileLoaderImpl;
+
+std::unique_ptr<StreamDecryptor> CreateNeteaseDecryptor(netease::NCMContentKeyProtectionKeyInput key) {
+    return std::make_unique<NCMFileLoaderImpl>(key);
 }
 
-}  // namespace parakeet_crypto::decryptor::netease
+}  // namespace parakeet_crypto::decryptor

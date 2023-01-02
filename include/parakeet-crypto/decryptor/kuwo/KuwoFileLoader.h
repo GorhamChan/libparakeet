@@ -2,6 +2,7 @@
 
 #include "parakeet-crypto/decryptor/StreamDecryptor.h"
 
+#include <memory>
 #include <span>
 
 namespace parakeet_crypto::decryptor {

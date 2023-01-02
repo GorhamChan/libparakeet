@@ -13,9 +13,10 @@
 using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto::decryptor::netease;
+using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-NCMContentKeyProtectionKey kAESKey = []() {
+const NCMContentKeyProtectionKey kAESKey = []() {
     NCMContentKeyProtectionKey result;
     test::GenerateTestData(result, "ncm-test-key");
     return result;
@@ -31,7 +32,7 @@ TEST(NeteaseNCMLoader, SimpleCase) {
     //    k9R2NAS0zMZ9fHd4z37ei2drOBpNEYWFiN0jMiujKyv7pXPkxtj8eTck0
     //    0Jixun0Parakeet
 
-    std::vector<uint8_t> header_override = {
+    auto header_override = std::to_array<uint8_t>({
         0x43, 0x54, 0x45, 0x4E, 0x46, 0x44, 0x41, 0x4D,
 
         0xff, 0xff,
@@ -52,12 +53,11 @@ TEST(NeteaseNCMLoader, SimpleCase) {
         0xff, 0xff, 0xff, 0xff, 0xff,
 
         0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
-    };
-    std::copy(header_override.begin(), header_override.end(), test_data.begin());
+    });
+    std::ranges::copy(header_override, test_data.begin());
 
-    auto result = test::DecryptTestContent(NCMFileLoader::Create(kAESKey), test_data);
+    auto result = test::DecryptTestContent(CreateNeteaseDecryptor(kAESKey), test_data);
 
-    ASSERT_EQ(test::kSize4MiB - 181, result.size());
-
+    ASSERT_EQ(test::kSize4MiB - header_override.size(), result.size());
     test::VerifyHash(result, "dae77d29821092561702e3cde97add3558f21a1607c9aab0599983632ce0d54b");
 }
