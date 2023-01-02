@@ -9,10 +9,7 @@ namespace parakeet_crypto::decryptor::kugou {
 class KGMCryptoType3 : public KGMCrypto {
    private:
     std::array<uint8_t, 16> slot_key_;
-
-    // file key is 17 bytes.
-    // we are using a buffer of 32 bytes so we can let compiler to optimise.
-    std::array<uint8_t, 32> file_key_;
+    std::array<uint8_t, 17> file_key_;
 
     static inline std::array<uint8_t, 16> hash_type3(const std::span<const uint8_t> data) {
         std::array<uint8_t, 16> result;
@@ -36,8 +33,6 @@ class KGMCryptoType3 : public KGMCrypto {
         auto file_key = hash_type3(header.key);
         std::copy_n(file_key.begin(), file_key.size(), file_key_.begin());
         file_key_[16] = 0x6b;
-        // fill the rest of file_key... 15 bytes
-        std::copy_n(file_key.begin(), 15, file_key_.begin() + 17);
 
         return true;
     }
