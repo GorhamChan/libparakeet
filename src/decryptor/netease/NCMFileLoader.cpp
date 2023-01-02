@@ -88,7 +88,8 @@ class NCMFileLoaderImpl : public StreamDecryptor {
             return false;
         }
 
-        RC4 rc4(std::span{content_key}.subspan(kContentKeyPrefix.size()));
+        NeteaseRC4 rc4;
+        rc4.Init(std::span{content_key}.subspan(kContentKeyPrefix.size()));
         rc4.Derive(final_audio_xor_key_);
 
         return true;

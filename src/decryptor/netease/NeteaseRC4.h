@@ -9,12 +9,14 @@
 
 namespace parakeet_crypto::decryptor::netease {
 
-class RC4 {
+class NeteaseRC4 {
    private:
     std::array<uint8_t, 0x100> S_;
 
    public:
-    explicit RC4(std::span<const uint8_t> key) {
+    NeteaseRC4() = default;
+
+    void Init(std::span<const uint8_t> key) {
         std::iota(S_.begin(), S_.end(), uint8_t{0});
 
         uint8_t j = 0;

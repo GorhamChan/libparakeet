@@ -8,6 +8,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <array>
+#include <vector>
 
 namespace parakeet_crypto::test {
 using namespace ::testing;

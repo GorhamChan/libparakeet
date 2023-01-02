@@ -20,8 +20,11 @@ class KGMCryptoType2 : public KGMCrypto {
     bool Configure(const KGMCryptoConfig& config,
                    const std::vector<uint8_t>& slot_key,
                    const kgm_file_header& header) override {
-        assert(slot_key.size() == key_.size());
-        std::ranges::copy(slot_key.begin(), slot_key.end(), key_.begin());
+        if (slot_key.size() < key_.size()) {
+            return false;
+        }
+
+        std::copy_n(slot_key.begin(), key_.size(), key_.begin());
         return true;
     }
 
