@@ -7,7 +7,9 @@
 #include <cassert>
 
 #include <algorithm>
+#include <array>
 #include <ranges>
+#include <vector>
 
 namespace parakeet_crypto::decryptor {
 
