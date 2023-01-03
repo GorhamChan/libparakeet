@@ -129,9 +129,8 @@ inline std::vector<uint8_t> DecryptTestContent(std::unique_ptr<Loader> loader, c
     }
 
     std::copy_n(&test_data[test_data.size() - footer.size()], footer.size(), footer.begin());
-    std::size_t reserved_size = loader->InitWithFileFooter(footer);
 
-    if (!loader->Write(test_data.data(), test_data.size() - reserved_size)) {
+    if (!loader->Write(test_data.data(), test_data.size())) {
         auto err = loader->GetErrorMessage();
         throw std::runtime_error(
             utils::Format("invoke StreamDecryptor::Write failed, error: %s", loader->GetErrorMessage().c_str()));
