@@ -1,10 +1,10 @@
 #pragma once
 
 #include "parakeet-crypto/decryptor/StreamDecryptor.h"
-#include "parakeet-crypto/misc/QMCFooterParser.h"
-#include "parakeet-crypto/misc/QMCKeyDeriver.h"
 
 #include <cstdint>
+
+#include <memory>
 #include <span>
 
 namespace parakeet_crypto::decryptor {

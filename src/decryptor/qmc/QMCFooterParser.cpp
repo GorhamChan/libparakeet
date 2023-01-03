@@ -1,4 +1,4 @@
-#include "parakeet-crypto/misc/QMCFooterParser.h"
+#include "parakeet-crypto/decryptor/qmc/QMCFooterParser.h"
 
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
