@@ -20,6 +20,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     env:
+      PRESET_NAME: ninja-release
       CXX: g++-11
 
     steps:
@@ -31,33 +32,27 @@ jobs:
       - name: "🖼️ Setup scene..."
         shell: bash
         run: |
-          mkdir -p build
           sudo apt-get update
           sudo apt-get install ninja-build
 
       - name: "🔧 CMake: Configure"
         shell: bash
-        working-directory: build
-        run: |
-          cmake \
-            -D"CMAKE_BUILD_TYPE"="Release" \
-            -G Ninja \
-            ..
+        run: cmake --preset "$PRESET_NAME"
 
       - name: "🛠️ CMake: Build"
-        working-directory: build
-        run: cmake --build .
+        shell: bash
+        run: cmake --build --preset "$PRESET_NAME"
 
       - name: "💣 Test um-crypto ..."
-        working-directory: build
-        run: ctest --output-on-failure
+        shell: bash
+        run: ctest --preset "$PRESET_NAME" --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
         run: |
           DIST_SOURCE="libparakeet-amd64/"
           mkdir -p "${DIST_SOURCE}/libparakeet/lib"
-          cp -R build/*.a "${DIST_SOURCE}/libparakeet/lib"
+          cp -R "out/build/$PRESET_NAME/"*.a "${DIST_SOURCE}/libparakeet/lib"
           cp -R include "${DIST_SOURCE}/libparakeet"
           cp README.md CHANGELOG.md LICENSE.txt "${DIST_SOURCE}"
 

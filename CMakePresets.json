@@ -1,0 +1,111 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 1
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-debug",
+      "displayName": "Ninja (dbg)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Ninja (rel)",
+      "inherits": [
+        "ninja-debug"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "msvc-2022-debug",
+      "displayName": "msvc-2022 (dbg)",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "Windows"
+          ]
+        }
+      }
+    },
+    {
+      "name": "msvc-2022-release",
+      "displayName": "msvc-2022 (rel)",
+      "inherits": [
+        "msvc-2022-debug"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-debug",
+      "configurePreset": "ninja-debug",
+      "displayName": "Debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-release",
+      "configurePreset": "ninja-release",
+      "displayName": "Release",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc-2022-debug",
+      "configurePreset": "msvc-2022-debug",
+      "displayName": "Debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "msvc-2022-release",
+      "configurePreset": "msvc-2022-release",
+      "displayName": "Release",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "ninja-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "ninja-debug"
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "ninja-release"
+    },
+    {
+      "name": "msvc-2022-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msvc-2022-debug"
+    },
+    {
+      "name": "msvc-2022-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msvc-2022-release"
+    }
+  ]
+}
