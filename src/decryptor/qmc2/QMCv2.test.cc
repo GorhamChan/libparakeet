@@ -8,8 +8,6 @@
 #include <vector>
 
 #include "parakeet-crypto/decryptor/qmc2/QMCv2Loader.h"
-#include "parakeet-crypto/misc/QMCFooterParser.h"
-#include "parakeet-crypto/misc/QMCKeyDeriver.h"
 #include "test/helper.test.hh"
 #include "utils/EndianHelper.h"
 #include "utils/base64.h"
@@ -18,7 +16,6 @@ using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
-using namespace parakeet_crypto::misc::tencent;
 
 TEST(QMCv2, RC4Cipher) {
     std::vector<uint8_t> test_data(test::kSize4MiB);

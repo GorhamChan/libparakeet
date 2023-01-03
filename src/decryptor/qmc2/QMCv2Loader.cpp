@@ -28,7 +28,6 @@ class QMCv2LoaderImpl : public StreamDecryptor {
    private:
     std::vector<uint8_t> key_;
     State state_ = State::kDecryptFirstSegment;
-    std::shared_ptr<misc::tencent::QMCFooterParser> parser_;
 
     std::vector<uint8_t> S_;
     double key_hash_;
