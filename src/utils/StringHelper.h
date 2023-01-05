@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstdint>
+
 #include <algorithm>
+#include <span>
 
 namespace parakeet_crypto::utils {
 
