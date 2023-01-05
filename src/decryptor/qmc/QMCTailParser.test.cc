@@ -15,8 +15,6 @@ using ::testing::Return;
 
 using namespace parakeet_crypto::qmc;
 
-static const std::array<uint8_t, 16> kTestKey = {};
-
 class DummyKeyCrypto : public KeyCrypto {
    public:
     DummyKeyCrypto() {}
@@ -25,6 +23,8 @@ class DummyKeyCrypto : public KeyCrypto {
     MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (const std::string& ekey_b64), (const, override));
     MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (std::span<const uint8_t> ekey), (const, override));
 };
+
+// NOLINTBEGIN(*-magic-numbers)
 
 TEST(QMCTailParser, PCClientTail) {
     std::vector<uint8_t> mocked_key = {1, 2, 3};
@@ -95,3 +95,5 @@ TEST(QMCTailParser, ShouldWorkWithQTag) {
     ASSERT_EQ(result->first, 0x1C + 8);
     ASSERT_THAT(result->second, ContainerEq(expected_key));
 }
+
+// NOLINTEND(*-magic-numbers)
