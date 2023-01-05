@@ -1,0 +1,14 @@
+---
+Checks: |
+    -*,
+    clang-analyzer-*,
+    performance-*, readability-*, bugprone-*,
+    cppcoreguidelines-*,
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic
+    mpi-*,misc-*,
+    modernize-*,
+        -modernize-use-trailing-return-type
+WarningsAsErrors: true
+HeaderFilterRegex: ""
+AnalyzeTemporaryDtors: false
+# FormatStyle:     google

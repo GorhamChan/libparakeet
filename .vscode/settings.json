@@ -20,5 +20,6 @@
     "xiami",
     "ximalaya",
     "xmly"
-  ]
+  ],
+  "clang-tidy.buildPath": "out/build/ninja-debug/"
 }

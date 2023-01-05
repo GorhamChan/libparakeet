@@ -12,3 +12,4 @@ jobs:
         id: review
         with:
           cmake_command: cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=on
+          config_file: ".clang-tidy"
