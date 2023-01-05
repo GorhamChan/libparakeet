@@ -1,9 +1,10 @@
 #pragma once
 
-#include <bit>
-#include <concepts>
 #include <cstdint>
 #include <cstdlib>
+
+#include <bit>
+#include <concepts>
 
 #if _MSC_VER
 #ifndef __builtin_bswap64
@@ -68,26 +69,40 @@ constexpr inline T SwapBigEndianToHost(T input) {
 // Pointer access - Read
 
 template <std::integral A>
-inline A ReadLittleEndian(const void* p) {
-    return SwapLittleEndianToHost(*reinterpret_cast<const A*>(p));
+inline A ReadBigEndian(const uint8_t* ptr) {
+    typedef std::make_unsigned<A>::type UA;
+
+    UA result = UA{0};
+    for (auto p_end = ptr + sizeof(A); ptr != p_end; ptr++) {
+        result <<= 8;
+        result |= UA{*ptr};
+    }
+
+    return static_cast<A>(result);
 }
 
 template <std::integral A>
-inline A ReadBigEndian(const void* p) {
-    return SwapBigEndianToHost(*reinterpret_cast<const A*>(p));
+inline A ReadLittleEndian(const uint8_t* ptr) {
+    return detail::swap_bytes(ReadBigEndian<A>(ptr));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pointer access - Write
 
 template <std::integral A>
-inline void WriteLittleEndian(void* p, A value) {
-    *reinterpret_cast<A*>(p) = SwapHostToLittleEndian(value);
+inline void WriteLittleEndian(uint8_t* ptr, A value) {
+    typedef std::make_unsigned<A>::type UA;
+
+    UA temp_value = static_cast<UA>(value);
+    for (auto p_end = ptr + sizeof(A); ptr != p_end; ptr++) {
+        *ptr = static_cast<uint8_t>(temp_value);
+        temp_value >>= 8;
+    }
 }
 
 template <std::integral A>
-inline void WriteBigEndian(void* p, A value) {
-    *reinterpret_cast<A*>(p) = SwapHostToBigEndian(value);
+inline void WriteBigEndian(uint8_t* ptr, A value) {
+    WriteLittleEndian<A>(ptr, detail::swap_bytes(value));
 }
 
 }  // namespace parakeet_crypto
