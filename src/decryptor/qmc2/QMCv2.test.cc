@@ -7,12 +7,10 @@
 #include <memory>
 #include <vector>
 
-#include "parakeet-crypto/decryptor/qmc2/QMCv2Loader.h"
+#include "parakeet-crypto/decryptor/qmc/QMCLoader.h"
 #include "test/helper.test.hh"
 #include "utils/EndianHelper.h"
 #include "utils/base64.h"
-
-using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;

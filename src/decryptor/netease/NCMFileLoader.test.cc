@@ -10,8 +10,6 @@
 #include "parakeet-crypto/decryptor/netease/NCMFileLoader.h"
 #include "test/helper.test.hh"
 
-using ::testing::ElementsAreArray;
-
 using namespace parakeet_crypto::decryptor::netease;
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;

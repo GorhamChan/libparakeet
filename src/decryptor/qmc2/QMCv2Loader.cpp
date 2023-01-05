@@ -1,4 +1,4 @@
-#include "parakeet-crypto/decryptor/qmc2/QMCv2Loader.h"
+#include "parakeet-crypto/decryptor/qmc/QMCLoader.h"
 
 #include "QMCv2RC4.h"
 #include "QMCv2Utils.h"

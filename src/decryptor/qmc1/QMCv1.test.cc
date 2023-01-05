@@ -7,10 +7,8 @@
 #include <memory>
 #include <vector>
 
-#include "parakeet-crypto/decryptor/qmc1/QMCv1Loader.h"
+#include "parakeet-crypto/decryptor/qmc/QMCLoader.h"
 #include "test/helper.test.hh"
-
-using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto::decryptor::tencent;
 using namespace parakeet_crypto::decryptor;
