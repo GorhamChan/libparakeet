@@ -27,8 +27,8 @@ class DummyKeyCrypto : public KeyCrypto {
 // NOLINTBEGIN(*-magic-numbers)
 
 TEST(QMCTailParser, PCClientTail) {
-    std::vector<uint8_t> mocked_key = {1, 2, 3};
-    std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
+    const std::vector<uint8_t> mocked_key = {1, 2, 3};
+    const std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
 
     auto test_data = std::to_array<uint8_t>({
         'u',  'n',  'u',  's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                      // padding
@@ -43,7 +43,7 @@ TEST(QMCTailParser, PCClientTail) {
     auto parser = CreateTailParser(key_crypto_mock);
     auto result = parser->Parse(test_data);
 
-    ASSERT_NE(result, std::nullopt);
+    assert(result.has_value());
     ASSERT_EQ(result->first, 20);
     ASSERT_THAT(result->second, ContainerEq(expected_key));
 }
@@ -69,8 +69,8 @@ TEST(QMCTailParser, ShouldRejectSTag) {
 }
 
 TEST(QMCTailParser, ShouldWorkWithQTag) {
-    std::vector<uint8_t> mocked_key = {1, 2, 3};
-    std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
+    const std::vector<uint8_t> mocked_key = {1, 2, 3};
+    const std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
 
     auto test_data = std::to_array<uint8_t>({
         'u', 'n', 'u', 's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                           // padding
@@ -79,8 +79,7 @@ TEST(QMCTailParser, ShouldWorkWithQTag) {
         '5', '8', '7', '4', '8', '1', '3', '0', '7', ',',                                     //  - song_id
         '2',                                                                                  //  - meta version?
                                                                                               //    always 2
-        0x00, 0x00, 0x00, 0x1C,                                                               // size(CSV Record)
-                                                                                              //    = 0x1C (28)
+        0x00, 0x00, 0x00, 0x1C,                                                               // size of CSV Record
         'Q', 'T', 'a', 'g'                                                                    // ending
     });
 
@@ -91,7 +90,7 @@ TEST(QMCTailParser, ShouldWorkWithQTag) {
     auto parser = CreateTailParser(key_crypto_mock);
     auto result = parser->Parse(test_data);
 
-    ASSERT_NE(result, std::nullopt);
+    assert(result.has_value());
     ASSERT_EQ(result->first, 0x1C + 8);
     ASSERT_THAT(result->second, ContainerEq(expected_key));
 }
