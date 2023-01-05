@@ -1,17 +1,36 @@
 #include "parakeet-crypto/decryptor/qmc/QMCTailParser.h"
 
 #include "utils/EndianHelper.h"
-#include "utils/StringHelper.h"
 
 #include <algorithm>
 #include <array>
+#include <span>
+#include <string>
 #include <utility>
 
 namespace parakeet_crypto::qmc {
 
 namespace detail {
 
-using parakeet_crypto::utils::ParseCSVLine;
+inline std::vector<std::string> ParseCSVLine(std::span<const uint8_t> data) {
+    std::vector<std::string> result;
+
+    auto begin_next_str = data.begin();
+    auto str_end = data.end();
+
+    for (auto it = begin_next_str; it < str_end; it++) {
+        if (*it == ',') {
+            result.push_back(std::string(begin_next_str, it));
+            begin_next_str = it + 1;
+        }
+    }
+
+    if (begin_next_str != str_end) {
+        result.push_back(std::string(begin_next_str, str_end));
+    }
+
+    return result;
+}
 
 class TailParserImpl : public TailParser {
    public:
