@@ -13,7 +13,6 @@
 #include <numeric>
 #include <vector>
 
-using ::testing::ContainerEq;
 using ::testing::ElementsAreArray;
 
 using namespace parakeet_crypto;
