@@ -26,6 +26,6 @@ class TailParser {
     virtual std::optional<std::pair<std::size_t, std::vector<uint8_t>>> Parse(std::span<const uint8_t> data) const = 0;
 };
 
-std::unique_ptr<TailParser> CreateTailParser(std::shared_ptr<KeyCrypto> key_crypto);
+std::unique_ptr<TailParser> CreateTailParser(const std::shared_ptr<KeyCrypto>& key_crypto);
 
 }  // namespace parakeet_crypto::qmc

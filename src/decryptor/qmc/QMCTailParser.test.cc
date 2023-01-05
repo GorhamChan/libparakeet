@@ -20,7 +20,7 @@ static const std::array<uint8_t, 16> kTestKey = {};
 class DummyKeyCrypto : public KeyCrypto {
    public:
     DummyKeyCrypto() {}
-    virtual ~DummyKeyCrypto() = default;
+    ~DummyKeyCrypto() override = default;
 
     MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (const std::string& ekey_b64), (const, override));
     MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (std::span<const uint8_t> ekey), (const, override));
@@ -28,7 +28,7 @@ class DummyKeyCrypto : public KeyCrypto {
 
 TEST(QMCTailParser, PCClientTail) {
     std::vector<uint8_t> mocked_key = {1, 2, 3};
-    std::vector<uint8_t> expected_key = mocked_key;
+    std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
 
     auto test_data = std::to_array<uint8_t>({
         'u',  'n',  'u',  's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                      // padding
@@ -70,7 +70,7 @@ TEST(QMCTailParser, ShouldRejectSTag) {
 
 TEST(QMCTailParser, ShouldWorkWithQTag) {
     std::vector<uint8_t> mocked_key = {1, 2, 3};
-    std::vector<uint8_t> expected_key = mocked_key;
+    std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
 
     auto test_data = std::to_array<uint8_t>({
         'u', 'n', 'u', 's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                           // padding
