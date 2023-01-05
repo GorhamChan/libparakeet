@@ -11,11 +11,13 @@
 
 namespace parakeet_crypto::qmc {
 
-using EncV2Stage1Key = std::array<uint8_t, 16>;
-using EncV2Stage1KeyInput = std::span<const uint8_t, 16>;
+constexpr std::size_t kEncV2Stage1KeySize = 16;
+using EncV2Stage1Key = std::array<uint8_t, kEncV2Stage1KeySize>;
+using EncV2Stage1KeyInput = std::span<const uint8_t, kEncV2Stage1KeySize>;
 
-using EncV2Stage2Key = std::array<uint8_t, 16>;
-using EncV2Stage2KeyInput = std::span<const uint8_t, 16>;
+constexpr std::size_t kEncV2Stage2KeySize = 16;
+using EncV2Stage2Key = std::array<uint8_t, kEncV2Stage2KeySize>;
+using EncV2Stage2KeyInput = std::span<const uint8_t, kEncV2Stage2KeySize>;
 
 // FIXME: Not tested
 
