@@ -19,8 +19,6 @@ constexpr std::size_t kEncV2Stage2KeySize = 16;
 using EncV2Stage2Key = std::array<uint8_t, kEncV2Stage2KeySize>;
 using EncV2Stage2KeyInput = std::span<const uint8_t, kEncV2Stage2KeySize>;
 
-// FIXME: Not tested
-
 class KeyCrypto {
    public:
     virtual ~KeyCrypto() = default;

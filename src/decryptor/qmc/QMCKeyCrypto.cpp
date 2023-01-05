@@ -1,7 +1,9 @@
 #include "parakeet-crypto/decryptor/qmc/QMCKeyCrypto.h"
+#include "EncV2.h"
+
 #include "utils/base64.h"
 
-#include "tc_tea/tc_tea.h"
+#include <tc_tea/tc_tea.h>
 
 #include <algorithm>
 #include <iterator>
@@ -74,12 +76,13 @@ class KeyCryptoImpl : public KeyCrypto {
         constexpr std::size_t kUnscrambledFirstPartSize = 8;
 
         if (ekey.size() >= kEncV2Prefix.size() && std::equal(kEncV2Prefix.begin(), kEncV2Prefix.end(), ekey.begin())) {
-            v2KeyDecrypted = DecryptEncV2Key(ekey.subspan(kEncV2Prefix.size()));
-            // Decrypt failed?
-            if (v2KeyDecrypted.empty()) {
-                return {};
-            }
+            using tea_key::DecryptEncV2Key;
+            v2KeyDecrypted = DecryptEncV2Key(ekey.subspan(kEncV2Prefix.size()), enc_v2_stage1_key_, enc_v2_stage2_key_);
             ekey = std::span{v2KeyDecrypted};
+
+            if (ekey.empty()) {
+                return {};  // failed to decrypt EncV2 key
+            }
         }
 
         if (ekey.size() < kUnscrambledFirstPartSize) {
@@ -97,20 +100,6 @@ class KeyCryptoImpl : public KeyCrypto {
         final_key.insert(final_key.end(), ekey.begin(), ekey.begin() + kUnscrambledFirstPartSize);
         final_key.insert(final_key.end(), decrypted_key.begin(), decrypted_key.end());
         return final_key;
-    }
-
-    [[nodiscard]] inline std::vector<uint8_t> DecryptEncV2Key(std::span<const uint8_t> cipher) const {
-        auto stage1 = tc_tea::CBC_Decrypt(cipher, enc_v2_stage1_key_);
-        if (stage1.empty()) {
-            return {};
-        }
-
-        auto stage2 = tc_tea::CBC_Decrypt(stage1, enc_v2_stage2_key_);
-        if (stage2.empty()) {
-            return {};
-        }
-
-        return utils::Base64Decode(stage2);
     }
 };
 
