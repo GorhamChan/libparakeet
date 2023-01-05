@@ -43,9 +43,11 @@ TEST(QMCTailParser, PCClientTail) {
     auto parser = CreateTailParser(key_crypto_mock);
     auto result = parser->Parse(test_data);
 
-    assert(result.has_value());
-    ASSERT_EQ(result->first, 20);
-    ASSERT_THAT(result->second, ContainerEq(expected_key));
+    ASSERT_TRUE(result.has_value());
+    if (result) {
+        ASSERT_EQ(result->first, 20);
+        ASSERT_THAT(result->second, ContainerEq(expected_key));
+    }
 }
 
 TEST(QMCTailParser, ShouldRejectSTag) {
@@ -90,9 +92,11 @@ TEST(QMCTailParser, ShouldWorkWithQTag) {
     auto parser = CreateTailParser(key_crypto_mock);
     auto result = parser->Parse(test_data);
 
-    assert(result.has_value());
-    ASSERT_EQ(result->first, 0x1C + 8);
-    ASSERT_THAT(result->second, ContainerEq(expected_key));
+    ASSERT_TRUE(result.has_value());
+    if (result) {
+        ASSERT_EQ(result->first, 0x1C + 8);
+        ASSERT_THAT(result->second, ContainerEq(expected_key));
+    }
 }
 
 // NOLINTEND(*-magic-numbers)
