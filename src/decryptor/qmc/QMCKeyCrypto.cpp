@@ -60,21 +60,21 @@ class KeyCryptoImpl : public KeyCrypto {
         assert(enc_v2_stage1_key.size() == enc_v2_stage1_key_.size());
         assert(enc_v2_stage2_key.size() == enc_v2_stage2_key_.size());
 
-        std::copy(enc_v2_stage1_key.begin(), enc_v2_stage1_key.end(), enc_v2_stage1_key_.begin());
-        std::copy(enc_v2_stage2_key.begin(), enc_v2_stage2_key.end(), enc_v2_stage2_key_.begin());
+        std::ranges::copy(enc_v2_stage1_key, enc_v2_stage1_key_.begin());
+        std::ranges::copy(enc_v2_stage2_key, enc_v2_stage2_key_.begin());
     }
 
-    std::optional<std::vector<uint8_t>> Decrypt(const std::string& ekey_b64) const override {
+    [[nodiscard]] std::optional<std::vector<uint8_t>> Decrypt(const std::string& ekey_b64) const override {
         std::vector<uint8_t> ekey = utils::Base64Decode(ekey_b64);
         return Decrypt(ekey);
     }
 
-    std::optional<std::vector<uint8_t>> Decrypt(std::span<const uint8_t> ekey) const override {
+    [[nodiscard]] std::optional<std::vector<uint8_t>> Decrypt(std::span<const uint8_t> ekey) const override {
         std::vector<uint8_t> v2KeyDecrypted{};
         constexpr std::size_t kUnscrambledFirstPartSize = 8;
 
         if (ekey.size() >= kEncV2Prefix.size() && std::equal(kEncV2Prefix.begin(), kEncV2Prefix.end(), ekey.begin())) {
-            auto v2KeyDecrypted = DecryptEncV2Key(ekey.subspan(kEncV2Prefix.size()));
+            v2KeyDecrypted = DecryptEncV2Key(ekey.subspan(kEncV2Prefix.size()));
             // Decrypt failed?
             if (v2KeyDecrypted.empty()) {
                 return {};
@@ -82,8 +82,7 @@ class KeyCryptoImpl : public KeyCrypto {
             ekey = std::span{v2KeyDecrypted};
         }
 
-        const auto ekey_len = ekey.size();
-        if (ekey_len < kUnscrambledFirstPartSize) {
+        if (ekey.size() < kUnscrambledFirstPartSize) {
             return {};
         }
 
@@ -100,7 +99,7 @@ class KeyCryptoImpl : public KeyCrypto {
         return final_key;
     }
 
-    inline std::vector<uint8_t> DecryptEncV2Key(std::span<const uint8_t> cipher) const {
+    [[nodiscard]] inline std::vector<uint8_t> DecryptEncV2Key(std::span<const uint8_t> cipher) const {
         auto stage1 = tc_tea::CBC_Decrypt(cipher, enc_v2_stage1_key_);
         if (stage1.empty()) {
             return {};

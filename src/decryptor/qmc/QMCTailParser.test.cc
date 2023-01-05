@@ -17,7 +17,7 @@ using namespace parakeet_crypto::qmc;
 
 class DummyKeyCrypto : public KeyCrypto {
    public:
-    DummyKeyCrypto() {}
+    DummyKeyCrypto() = default;
     ~DummyKeyCrypto() override = default;
 
     MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (const std::string& ekey_b64), (const, override));
@@ -37,7 +37,7 @@ TEST(QMCTailParser, PCClientTail) {
     });
 
     auto key_crypto_mock = std::make_shared<DummyKeyCrypto>();
-    std::string key_input = std::string("Rq16Xz46xsPgl6mD");
+    auto key_input = std::string("Rq16Xz46xsPgl6mD");
     EXPECT_CALL(*key_crypto_mock, Decrypt(key_input)).WillOnce(Return(mocked_key));
 
     auto parser = CreateTailParser(key_crypto_mock);
@@ -79,13 +79,13 @@ TEST(QMCTailParser, ShouldWorkWithQTag) {
         '5', '8', '7', '4', '8', '1', '3', '0', '7', ',',                                     //  - song_id
         '2',                                                                                  //  - meta version?
                                                                                               //    always 2
-        0x00, 0x00, 0x00, 0x1C,                                                               // sizeof(CSV Record)
+        0x00, 0x00, 0x00, 0x1C,                                                               // size(CSV Record)
                                                                                               //    = 0x1C (28)
         'Q', 'T', 'a', 'g'                                                                    // ending
     });
 
     auto key_crypto_mock = std::make_shared<DummyKeyCrypto>();
-    std::string key_input = std::string("Rq16Xz46xsPgl6mD");
+    auto key_input = std::string("Rq16Xz46xsPgl6mD");
     EXPECT_CALL(*key_crypto_mock, Decrypt(key_input)).WillOnce(Return(mocked_key));
 
     auto parser = CreateTailParser(key_crypto_mock);

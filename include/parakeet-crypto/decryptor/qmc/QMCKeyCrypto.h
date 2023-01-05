@@ -25,8 +25,8 @@ class KeyCrypto {
    public:
     virtual ~KeyCrypto() = default;
 
-    virtual std::optional<std::vector<uint8_t>> Decrypt(const std::string& ekey_b64) const = 0;
-    virtual std::optional<std::vector<uint8_t>> Decrypt(std::span<const uint8_t> ekey) const = 0;
+    [[nodiscard]] virtual std::optional<std::vector<uint8_t>> Decrypt(const std::string& ekey_b64) const = 0;
+    [[nodiscard]] virtual std::optional<std::vector<uint8_t>> Decrypt(std::span<const uint8_t> ekey) const = 0;
 };
 
 std::unique_ptr<KeyCrypto> CreateKeyCrypto(EncV2Stage1KeyInput enc_v2_stage1_key,

@@ -11,4 +11,7 @@ Checks: |
 WarningsAsErrors: true
 HeaderFilterRegex: ""
 AnalyzeTemporaryDtors: false
-# FormatStyle:     google
+FormatStyle: .clang-format
+CheckOptions:
+    - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+      value: true

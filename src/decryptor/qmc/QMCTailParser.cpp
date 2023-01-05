@@ -20,13 +20,13 @@ inline std::vector<std::string> ParseCSVLine(std::span<const uint8_t> data) {
 
     for (auto it = begin_next_str; it < str_end; it++) {
         if (*it == ',') {
-            result.push_back(std::string(begin_next_str, it));
+            result.emplace_back(begin_next_str, it);
             begin_next_str = it + 1;
         }
     }
 
     if (begin_next_str != str_end) {
-        result.push_back(std::string(begin_next_str, str_end));
+        result.emplace_back(begin_next_str, str_end);
     }
 
     return result;
@@ -34,10 +34,23 @@ inline std::vector<std::string> ParseCSVLine(std::span<const uint8_t> data) {
 
 class TailParserImpl : public TailParser {
    public:
-    TailParserImpl(std::shared_ptr<KeyCrypto> key_crypto) : key_crypto_(std::move(key_crypto)){};
+    using ParsedTailResultB64Key = std::pair<std::size_t, std::string>;
+
+    explicit TailParserImpl(std::shared_ptr<KeyCrypto> key_crypto) : key_crypto_(std::move(key_crypto)){};
     ~TailParserImpl() override = default;
 
-    std::optional<std::pair<std::size_t, std::vector<uint8_t>>> Parse(std::span<const uint8_t> data) const override {
+    [[nodiscard]] std::optional<ParsedTailResult> Parse(std::span<const uint8_t> data) const override {
+        if (auto parse_result = ParseMetadataByTailMagic(data)) {
+            // We got a valid tail, now let's attempt to decrypt its key...
+            if (auto key = key_crypto_->Decrypt(parse_result->second)) {
+                return std::make_pair(parse_result->first, *key);
+            }
+        }
+
+        return {};
+    }
+
+    static inline std::optional<ParsedTailResultB64Key> ParseMetadataByTailMagic(std::span<const uint8_t> data) {
         constexpr std::size_t kCommonEndingSize = 4;
 
         if (data.size() < kCommonEndingSize) {
@@ -55,30 +68,16 @@ class TailParserImpl : public TailParser {
             return {};
         }
 
-        std::optional<std::pair<std::size_t, std::string>> parse_result;
-
         if (std::equal(kMagicQTag.cbegin(), kMagicQTag.cend(), ending.cbegin())) {
             // Legacy android format, with embedded metadata & keys.
-            parse_result = ParseAndroidClientTail(data);
-        } else {
-            // Windows client, end with meta size.
-            parse_result = ParsePCClientTail(data);
+            return ParseAndroidClientTail(data);
         }
 
-        if (!parse_result) {
-            return {};
-        }
-
-        // We got a valid tail, now let's attempt to decrypt its key...
-        if (auto key = key_crypto_->Decrypt(parse_result->second)) {
-            return std::make_pair(parse_result->first, *key);
-        }
-
-        return {};
+        // Fallback: Windows client, ends with meta size.
+        return ParsePCClientTail(data);
     }
 
-    static inline std::optional<std::pair<std::size_t, std::string>> ParseAndroidClientTail(
-        std::span<const uint8_t> data) {
+    static inline std::optional<ParsedTailResultB64Key> ParseAndroidClientTail(std::span<const uint8_t> data) {
         // Legacy Android format.
         //   metadata := [ansi ekey_b64] ","
         //               [ansi song_id] ","
@@ -96,12 +95,12 @@ class TailParserImpl : public TailParser {
 
         auto meta_len = ReadBigEndian<uint32_t>(&data[data.size() - kOffsetFromMetaSize]);
 
-        size_t tail_size = meta_len + kOffsetFromMetaSize;
+        const auto tail_size = kOffsetFromMetaSize + meta_len;
         if (data.size() < tail_size) {
             return {};
         }
 
-        auto metadata = ParseCSVLine(std::span{data.end() - tail_size, meta_len});
+        auto metadata = ParseCSVLine(data.subspan(data.size() - tail_size, meta_len));
 
         // We should see the following:
         //    ekey_b64, song id and metadata version;
@@ -113,7 +112,7 @@ class TailParserImpl : public TailParser {
         return std::make_pair(tail_size, metadata[0]);
     }
 
-    static inline std::optional<std::pair<std::size_t, std::string>> ParsePCClientTail(std::span<const uint8_t> data) {
+    static inline std::optional<ParsedTailResultB64Key> ParsePCClientTail(std::span<const uint8_t> data) {
         // Legacy PC QQMusic encoded format.
         // ekey_b64 := [ansi ekey_b64]
         // eof_mark := [(le)uint32_t ekey_size]
@@ -124,12 +123,12 @@ class TailParserImpl : public TailParser {
 
         auto ekey_size = ReadLittleEndian<uint32_t>(&data[data.size() - 4]);
 
-        size_t tail_size = ekey_size + 4;
+        const std::size_t tail_size = ekey_size + 4;
         if (data.size() < tail_size) {
             return {};
         }
 
-        return std::make_pair(tail_size, std::string(data.end() - tail_size, data.end() - 4));
+        return std::make_pair(tail_size, std::string(data.end() - static_cast<int32_t>(tail_size), data.end() - 4));
     }
 
    private:
