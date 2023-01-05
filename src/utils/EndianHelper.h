@@ -1,10 +1,12 @@
 #pragma once
 
+#include <climits>
 #include <cstdint>
 #include <cstdlib>
 
 #include <bit>
 #include <concepts>
+#include <type_traits>
 
 #if _MSC_VER
 #ifndef __builtin_bswap64
@@ -27,10 +29,16 @@ constexpr bool is_be = std::endian::native == std::endian::big;
 
 template <std::integral T>
 constexpr T swap_bytes(T input) {
-    if constexpr (sizeof(T) == 8) return T(__builtin_bswap64(uint64_t(input)));
-    if constexpr (sizeof(T) == 4) return T(__builtin_bswap32(uint32_t(input)));
-    if constexpr (sizeof(T) == 2) return T(__builtin_bswap16(uint16_t(input)));
-    return input;  // uint8_t -- no conversion required
+    if constexpr (std::is_same_v<std::make_unsigned_t<T>, uint64_t>) {
+        return T(__builtin_bswap64(uint64_t(input)));
+    } else if constexpr (std::is_same_v<std::make_unsigned_t<T>, uint32_t>) {
+        return T(__builtin_bswap32(uint32_t(input)));
+    } else if constexpr (std::is_same_v<std::make_unsigned_t<T>, uint16_t>) {
+        return T(__builtin_bswap16(uint16_t(input)));
+    } else {
+        static_assert(std::is_same_v<std::make_unsigned_t<T>, uint8_t>, "unsupported type for swap_bytes");
+        return input;  // uint8_t -- no conversion required
+    }
 }
 
 }  // namespace detail
@@ -42,27 +50,39 @@ constexpr T swap_bytes(T input) {
 // Otherwise: swap
 
 template <std::integral T>
-constexpr inline T SwapHostToLittleEndian(T input) {
-    if constexpr (detail::is_le) return input;
-    return detail::swap_bytes(input);
+constexpr T SwapHostToLittleEndian(T input) {
+    if constexpr (detail::is_le) {
+        return input;
+    } else {
+        return detail::swap_bytes(input);
+    }
 }
 
 template <std::integral T>
-constexpr inline T SwapHostToBigEndian(T input) {
-    if constexpr (detail::is_be) return input;
-    return detail::swap_bytes(input);
+constexpr T SwapHostToBigEndian(T input) {
+    if constexpr (detail::is_be) {
+        return input;
+    } else {
+        return detail::swap_bytes(input);
+    }
 }
 
 template <std::integral T>
-constexpr inline T SwapLittleEndianToHost(T input) {
-    if constexpr (detail::is_le) return input;
-    return detail::swap_bytes(input);
+constexpr T SwapLittleEndianToHost(T input) {
+    if constexpr (detail::is_le) {
+        return input;
+    } else {
+        return detail::swap_bytes(input);
+    }
 }
 
 template <std::integral T>
-constexpr inline T SwapBigEndianToHost(T input) {
-    if constexpr (detail::is_be) return input;
-    return detail::swap_bytes(input);
+constexpr T SwapBigEndianToHost(T input) {
+    if constexpr (detail::is_be) {
+        return input;
+    } else {
+        return detail::swap_bytes(input);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,11 +90,11 @@ constexpr inline T SwapBigEndianToHost(T input) {
 
 template <std::integral A>
 inline A ReadBigEndian(const uint8_t* ptr) {
-    typedef std::make_unsigned<A>::type UA;
+    using UA = std::make_unsigned_t<A>;
 
     UA result = UA{0};
-    for (auto p_end = ptr + sizeof(A); ptr != p_end; ptr++) {
-        result <<= 8;
+    for (const auto* const p_end = ptr + sizeof(A); ptr != p_end; ptr++) {
+        result <<= CHAR_BIT;
         result |= UA{*ptr};
     }
 
@@ -91,12 +111,12 @@ inline A ReadLittleEndian(const uint8_t* ptr) {
 
 template <std::integral A>
 inline void WriteLittleEndian(uint8_t* ptr, A value) {
-    typedef std::make_unsigned<A>::type UA;
+    using UA = std::make_unsigned_t<A>;
 
-    UA temp_value = static_cast<UA>(value);
-    for (auto p_end = ptr + sizeof(A); ptr != p_end; ptr++) {
+    auto temp_value = static_cast<UA>(value);
+    for (const auto* p_end = ptr + sizeof(A); ptr != p_end; ptr++) {
         *ptr = static_cast<uint8_t>(temp_value);
-        temp_value >>= 8;
+        temp_value >>= CHAR_BIT;
     }
 }
 
