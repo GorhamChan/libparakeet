@@ -12,8 +12,6 @@
 #include "utils/EndianHelper.h"
 #include "utils/base64.h"
 
-using ::testing::ElementsAreArray;
-
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 

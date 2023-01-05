@@ -12,8 +12,6 @@
 #include "test/helper.test.hh"
 #include "utils/EndianHelper.h"
 
-using ::testing::ElementsAreArray;
-
 using namespace parakeet_crypto::decryptor::ximalaya;
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
