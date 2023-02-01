@@ -4,7 +4,9 @@ Checks: |
     clang-analyzer-*,
     performance-*, readability-*, bugprone-*,
     cppcoreguidelines-*,
-        -cppcoreguidelines-pro-bounds-pointer-arithmetic
+        -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+        -cppcoreguidelines-pro-type-union-access,
+        -cppcoreguidelines-pro-bounds-constant-array-index,
     mpi-*,misc-*,
     modernize-*,
         -modernize-use-trailing-return-type

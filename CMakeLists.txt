@@ -117,6 +117,7 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
         GTest::gtest_main
         ${PROJECT_NAME}
     )
+    file(COPY fixture DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
     include(GoogleTest)
     gtest_discover_tests(parakeet_crypto_test)
