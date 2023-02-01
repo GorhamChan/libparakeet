@@ -1,3 +1,5 @@
 build/
 build-*/
 out/
+*.code-workspace
+CMakeUserPresets.json

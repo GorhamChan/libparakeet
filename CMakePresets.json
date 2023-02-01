@@ -54,6 +54,25 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "msys2-ucrt64",
+      "displayName": "MSYS2 urct64",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "environment": {
+        "MSYS_PATH": "c:/msys64",
+        "PATH": "$env{MSYS_PATH}/ucrt64/bin/;$env{MSYS_PATH}/usr/bin/;$penv{PATH}"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     }
   ],
   "buildPresets": [
@@ -80,6 +99,18 @@
       "configurePreset": "msvc-2022-release",
       "displayName": "Release",
       "configuration": "Release"
+    },
+    {
+      "name": "ucrt64-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msys2-ucrt64"
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msys2-ucrt64"
     }
   ],
   "testPresets": [
@@ -106,6 +137,18 @@
       "displayName": "Release",
       "configuration": "Release",
       "configurePreset": "msvc-2022-release"
+    },
+    {
+      "name": "ucrt64-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msys2-ucrt64"
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msys2-ucrt64"
     }
   ]
 }
