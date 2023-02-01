@@ -11,10 +11,12 @@
 #include <utility>
 #include <vector>
 
-namespace parakeet_crypto::qmc {
+namespace parakeet_crypto::qmc
+{
 
-class TailParser {
-   public:
+class TailParser
+{
+  public:
     using ParsedTailResult = std::pair<std::size_t, std::vector<uint8_t>>;
 
     virtual ~TailParser() = default;
@@ -28,6 +30,6 @@ class TailParser {
     [[nodiscard]] virtual std::optional<ParsedTailResult> Parse(std::span<const uint8_t> data) const = 0;
 };
 
-std::unique_ptr<TailParser> CreateTailParser(const std::shared_ptr<KeyCrypto>& key_crypto);
+std::unique_ptr<TailParser> CreateTailParser(const std::shared_ptr<KeyCrypto> &key_crypto);
 
-}  // namespace parakeet_crypto::qmc
+} // namespace parakeet_crypto::qmc

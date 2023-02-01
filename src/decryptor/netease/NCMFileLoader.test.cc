@@ -20,7 +20,8 @@ const NCMContentKeyProtectionKey kAESKey = []() {
     return result;
 }();
 
-TEST(NeteaseNCMLoader, SimpleCase) {
+TEST(NeteaseNCMLoader, SimpleCase)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB);
 
     test::GenerateTestData(test_data, "ncm-test-data");

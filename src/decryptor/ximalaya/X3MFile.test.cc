@@ -16,7 +16,8 @@ using namespace parakeet_crypto::decryptor::ximalaya;
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-TEST(Ximalaya, X3MTestCase) {
+TEST(Ximalaya, X3MTestCase)
+{
     std::vector<uint8_t> test_data(test::kSize1MiB);
     test::GenerateTestData(test_data, "x3m-test-data");
 
@@ -24,13 +25,15 @@ TEST(Ximalaya, X3MTestCase) {
     test::GenerateTestData(x3m_content_key, "x3m content key");
 
     ScrambleTable x3m_scramble_table;
-    for (uint16_t i = 0; i < x3m_scramble_table.size(); i++) {
+    for (uint16_t i = 0; i < x3m_scramble_table.size(); i++)
+    {
         x3m_scramble_table[i] = i;
     }
 
     std::vector<uint8_t> x3m_scramble_seed(x3m_scramble_table.size() * 2);
     test::GenerateTestData(x3m_scramble_seed, "x3m seed");
-    for (std::size_t i = 0; i < x3m_scramble_table.size(); i++) {
+    for (std::size_t i = 0; i < x3m_scramble_table.size(); i++)
+    {
         std::size_t j = ReadLittleEndian<uint16_t>(&x3m_scramble_seed[i * 2]) % x3m_scramble_table.size();
         std::swap(x3m_scramble_table[i], x3m_scramble_table[j]);
     }

@@ -2,9 +2,11 @@
 
 #include <cryptopp/base64.h>
 
-namespace parakeet_crypto::utils {
+namespace parakeet_crypto::utils
+{
 
-std::vector<uint8_t> Base64Encode(const uint8_t* input, size_t len) {
+std::vector<uint8_t> Base64Encode(const uint8_t *input, size_t len)
+{
     CryptoPP::Base64Encoder encoder(nullptr, false);
     encoder.Put(input, len);
     encoder.MessageEnd();
@@ -14,7 +16,8 @@ std::vector<uint8_t> Base64Encode(const uint8_t* input, size_t len) {
     return result;
 }
 
-std::vector<uint8_t> Base64Decode(const uint8_t* input, size_t len) {
+std::vector<uint8_t> Base64Decode(const uint8_t *input, size_t len)
+{
     CryptoPP::Base64Decoder decoder;
     decoder.Put(input, len);
     decoder.MessageEnd();
@@ -24,4 +27,4 @@ std::vector<uint8_t> Base64Decode(const uint8_t* input, size_t len) {
     return result;
 }
 
-}  // namespace parakeet_crypto::utils
+} // namespace parakeet_crypto::utils

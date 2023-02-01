@@ -15,25 +15,27 @@ using ::testing::Return;
 
 using namespace parakeet_crypto::qmc;
 
-class DummyKeyCrypto : public KeyCrypto {
-   public:
+class DummyKeyCrypto : public KeyCrypto
+{
+  public:
     DummyKeyCrypto() = default;
     ~DummyKeyCrypto() override = default;
 
-    MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (const std::string& ekey_b64), (const, override));
+    MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (const std::string &ekey_b64), (const, override));
     MOCK_METHOD((std::optional<std::vector<uint8_t>>), Decrypt, (std::span<const uint8_t> ekey), (const, override));
 };
 
 // NOLINTBEGIN(*-magic-numbers)
 
-TEST(QMCTailParser, PCClientTail) {
+TEST(QMCTailParser, PCClientTail)
+{
     const std::vector<uint8_t> mocked_key = {1, 2, 3};
-    const std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
+    const std::vector<uint8_t> expected_key = mocked_key; // NOLINT(performance-unnecessary-copy-initialization)
 
     auto test_data = std::to_array<uint8_t>({
-        'u',  'n',  'u',  's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                      // padding
-        'R',  'q',  '1',  '6', 'X', 'z', '4', '6', 'x', 's', 'P', 'g', 'l', '6', 'm', 'D',  // key
-        0x10, 0x00, 0x00, 0x00                                                              // size = 16
+        'u',  'n',  'u',  's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                     // padding
+        'R',  'q',  '1',  '6', 'X', 'z', '4', '6', 'x', 's', 'P', 'g', 'l', '6', 'm', 'D', // key
+        0x10, 0x00, 0x00, 0x00                                                             // size = 16
     });
 
     auto key_crypto_mock = std::make_shared<DummyKeyCrypto>();
@@ -44,25 +46,27 @@ TEST(QMCTailParser, PCClientTail) {
     auto result = parser->Parse(test_data);
 
     ASSERT_TRUE(result.has_value());
-    if (result) {
+    if (result)
+    {
         ASSERT_EQ(result->first, 20);
         ASSERT_THAT(result->second, ContainerEq(expected_key));
     }
 }
 
-TEST(QMCTailParser, ShouldRejectSTag) {
+TEST(QMCTailParser, ShouldRejectSTag)
+{
     using ::testing::An;
 
     auto test_data = std::to_array<uint8_t>({
-        'u',  'n',  'u',  's',  'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,            // padding
-        '5',  '8',  '7',  '4',  '8', '1', '3', '0', '7', ',', '2', ',',            // CSV Line of dummy data
-        '0',  '0',  '7',  'A',  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',  //
-        0x00, 0x00, 0x00, 0x1A,                                                    // size = 0x1A (26)
-        'S',  'T',  'a',  'g'                                                      // ending
+        'u',  'n',  'u',  's',  'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,           // padding
+        '5',  '8',  '7',  '4',  '8', '1', '3', '0', '7', ',', '2', ',',           // CSV Line of dummy data
+        '0',  '0',  '7',  'A',  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', //
+        0x00, 0x00, 0x00, 0x1A,                                                   // size = 0x1A (26)
+        'S',  'T',  'a',  'g'                                                     // ending
     });
 
     auto key_crypto_mock = std::make_shared<DummyKeyCrypto>();
-    EXPECT_CALL(*key_crypto_mock, Decrypt(An<const std::string&>())).Times(0);
+    EXPECT_CALL(*key_crypto_mock, Decrypt(An<const std::string &>())).Times(0);
 
     auto parser = CreateTailParser(key_crypto_mock);
     auto result = parser->Parse(test_data);
@@ -70,19 +74,20 @@ TEST(QMCTailParser, ShouldRejectSTag) {
     ASSERT_EQ(result, std::nullopt);
 }
 
-TEST(QMCTailParser, ShouldWorkWithQTag) {
+TEST(QMCTailParser, ShouldWorkWithQTag)
+{
     const std::vector<uint8_t> mocked_key = {1, 2, 3};
-    const std::vector<uint8_t> expected_key = mocked_key;  // NOLINT(performance-unnecessary-copy-initialization)
+    const std::vector<uint8_t> expected_key = mocked_key; // NOLINT(performance-unnecessary-copy-initialization)
 
     auto test_data = std::to_array<uint8_t>({
-        'u', 'n', 'u', 's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                           // padding
-                                                                                              // CSV Record
-        'R', 'q', '1', '6', 'X', 'z', '4', '6', 'x', 's', 'P', 'g', 'l', '6', 'm', 'D', ',',  //  - key
-        '5', '8', '7', '4', '8', '1', '3', '0', '7', ',',                                     //  - song_id
-        '2',                                                                                  //  - meta version?
-                                                                                              //    always 2
-        0x00, 0x00, 0x00, 0x1C,                                                               // size of CSV Record
-        'Q', 'T', 'a', 'g'                                                                    // ending
+        'u', 'n', 'u', 's', 'e', 'd', 0b0, 'd', 'a', 't', 'a', 0b0,                          // padding
+                                                                                             // CSV Record
+        'R', 'q', '1', '6', 'X', 'z', '4', '6', 'x', 's', 'P', 'g', 'l', '6', 'm', 'D', ',', //  - key
+        '5', '8', '7', '4', '8', '1', '3', '0', '7', ',',                                    //  - song_id
+        '2',                                                                                 //  - meta version?
+                                                                                             //    always 2
+        0x00, 0x00, 0x00, 0x1C,                                                              // size of CSV Record
+        'Q', 'T', 'a', 'g'                                                                   // ending
     });
 
     auto key_crypto_mock = std::make_shared<DummyKeyCrypto>();
@@ -93,7 +98,8 @@ TEST(QMCTailParser, ShouldWorkWithQTag) {
     auto result = parser->Parse(test_data);
 
     ASSERT_TRUE(result.has_value());
-    if (result) {
+    if (result)
+    {
         ASSERT_EQ(result->first, 0x1C + 8);
         ASSERT_THAT(result->second, ContainerEq(expected_key));
     }

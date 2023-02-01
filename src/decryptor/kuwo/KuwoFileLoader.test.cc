@@ -21,7 +21,8 @@ const KuwoKey kKuwoKey = []() {
     return result;
 }();
 
-TEST(KuwoFileLoader, SimpleCase) {
+TEST(KuwoFileLoader, SimpleCase)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB);
 
     test::GenerateTestData(test_data, "kuwo-data-1");

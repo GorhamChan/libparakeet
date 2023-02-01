@@ -6,12 +6,14 @@
 #include <span>
 #include <string>
 
-namespace parakeet_crypto::utils {
+namespace parakeet_crypto::utils
+{
 
-template <typename... Args>
-std::string Format(const char* fmt, Args... args) {
+template <typename... Args> std::string Format(const char *fmt, Args... args)
+{
     auto text_len = snprintf(nullptr, 0, fmt, args...);
-    if (text_len < 0) {
+    if (text_len < 0)
+    {
         return "";
     }
 
@@ -21,4 +23,4 @@ std::string Format(const char* fmt, Args... args) {
     return formatted;
 }
 
-}  // namespace parakeet_crypto::utils
+} // namespace parakeet_crypto::utils

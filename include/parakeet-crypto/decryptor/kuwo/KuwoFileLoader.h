@@ -8,16 +8,18 @@
 
 #include <cstdint>
 
-namespace parakeet_crypto::decryptor {
+namespace parakeet_crypto::decryptor
+{
 
-namespace kuwo {
+namespace kuwo
+{
 
 constexpr std::size_t kKuwoDecryptionKeySize = 0x20;
 using KuwoKey = std::array<uint8_t, kKuwoDecryptionKeySize>;
 using KuwoKeyInput = std::span<const uint8_t, kKuwoDecryptionKeySize>;
 
-}  // namespace kuwo
+} // namespace kuwo
 
 std::unique_ptr<StreamDecryptor> CreateKuwoDecryptor(kuwo::KuwoKeyInput key);
 
-}  // namespace parakeet_crypto::decryptor
+} // namespace parakeet_crypto::decryptor

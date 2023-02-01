@@ -13,7 +13,8 @@
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-TEST(Xiami, SimpleCase) {
+TEST(Xiami, SimpleCase)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB);
     test::GenerateTestData(test_data, "xiami data");
 

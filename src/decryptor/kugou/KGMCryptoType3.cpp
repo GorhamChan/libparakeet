@@ -4,30 +4,34 @@
 #include <algorithm>
 #include <memory>
 
-namespace parakeet_crypto::decryptor::kugou {
+namespace parakeet_crypto::decryptor::kugou
+{
 
-class KGMCryptoType3 : public KGMCrypto {
-   private:
+class KGMCryptoType3 : public KGMCrypto
+{
+  private:
     std::array<uint8_t, 16> slot_key_;
     std::array<uint8_t, 17> file_key_;
 
-    static inline std::array<uint8_t, 16> hash_type3(const std::span<const uint8_t> data) {
+    static inline std::array<uint8_t, 16> hash_type3(const std::span<const uint8_t> data)
+    {
         std::array<uint8_t, 16> result;
         auto digest = utils::md5(data);
         // Reverse 2-bytes at a time.
-        for (int i = 0; i < 16; i += 2) {
+        for (int i = 0; i < 16; i += 2)
+        {
             result[i + 0] = digest[14 - i + 0];
             result[i + 1] = digest[14 - i + 1];
         }
         return result;
     }
 
-   public:
+  public:
     ~KGMCryptoType3() override = default;
 
-    bool Configure(const KGMCryptoConfig& config,
-                   const std::vector<uint8_t>& slot_key,
-                   const kgm_file_header& header) override {
+    bool Configure(const KGMCryptoConfig &config, const std::vector<uint8_t> &slot_key,
+                   const kgm_file_header &header) override
+    {
         slot_key_ = hash_type3(slot_key);
 
         auto file_key = hash_type3(header.key);
@@ -37,7 +41,8 @@ class KGMCryptoType3 : public KGMCrypto {
         return true;
     }
 
-    void Encrypt(uint64_t offset, std::span<uint8_t> buffer) override {
+    void Encrypt(uint64_t offset, std::span<uint8_t> buffer) override
+    {
         std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [&offset, this](auto v) {
             uint8_t offset_key = xor_u32_bytes(static_cast<uint32_t>(offset));
             uint8_t slot_key = slot_key_[offset % slot_key_.size()];
@@ -53,7 +58,8 @@ class KGMCryptoType3 : public KGMCrypto {
         });
     }
 
-    void Decrypt(uint64_t offset, std::span<uint8_t> buffer) override {
+    void Decrypt(uint64_t offset, std::span<uint8_t> buffer) override
+    {
         std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [&offset, this](auto v) {
             uint8_t offset_key = xor_u32_bytes(static_cast<uint32_t>(offset));
             uint8_t slot_key = slot_key_[offset % slot_key_.size()];
@@ -70,8 +76,9 @@ class KGMCryptoType3 : public KGMCrypto {
     }
 };
 
-std::unique_ptr<KGMCrypto> CreateKGMCryptoType3() {
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType3()
+{
     return std::make_unique<KGMCryptoType3>();
 }
 
-}  // namespace parakeet_crypto::decryptor::kugou
+} // namespace parakeet_crypto::decryptor::kugou

@@ -40,7 +40,8 @@ const auto kExpectedKey = std::to_array<uint8_t>({
     '1', 'C', '0', 'D', 't', 'T', '1', 'h', 'u', 'g', '8', '8', '8', 'z',
 });
 
-TEST(KeyCrypto, DecryptBasicKeyDecryption) {
+TEST(KeyCrypto, DecryptBasicKeyDecryption)
+{
     qmc::EncV2Stage1Key stage1_key{};
     qmc::EncV2Stage1Key stage2_key{};
     std::iota(stage1_key.begin(), stage1_key.end(), 0x66);
@@ -52,7 +53,8 @@ TEST(KeyCrypto, DecryptBasicKeyDecryption) {
     ASSERT_THAT(*key, ElementsAreArray(kExpectedKey));
 }
 
-TEST(KeyCrypto, DecryptEncV2Key) {
+TEST(KeyCrypto, DecryptEncV2Key)
+{
     qmc::EncV2Stage1Key stage1_key{};
     qmc::EncV2Stage1Key stage2_key{};
     std::iota(stage1_key.begin(), stage1_key.end(), 0x66);
@@ -69,7 +71,8 @@ TEST(KeyCrypto, DecryptEncV2Key) {
     auto qmc_key_crypto = qmc::CreateKeyCrypto(stage1_key, stage2_key);
     auto key = qmc_key_crypto->Decrypt(key_enc_v2_b64);
     ASSERT_TRUE(key.has_value());
-    if (key) {
+    if (key)
+    {
         ASSERT_THAT(*key, ElementsAreArray(kExpectedKey));
     }
 }

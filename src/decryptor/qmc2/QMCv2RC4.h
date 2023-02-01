@@ -10,10 +10,12 @@
 #include <span>
 #include <vector>
 
-namespace parakeet_crypto::decryptor::tencent {
+namespace parakeet_crypto::decryptor::tencent
+{
 
-class QMCv2RC4 {
-   private:
+class QMCv2RC4
+{
+  private:
     std::size_t segment_id_ = 0;
 
     double key_hash_ = 0;
@@ -22,7 +24,8 @@ class QMCv2RC4 {
     std::vector<uint8_t> key_;
     std::vector<uint8_t> S_;
 
-    inline uint8_t DeriveByte() {
+    inline uint8_t DeriveByte()
+    {
         // Set alias
         auto s = std::span{S_};
         auto n = s.size();
@@ -34,8 +37,9 @@ class QMCv2RC4 {
         return s[(s[i_] + s[j_]) % n];
     }
 
-   public:
-    inline void SetKey(std::span<const uint8_t> key, double key_hash) {
+  public:
+    inline void SetKey(std::span<const uint8_t> key, double key_hash)
+    {
         key_hash_ = key_hash;
         key_.assign(key.begin(), key.end());
         key_hash_ = key_hash;
@@ -45,13 +49,16 @@ class QMCv2RC4 {
 
     QMCv2RC4() = default;
 
-    inline void DiscardBytes(std::size_t n) {
-        while (n-- > 0) {
+    inline void DiscardBytes(std::size_t n)
+    {
+        while (n-- > 0)
+        {
             DeriveByte();
         }
     }
 
-    inline void NextSegment() {
+    inline void NextSegment()
+    {
         auto s = std::span{S_};
         auto key = std::span{key_};
         auto n = key.size();
@@ -61,7 +68,8 @@ class QMCv2RC4 {
         std::iota(s.begin(), s.end(), uint8_t{0});
 
         std::size_t j = 0;
-        for (std::size_t i = 0; i < n; i++) {
+        for (std::size_t i = 0; i < n; i++)
+        {
             j = (s[i] + j + key[i % n]) % n;
             std::swap(s[i], s[j]);
         }
@@ -71,14 +79,16 @@ class QMCv2RC4 {
         segment_id_++;
     }
 
-    inline void Transform(std::span<uint8_t> dest, std::span<const uint8_t> src) {
+    inline void Transform(std::span<uint8_t> dest, std::span<const uint8_t> src)
+    {
         assert(("dest and src should have the same size", dest.size() == src.size()));
 
         const auto n = dest.size();
-        for (std::size_t i = 0; i < n; i++) {
+        for (std::size_t i = 0; i < n; i++)
+        {
             dest[i] = src[i] ^ DeriveByte();
         }
     }
 };
 
-}  // namespace parakeet_crypto::decryptor::tencent
+} // namespace parakeet_crypto::decryptor::tencent

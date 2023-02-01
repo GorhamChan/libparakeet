@@ -16,7 +16,8 @@ using ::testing::ElementsAreArray;
 using namespace parakeet_crypto::decryptor::ximalaya;
 using namespace parakeet_crypto;
 
-TEST(Ximalaya, ScrambleTable) {
+TEST(Ximalaya, ScrambleTable)
+{
     std::array<uint16_t, 5> result;
     GenerateScrambleTable(result, 0.334455, 3.998877);
 

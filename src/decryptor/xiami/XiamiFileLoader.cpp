@@ -4,9 +4,11 @@
 #include "utils/StringHelper.h"
 #include "utils/XorHelper.h"
 
-namespace parakeet_crypto::decryptor {
+namespace parakeet_crypto::decryptor
+{
 
-namespace xiami::detail {
+namespace xiami::detail
+{
 
 constexpr std::size_t kHeaderSize = 0x10;
 
@@ -18,7 +20,8 @@ constexpr std::size_t kMagicHeaderOffset1 = 0x00;
 constexpr std::size_t kMagicHeaderOffset2 = 0x08;
 constexpr std::size_t kKeyDataOffset = 0x0C;
 
-enum class State {
+enum class State
+{
     kReadHeader = 0,
     kTransparentCopy,
     kDecryptWithKey,
@@ -35,20 +38,26 @@ enum class State {
 //   0x10  Plaintext data
 //   ????  Encrypted data
 
-class XiamiFileLoaderImpl : public StreamDecryptor {
-   private:
+class XiamiFileLoaderImpl : public StreamDecryptor
+{
+  private:
     State state_ = State::kReadHeader;
     std::size_t bytes_to_copy_ = 0;
     uint8_t file_key_ = 0;
 
-   public:
+  public:
     XiamiFileLoaderImpl() = default;
 
-    std::string GetName() const override { return "Xiami"; };
+    std::string GetName() const override
+    {
+        return "Xiami";
+    };
 
-    bool ParseFileHeader() {
+    bool ParseFileHeader()
+    {
         if (ReadBigEndian<uint32_t>(&buf_in_[kMagicHeaderOffset1]) != kMagicHeader1 ||
-            ReadBigEndian<uint32_t>(&buf_in_[kMagicHeaderOffset2]) != kMagicHeader2) {
+            ReadBigEndian<uint32_t>(&buf_in_[kMagicHeaderOffset2]) != kMagicHeader2)
+        {
             return false;
         }
 
@@ -59,18 +68,24 @@ class XiamiFileLoaderImpl : public StreamDecryptor {
         return true;
     }
 
-    void HandleFileHeader(const uint8_t*& in, std::size_t& len) {
-        if (ReadUntilOffset(in, len, kHeaderSize)) {
-            if (!ParseFileHeader()) {
+    void HandleFileHeader(const uint8_t *&in, std::size_t &len)
+    {
+        if (ReadUntilOffset(in, len, kHeaderSize))
+        {
+            if (!ParseFileHeader())
+            {
                 error_ = "file header magic not found";
-            } else {
+            }
+            else
+            {
                 buf_in_.erase(buf_in_.begin(), buf_in_.begin() + kHeaderSize);
                 state_ = State::kTransparentCopy;
             }
         }
     }
 
-    void HandleTransparentCopy(const uint8_t*& in, std::size_t& len) {
+    void HandleTransparentCopy(const uint8_t *&in, std::size_t &len)
+    {
         std::size_t copy_len = std::min(bytes_to_copy_, len);
         buf_out_.insert(buf_out_.end(), in, in + copy_len);
 
@@ -79,54 +94,64 @@ class XiamiFileLoaderImpl : public StreamDecryptor {
         bytes_to_copy_ -= copy_len;
         offset_ += copy_len;
 
-        if (bytes_to_copy_ == 0) {
+        if (bytes_to_copy_ == 0)
+        {
             state_ = State::kDecryptWithKey;
         }
     }
 
-    void HandleDecryptWithKey(const uint8_t*& in, std::size_t& len) {
-        uint8_t* p_out = ExpandOutputBuffer(len);
+    void HandleDecryptWithKey(const uint8_t *&in, std::size_t &len)
+    {
+        uint8_t *p_out = ExpandOutputBuffer(len);
 
-        for (std::size_t i = 0; i < len; i++) {
+        for (std::size_t i = 0; i < len; i++)
+        {
             p_out[i] = file_key_ - in[i];
         }
 
         len = 0;
     }
 
-    bool Write(const uint8_t* in, std::size_t len) override {
-        while (len && !InErrorState()) {
+    bool Write(const uint8_t *in, std::size_t len) override
+    {
+        while (len && !InErrorState())
+        {
             using enum State;
 
-            switch (state_) {
-                case kReadHeader:
-                    HandleFileHeader(in, len);
-                    break;
+            switch (state_)
+            {
+            case kReadHeader:
+                HandleFileHeader(in, len);
+                break;
 
-                case kTransparentCopy:
-                    HandleTransparentCopy(in, len);
-                    break;
+            case kTransparentCopy:
+                HandleTransparentCopy(in, len);
+                break;
 
-                case kDecryptWithKey:
-                    HandleDecryptWithKey(in, len);
-                    break;
+            case kDecryptWithKey:
+                HandleDecryptWithKey(in, len);
+                break;
 
-                default:
-                    error_ = "decryptor: bad state";
-                    return false;
+            default:
+                error_ = "decryptor: bad state";
+                return false;
             }
         }
 
         return !InErrorState();
     };
 
-    bool End() override { return !InErrorState(); }
+    bool End() override
+    {
+        return !InErrorState();
+    }
 };
 
-}  // namespace xiami::detail
+} // namespace xiami::detail
 
-std::unique_ptr<StreamDecryptor> CreateXiamiDecryptor() {
+std::unique_ptr<StreamDecryptor> CreateXiamiDecryptor()
+{
     return std::make_unique<xiami::detail::XiamiFileLoaderImpl>();
 }
 
-}  // namespace parakeet_crypto::decryptor
+} // namespace parakeet_crypto::decryptor

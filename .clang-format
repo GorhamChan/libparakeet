@@ -1,7 +1,5 @@
 ---
-BasedOnStyle: Chromium
-IndentWidth: 4
-AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+BasedOnStyle: Microsoft
 UseTab: Never
 TabWidth: 4
 ColumnLimit: 120

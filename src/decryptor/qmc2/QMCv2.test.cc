@@ -15,7 +15,8 @@
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-TEST(QMCv2, RC4Cipher) {
+TEST(QMCv2, RC4Cipher)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB);
     test::GenerateTestData(test_data, "qmcv2 rc4 cipher data");
 

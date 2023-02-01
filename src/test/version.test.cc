@@ -1,10 +1,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <parakeet-crypto/version.h>
 #include <iostream>
+#include <parakeet-crypto/version.h>
 
-TEST(VersionTest, ItShouldPopulateVersion) {
+TEST(VersionTest, ItShouldPopulateVersion)
+{
     auto lib_version = parakeet_crypto::get_libparakeet_version();
     auto lib_full_version = parakeet_crypto::get_libparakeet_full_version();
 

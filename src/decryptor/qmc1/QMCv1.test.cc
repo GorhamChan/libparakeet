@@ -14,7 +14,8 @@ using namespace parakeet_crypto::decryptor::tencent;
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-TEST(QMCv1, StaticCipher) {
+TEST(QMCv1, StaticCipher)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB);
     test::GenerateTestData(test_data, "qmcv1 static data");
 
@@ -26,7 +27,8 @@ TEST(QMCv1, StaticCipher) {
     test::VerifyHash(result, "2f9c936ed130a654911e0e2bc872fec33c90288e78df2a0aa41d352164c3b4e3");
 }
 
-TEST(QMCv1, MapCipher) {
+TEST(QMCv1, MapCipher)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB);
     test::GenerateTestData(test_data, "qmcv1 map cipher data");
 

@@ -1,9 +1,9 @@
 #include "test/helper.test.hh"
 
-#include <span>
-#include <vector>
 #include "KGMHeaderStruct.h"
 #include "parakeet-crypto/decryptor/kugou/KugouFileLoader.h"
+#include <span>
+#include <vector>
 
 using namespace parakeet_crypto::decryptor::kugou;
 using namespace parakeet_crypto::decryptor;
@@ -109,7 +109,8 @@ unsigned char kgm_v4_slot_key_table[712] = {
     0x69, 0x64, 0x20, 0x73, 0x6F, 0x6C, 0x6C, 0x69, 0x63, 0x69, 0x74, 0x75, 0x64, 0x69, 0x6E, 0x20, 0x64, 0x75, 0x69,
     0x20, 0x6D, 0x61, 0x78, 0x69, 0x6D, 0x75, 0x73, 0x2E};
 
-std::unique_ptr<StreamDecryptor> create_test_kgm_decryptor() {
+std::unique_ptr<StreamDecryptor> create_test_kgm_decryptor()
+{
     KugouSlotKeys slot_keys;
     slot_keys[1] = std::vector(&kgm_key_slot_1_key[0], &kgm_key_slot_1_key[sizeof(kgm_key_slot_1_key)]);
     KugouV4SlotKeyExpansionTable v4_slot_key_table(&kgm_v4_slot_key_table[0],
@@ -119,19 +120,22 @@ std::unique_ptr<StreamDecryptor> create_test_kgm_decryptor() {
     return CreateKugouDecryptor(slot_keys, v4_slot_key_table, v4_file_key_table);
 }
 
-TEST(KugouFileLoader, KGMv2) {
+TEST(KugouFileLoader, KGMv2)
+{
     auto d = create_test_kgm_decryptor();
     ASSERT_TRUE(d->Write(&kgm_header_v2[0], sizeof(kgm_header_v2))) << "should accept our kgm header";
     ASSERT_TRUE(d->End()) << "should end successfully";
 }
 
-TEST(KugouFileLoader, KGMv3) {
+TEST(KugouFileLoader, KGMv3)
+{
     auto d = create_test_kgm_decryptor();
     ASSERT_TRUE(d->Write(&kgm_header_v3[0], sizeof(kgm_header_v3))) << "should accept our kgm header";
     ASSERT_TRUE(d->End()) << "should end successfully";
 }
 
-TEST(KugouFileLoader, KGMv4) {
+TEST(KugouFileLoader, KGMv4)
+{
     auto d = create_test_kgm_decryptor();
     ASSERT_TRUE(d->Write(&kgm_header_v4[0], sizeof(kgm_header_v4))) << "should accept our kgm header";
     ASSERT_TRUE(d->End()) << "should end successfully";

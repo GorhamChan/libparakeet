@@ -7,20 +7,23 @@
 #include <memory>
 #include <vector>
 
-namespace parakeet_crypto::decryptor::kugou {
+namespace parakeet_crypto::decryptor::kugou
+{
 
-class KGMCryptoType2 : public KGMCrypto {
-   private:
+class KGMCryptoType2 : public KGMCrypto
+{
+  private:
     // provide a fixed size of 4 to let compiler optimise
     std::array<uint8_t, 4> key_;
 
-   public:
+  public:
     ~KGMCryptoType2() override = default;
 
-    bool Configure(const KGMCryptoConfig& config,
-                   const std::vector<uint8_t>& slot_key,
-                   const kgm_file_header& header) override {
-        if (slot_key.size() < key_.size()) {
+    bool Configure(const KGMCryptoConfig &config, const std::vector<uint8_t> &slot_key,
+                   const kgm_file_header &header) override
+    {
+        if (slot_key.size() < key_.size())
+        {
             return false;
         }
 
@@ -28,7 +31,8 @@ class KGMCryptoType2 : public KGMCrypto {
         return true;
     }
 
-    void Encrypt(uint64_t offset, std::span<uint8_t> buffer) override {
+    void Encrypt(uint64_t offset, std::span<uint8_t> buffer) override
+    {
         std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [&offset, this](auto v) {
             uint8_t key = key_[offset % key_.size()];
 
@@ -40,7 +44,8 @@ class KGMCryptoType2 : public KGMCrypto {
         });
     }
 
-    void Decrypt(uint64_t offset, std::span<uint8_t> buffer) override {
+    void Decrypt(uint64_t offset, std::span<uint8_t> buffer) override
+    {
         std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [&offset, this](auto v) {
             uint8_t key = key_[offset % key_.size()];
 
@@ -53,8 +58,9 @@ class KGMCryptoType2 : public KGMCrypto {
     }
 };
 
-std::unique_ptr<KGMCrypto> CreateKGMCryptoType2() {
+std::unique_ptr<KGMCrypto> CreateKGMCryptoType2()
+{
     return std::make_unique<KGMCryptoType2>();
 }
 
-}  // namespace parakeet_crypto::decryptor::kugou
+} // namespace parakeet_crypto::decryptor::kugou

@@ -16,7 +16,8 @@
 using namespace parakeet_crypto::decryptor;
 using namespace parakeet_crypto;
 
-TEST(Joox, SimpleTest) {
+TEST(Joox, SimpleTest)
+{
     std::vector<uint8_t> test_data(test::kSize4MiB + 12 + 16 * 4);
     test::GenerateTestData(test_data, "joox test data");
 
@@ -34,7 +35,8 @@ TEST(Joox, SimpleTest) {
         0xf9, 0x38, 0xbd, 0x30, 0x38, 0x46, 0x2b, 0xab, 0x04, 0xf0, 0xd4, 0xd0, 0x71, 0x65, 0x27, 0xd4,
     };
 
-    for (std::size_t i = 1; i <= 4; i++) {
+    for (std::size_t i = 1; i <= 4; i++)
+    {
         std::ranges::copy(padding.begin(), padding.end(), &test_data[12 + test::kSize1MiB * i + 16 * i - 16]);
     }
     test::VerifyHash(test_data, "684e32738bd84dc95143df5657d02498389516328e50d0b8492848d6e245def1");
