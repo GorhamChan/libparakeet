@@ -1,7 +1,6 @@
 {
   "recommendations": [
-    "xaver.clang-format",
-    "ms-vscode.cpptools-extension-pack",
-    "notskm.clang-tidy"
+    "llvm-vs-code-extensions.vscode-clangd",
+    "ms-vscode.cmake-tools"
   ]
 }
