@@ -7,15 +7,17 @@
 
 namespace parakeet_crypto::utils {
 
-std::string Base64Encode(const std::span<const uint8_t> input);
-inline std::vector<uint8_t> Base64EncodeBytes(const std::span<const uint8_t> data) {
-    auto result_str = Base64Encode(data);
-    return std::vector<uint8_t>(result_str.begin(), result_str.end());
+std::vector<uint8_t> Base64Encode(const uint8_t* input, size_t len);
+inline std::vector<uint8_t> Base64Encode(std::vector<uint8_t>& data) {
+    return Base64Encode(data.data(), data.size());
 }
 
-std::vector<uint8_t> Base64Decode(const std::span<const uint8_t> input);
-inline std::vector<uint8_t> Base64Decode(const std::span<const char> input) {
-    return Base64Decode(std::span{reinterpret_cast<const uint8_t*>(input.data()), input.size()});
+std::vector<uint8_t> Base64Decode(const uint8_t* input, size_t len);
+inline std::vector<uint8_t> Base64Decode(const std::string& data) {
+    return Base64Decode(reinterpret_cast<const uint8_t*>(data.data()), data.size());  // NOLINT(*-type-reinterpret-cast)
+}
+inline std::vector<uint8_t> Base64Decode(std::vector<uint8_t>& data) {
+    return Base64Decode(data.data(), data.size());
 }
 
 }  // namespace parakeet_crypto::utils

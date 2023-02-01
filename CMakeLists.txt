@@ -61,7 +61,10 @@ target_link_libraries(parakeet_crypro
         cryptopp::cryptopp
         JixunMoe::LibTcTEA
 )
-target_compile_features(parakeet_crypro PRIVATE cxx_std_20)
+set_target_properties(parakeet_crypro PROPERTIES 
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+)
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro)
@@ -102,7 +105,10 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
         target_compile_options(parakeet_crypto_test PRIVATE "/MP")
     endif()
     target_include_directories(parakeet_crypto_test PRIVATE src)
-    target_compile_features(parakeet_crypto_test PRIVATE cxx_std_20)
+    set_target_properties(parakeet_crypto_test PROPERTIES 
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+    )
     target_link_libraries(parakeet_crypto_test 
         cryptopp::cryptopp
         GTest::gmock

@@ -1,6 +1,7 @@
 #include "parakeet-crypto/decryptor/qmc/QMCKeyCrypto.h"
 #include "EncV2.h"
 
+#include "TEAKeyDerive.h"
 #include "utils/base64.h"
 
 #include <tc_tea/tc_tea.h>
@@ -13,40 +14,6 @@
 
 namespace parakeet_crypto::qmc {
 
-namespace tea_key {
-
-inline void MakeSimpleKey(std::span<uint8_t> out) {
-    constexpr double kInitialSeed = 106.0;
-    constexpr double kMultiplier = 100.0;
-    constexpr double kSeedDelta = 0.1;
-
-    auto seed = kInitialSeed;
-    for (auto& byte : out) {
-        byte = static_cast<uint8_t>(fabs(tan(seed)) * kMultiplier);
-        seed += kSeedDelta;
-    }
-}
-
-constexpr std::size_t kTEAKeySize = 16;
-inline std::array<uint8_t, kTEAKeySize> DeriveTEAKey(std::span<const uint8_t> ekey) {
-    constexpr std::size_t kEkeySize = 8;
-
-    assert(ekey.size() >= kEkeySize);
-
-    std::array<uint8_t, kTEAKeySize> tea_key = {};
-    std::array<uint8_t, kEkeySize> simple_key = {};
-    MakeSimpleKey(simple_key);
-
-    for (int i = 0; i < tea_key.size(); i += 2) {
-        tea_key[i + 0] = simple_key[i / 2];
-        tea_key[i + 1] = ekey[i / 2];
-    }
-
-    return tea_key;
-}
-
-}  // namespace tea_key
-
 namespace detail {
 const static std::array<char, 18> kEncV2Prefix = {'Q', 'Q', 'M', 'u', 's', 'i', 'c', ' ', 'E',
                                                   'n', 'c', 'V', '2', ',', 'K', 'e', 'y', ':'};
@@ -55,6 +22,7 @@ class KeyCryptoImpl : public KeyCrypto {
    private:
     EncV2Stage1Key enc_v2_stage1_key_{};
     EncV2Stage2Key enc_v2_stage2_key_{};
+    static constexpr std::size_t kPlaintextKeyPrefixLen = 8;
 
    public:
     KeyCryptoImpl(EncV2Stage1KeyInput enc_v2_stage1_key, EncV2Stage2KeyInput enc_v2_stage2_key) {
@@ -62,44 +30,46 @@ class KeyCryptoImpl : public KeyCrypto {
         assert(enc_v2_stage1_key.size() == enc_v2_stage1_key_.size());
         assert(enc_v2_stage2_key.size() == enc_v2_stage2_key_.size());
 
-        std::ranges::copy(enc_v2_stage1_key, enc_v2_stage1_key_.begin());
-        std::ranges::copy(enc_v2_stage2_key, enc_v2_stage2_key_.begin());
+        std::copy(enc_v2_stage1_key.begin(), enc_v2_stage1_key.end(), enc_v2_stage1_key_.begin());
+        std::copy(enc_v2_stage2_key.begin(), enc_v2_stage2_key.end(), enc_v2_stage2_key_.begin());
+    }
+
+    [[nodiscard]] static std::optional<std::vector<uint8_t>> DecryptV1Key(const uint8_t* ekey, size_t ekey_len) {
+        if (ekey_len < kPlaintextKeyPrefixLen) {
+            return {};
+        }
+
+        std::array<uint8_t, tea_key::kSize> decryption_key = {};
+        tea_key::DeriveTEAKey(decryption_key.begin(), decryption_key.end(), ekey);
+
+        std::vector<uint8_t> final_key(ekey_len);
+        size_t final_key_len = ekey_len - kPlaintextKeyPrefixLen;
+        if (!tc_tea::CBC_Decrypt(&final_key[kPlaintextKeyPrefixLen], &final_key_len,  //
+                                 &ekey[kPlaintextKeyPrefixLen], final_key_len,        //
+                                 decryption_key.data())) {
+            return {};
+        }
+        final_key.resize(kPlaintextKeyPrefixLen + final_key_len);
+        return final_key;
     }
 
     [[nodiscard]] std::optional<std::vector<uint8_t>> Decrypt(const std::string& ekey_b64) const override {
         std::vector<uint8_t> ekey = utils::Base64Decode(ekey_b64);
-        return Decrypt(ekey);
+        return Decrypt(ekey.data(), ekey.size());
     }
 
-    [[nodiscard]] std::optional<std::vector<uint8_t>> Decrypt(std::span<const uint8_t> ekey) const override {
-        std::vector<uint8_t> v2KeyDecrypted{};
-        constexpr std::size_t kUnscrambledFirstPartSize = 8;
-
-        if (ekey.size() >= kEncV2Prefix.size() && std::equal(kEncV2Prefix.begin(), kEncV2Prefix.end(), ekey.begin())) {
-            using tea_key::DecryptEncV2Key;
-            v2KeyDecrypted = DecryptEncV2Key(ekey.subspan(kEncV2Prefix.size()), enc_v2_stage1_key_, enc_v2_stage2_key_);
-            ekey = std::span{v2KeyDecrypted};
-
-            if (ekey.empty()) {
+    [[nodiscard]] std::optional<std::vector<uint8_t>> Decrypt(const uint8_t* ekey, size_t ekey_len) const override {
+        if (ekey_len >= kEncV2Prefix.size() && std::equal(kEncV2Prefix.begin(), kEncV2Prefix.end(), ekey)) {
+            auto decoded_ekey =
+                tea_key::DecryptEncV2Key(ekey, ekey_len, enc_v2_stage1_key_.data(), enc_v2_stage2_key_.data());
+            if (decoded_ekey.empty()) {
                 return {};  // failed to decrypt EncV2 key
             }
+
+            return DecryptV1Key(decoded_ekey.data(), decoded_ekey.size());
         }
 
-        if (ekey.size() < kUnscrambledFirstPartSize) {
-            return {};
-        }
-
-        auto tea_key = tea_key::DeriveTEAKey(ekey);
-        auto decrypted_key = tc_tea::CBC_Decrypt(ekey.subspan(kUnscrambledFirstPartSize), tea_key);
-        if (decrypted_key.empty()) {
-            return {};
-        }
-
-        std::vector<uint8_t> final_key;
-        final_key.reserve(kUnscrambledFirstPartSize + decrypted_key.size());
-        final_key.insert(final_key.end(), ekey.begin(), ekey.begin() + kUnscrambledFirstPartSize);
-        final_key.insert(final_key.end(), decrypted_key.begin(), decrypted_key.end());
-        return final_key;
+        return DecryptV1Key(ekey, ekey_len);
     }
 };
 
