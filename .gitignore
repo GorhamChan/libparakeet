@@ -4,3 +4,4 @@ out/
 *.user.code-workspace
 CMakeUserPresets.json
 .cache/
+old_code/
