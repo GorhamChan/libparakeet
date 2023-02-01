@@ -1,4 +1,5 @@
 {
+  "clang-tidy.buildPath": "out/build/ninja-debug/",
   "C_Cpp.autoAddFileAssociations": false,
   "editor.formatOnSave": true,
   "sonarlint.pathToCompileCommands": "${workspaceFolder}/out/build/ninja-debug/compile_commands.json",
@@ -20,6 +21,5 @@
     "xiami",
     "ximalaya",
     "xmly"
-  ],
-  "clang-tidy.buildPath": "out/build/ninja-debug/"
+  ]
 }
