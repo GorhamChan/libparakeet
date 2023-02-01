@@ -147,12 +147,12 @@ template <typename A> inline A ReadLittleEndian(const uint8_t *ptr)
 
 template <typename A> inline void WriteLittleEndian(uint8_t *ptr, A value)
 {
-    *reinterpret_cast<const A *>(ptr) = SwapHostToLittleEndian(value);
+    *reinterpret_cast<A *>(ptr) = SwapHostToLittleEndian(value);
 }
 
 template <typename A> inline void WriteBigEndian(uint8_t *ptr, A value)
 {
-    *reinterpret_cast<const A *>(ptr) = SwapHostToBigEndian(value);
+    *reinterpret_cast<A *>(ptr) = SwapHostToBigEndian(value);
 }
 
 // NOLINTEND(*-type-reinterpret-cast)
