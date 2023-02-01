@@ -3,8 +3,8 @@
 
 #include "EndianHelper.h"
 
+#include <algorithm>
 #include <array>
-#include <ranges>
 
 using ::testing::ContainerEq;
 
@@ -13,7 +13,7 @@ using namespace parakeet_crypto;
 // NOLINTBEGIN(*-magic-numbers)
 
 TEST(EndianHelper, ReadData) {
-    static auto kTestData = std::to_array<uint8_t>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    std::array<uint8_t, 11> kTestData = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
 
     auto expected_le = uint32_t{0x04030201};
     auto expected_be = uint64_t{0x0102030405060708};
@@ -27,8 +27,8 @@ TEST(EndianHelper, ReadData) {
 TEST(EndianHelper, WriteData) {
     std::array<uint8_t, 0x20> test_array_le{};
     std::array<uint8_t, 0x20> test_array_be{};
-    std::ranges::fill(test_array_le, uint8_t{0xff});
-    std::ranges::fill(test_array_be, uint8_t{0xdd});
+    test_array_le.fill(0xff);
+    test_array_be.fill(0xdd);
 
     std::array<uint8_t, 0x20> expected_array_le{
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,  // 0x00

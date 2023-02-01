@@ -1,5 +1,4 @@
 #include "utils/base64.h"
-#include "utils/StringHelper.h"
 
 #include <cryptopp/base64.h>
 

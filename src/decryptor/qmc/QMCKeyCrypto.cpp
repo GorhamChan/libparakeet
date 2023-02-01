@@ -39,7 +39,7 @@ class KeyCryptoImpl : public KeyCrypto {
             return {};
         }
 
-        std::array<uint8_t, tea_key::kSize> decryption_key = {};
+        std::array<uint8_t, tea_key::kSize> decryption_key{};
         tea_key::DeriveTEAKey(decryption_key.begin(), decryption_key.end(), ekey);
 
         std::vector<uint8_t> final_key(ekey_len);
