@@ -23,10 +23,6 @@ CPMAddPackage(
         "TC_TEA_BUILD_TESTING OFF"
 )
 
-if (!MSVC)
-    link_libraries(m)
-endif()
-
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
 configure_file (
@@ -47,6 +43,8 @@ add_library(parakeet_crypro STATIC ${SOURCES})
 add_library(ParakeetCrypto::core ALIAS parakeet_crypro)
 if(MSVC)
     target_compile_options(parakeet_crypro PRIVATE "/MP")
+else()
+    target_link_libraries(parakeet_crypro PRIVATE m)
 endif()
 target_include_directories(parakeet_crypro
     PUBLIC
@@ -103,6 +101,7 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
     add_executable(parakeet_crypto_test ${TESTS_SOURCE})
     if(MSVC)
         target_compile_options(parakeet_crypto_test PRIVATE "/MP")
+        target_compile_options(parakeet_crypto_test PRIVATE "/utf-8")
     endif()
     target_include_directories(parakeet_crypto_test PRIVATE src)
     set_target_properties(parakeet_crypto_test PROPERTIES 
