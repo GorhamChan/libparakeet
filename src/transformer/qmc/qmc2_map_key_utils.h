@@ -1,11 +1,15 @@
 #pragma once
 
+#include "utils/RotateArray.h"
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <vector>
+
+#include <intrin.h>
+#include <iostream>
 
 namespace parakeet_crypto::qmc2_map
 {

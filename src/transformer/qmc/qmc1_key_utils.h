@@ -42,7 +42,7 @@ inline void key256_to_key128(uint8_t *key128, const uint8_t *key256)
 {
     for (int i = 0; i < 128; i++)
     {
-        key128[i] = key256[(static_cast<uint32_t>(i * i) + kIndexOffset) % 256];
+        key128[i] = key256[(static_cast<uint32_t>(i * i) + (kIndexOffset)) % 256];
     }
 }
 
