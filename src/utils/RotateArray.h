@@ -4,25 +4,31 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <vector>
 
 namespace parakeet_crypto::utils
 {
 
-template <size_t SIZE, size_t ROTATE_POS> void RotateLeft(uint8_t *ptr)
+inline void RotateLeft(uint8_t *ptr, size_t len, size_t rotate_pos)
 {
-    constexpr size_t rotate_pos = ROTATE_POS % SIZE;
+    rotate_pos %= len;
 
-    std::array<uint8_t, SIZE> temp{};
-    std::copy_n(ptr + rotate_pos, SIZE - rotate_pos, &temp.at(0));
-    std::copy_n(ptr, rotate_pos, &temp.at(SIZE - rotate_pos));
-    std::copy(temp.begin(), temp.end(), ptr);
+    // Backup first X bytes
+    std::vector<uint8_t> temp(ptr, ptr + rotate_pos);
+
+    // Copy from offset X to beginning
+    std::memmove(ptr, &ptr[rotate_pos], len - rotate_pos);
+
+    // Copy backup data to the end.
+    std::memmove(&ptr[len - rotate_pos], temp.data(), rotate_pos);
 }
 
-template <size_t SIZE, size_t ROTATE_POS> void RotateRight(uint8_t *ptr)
+inline void RotateRight(uint8_t *ptr, size_t len, size_t rotate_pos)
 {
-    constexpr size_t rotate_pos = ROTATE_POS % SIZE;
+    rotate_pos %= len;
 
-    RotateLeft<SIZE, SIZE - ROTATE_POS>(ptr);
+    RotateLeft(ptr, len, len - rotate_pos);
 }
 
 } // namespace parakeet_crypto::utils
