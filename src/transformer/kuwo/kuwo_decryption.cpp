@@ -72,7 +72,7 @@ class KuwoDecryptionTransformer : public ITransformer
             return TransformResult::ERROR_INSUFFICIENT_OUTPUT;
         }
 
-        utils::XorBlockWithOffset(output, input, input_len, key_.data(), key_.size(), offset_);
+        utils::XorFromOffset(output, input, input_len, key_.data(), key_.size(), offset_);
 
         bytes_written += input_len;
         output += input_len;

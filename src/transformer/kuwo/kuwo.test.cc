@@ -2,13 +2,12 @@
 #include "parakeet-crypto/ITransformer.h"
 #include "test/read_fixture.test.hh"
 
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <direct.h>
-#include <fstream>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <vector>
 
 using ::testing::ContainerEq;
