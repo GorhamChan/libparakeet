@@ -1,11 +1,11 @@
 #pragma once
 
-#include "utils/RotateArray.h"
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
+#include <vector>
 
 namespace parakeet_crypto::qmc2_map
 {
@@ -14,28 +14,27 @@ constexpr size_t kIndexOffset = 71214;
 
 // NOLINTBEGIN(*-magic-numbers)
 
-inline void key128_normalize(uint8_t *key128)
+inline void to_key128(uint8_t *key128, const uint8_t *key_blob, size_t key_len)
 {
-    utils::RotateLeft<128, kIndexOffset>(key128);
-}
+    if (key_len == 0)
+    {
+        std::fill_n(key128, 128, 0xcc);
+        return;
+    }
 
-inline void key256_to_key128(uint8_t *key128, const uint8_t *key256)
-{
-    std::array<uint8_t, 256> key256_local{};
+    std::vector<uint8_t> long_key(key_len);
 
     uint8_t shift_counter = 4;
-    for (auto &key : key256_local)
+    for (auto &key : long_key)
     {
-        uint8_t value = *key256++;
+        uint8_t value = *key_blob++;
         key = (value << shift_counter) | (value >> shift_counter);
         shift_counter = (shift_counter + 1) & 0b0111;
     }
 
-    utils::RotateLeft<256, kIndexOffset>(key256_local.data());
-
-    for (int i = 0; i < 128; i++)
+    for (size_t i = 0; i < 128; i++)
     {
-        key128[i] = key256_local[(static_cast<uint32_t>(i * i) + kIndexOffset) % 256];
+        key128[i] = long_key[(static_cast<size_t>(i * i) + kIndexOffset) % key_len];
     }
 }
 

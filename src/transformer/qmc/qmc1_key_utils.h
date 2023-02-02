@@ -38,11 +38,6 @@ inline void key58_to_key128(uint8_t *key128, const uint8_t *key58)
     copy_block(-1);
 }
 
-inline void key128_normalize(uint8_t *key128)
-{
-    // Noop
-}
-
 inline void key256_to_key128(uint8_t *key128, const uint8_t *key256)
 {
     for (int i = 0; i < 128; i++)
