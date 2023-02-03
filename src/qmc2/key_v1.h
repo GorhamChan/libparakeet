@@ -86,8 +86,9 @@ class KeyEncryptionV1
         auto tea_key = GetTEAKey(key_plain.data());
 
         size_t plain_len = key_plain.size() - kPlaintextKeyPrefixLen;
-        size_t cipher_len = tc_tea::CBC_GetEncryptedSize(key_plain.size() - kPlaintextKeyPrefixLen);
+        size_t cipher_len = tc_tea::CBC_GetEncryptedSize(plain_len);
         std::vector<uint8_t> result(cipher_len + kPlaintextKeyPrefixLen);
+        std::copy_n(key_plain.cbegin(), kPlaintextKeyPrefixLen, result.begin());
 
         if (!tc_tea::CBC_Encrypt(&result.at(kPlaintextKeyPrefixLen), &cipher_len,  //
                                  &key_plain.at(kPlaintextKeyPrefixLen), plain_len, //
@@ -96,7 +97,7 @@ class KeyEncryptionV1
             return {};
         }
 
-        result.resize(cipher_len);
+        result.resize(cipher_len + kPlaintextKeyPrefixLen); // Should be the same size
         return result;
     }
     // NOLINTEND(*-convert-member-functions-to-static)

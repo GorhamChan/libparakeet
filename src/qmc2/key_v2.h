@@ -33,17 +33,13 @@ class KeyEncryptionV2
 
     std::optional<std::vector<uint8_t>> Decrypt(const std::vector<uint8_t> &cipher)
     {
-        size_t len = cipher.size() - kEncV2Prefix.size();
-        std::vector<uint8_t> plain(len);
-        if (tc_tea::CBC_Decrypt(plain.data(), &len, &cipher.at(kEncV2Prefix.size()), len, key_1_))
+        std::vector<uint8_t> key(cipher.cbegin() + kEncV2Prefix.size(), cipher.cend());
+        key = tc_tea::CBC_Decrypt(key, key_1_);
+        key = tc_tea::CBC_Decrypt(key, key_2_);
+        if (!key.empty())
         {
-            if (tc_tea::CBC_Decrypt(plain.data(), &len, plain.data(), len, key_2_))
-            {
-                plain.resize(len);
-                return utils::Base64Decode(plain);
-            }
+            return key;
         }
-
         return {};
     }
 
@@ -51,8 +47,8 @@ class KeyEncryptionV2
     {
         auto &GetEncryptedSize = tc_tea::CBC_GetEncryptedSize;
 
-        auto key = utils::Base64Encode(plain);
-        key = tc_tea::CBC_Encrypt(key, key_2_);
+        std::vector<uint8_t> key{};
+        key = tc_tea::CBC_Encrypt(plain, key_2_);
         key = tc_tea::CBC_Encrypt(key, key_1_);
         key.insert(key.begin(), kEncV2Prefix.begin(), kEncV2Prefix.end());
         return key;
