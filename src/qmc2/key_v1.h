@@ -40,7 +40,7 @@ class KeyEncryptionV1
     {
         SimpleKeyGenerator simple_key_generator{};
         std::array<uint8_t, kSimpleKeySize> tea_key{};
-        for (auto *it = tea_key.begin(); it < tea_key.end();)
+        for (auto it = tea_key.begin(); it < tea_key.end();) // NOLINT (readability-qualified-auto)
         {
             *it++ = simple_key_generator.Next();
             *it++ = *p_ekey++;

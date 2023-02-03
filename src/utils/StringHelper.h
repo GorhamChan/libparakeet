@@ -3,7 +3,6 @@
 #include <cstdint>
 
 #include <algorithm>
-#include <span>
 #include <string>
 
 namespace parakeet_crypto::utils

@@ -3,9 +3,6 @@
 #include <climits>
 #include <cstdint>
 #include <cstdlib>
-
-#include <bit>
-#include <concepts>
 #include <type_traits>
 
 namespace parakeet_crypto

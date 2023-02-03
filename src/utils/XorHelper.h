@@ -5,8 +5,6 @@
 #include <cstdint>
 
 #include <algorithm>
-#include <concepts>
-#include <ranges>
 
 namespace parakeet_crypto::utils
 {
