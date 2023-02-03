@@ -10,7 +10,7 @@ using ::testing::ContainerEq;
 
 using namespace parakeet_crypto;
 
-// NOLINTBEGIN(*-magic-numbers)
+// NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
 TEST(EndianHelper, ReadData)
 {
@@ -52,4 +52,4 @@ TEST(EndianHelper, WriteData)
     ASSERT_THAT(test_array_le, ContainerEq(expected_array_le));
 }
 
-// NOLINTEND(*-magic-numbers)
+// NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

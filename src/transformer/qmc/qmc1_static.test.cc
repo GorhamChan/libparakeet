@@ -15,7 +15,7 @@ using ::testing::ContainerEq;
 
 using namespace parakeet_crypto;
 
-// NOLINTBEGIN(*-magic-numbers)
+// NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
 TEST(QMC1, DecryptionKey128)
 {
@@ -52,4 +52,4 @@ TEST(QMC1, DecryptionKey128)
     ASSERT_THAT(buffer, ContainerEq(fixture_plain));
 }
 
-// NOLINTEND(*-magic-numbers)
+// NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

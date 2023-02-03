@@ -13,7 +13,7 @@ using ::testing::ContainerEq;
 
 using namespace parakeet_crypto;
 
-// NOLINTBEGIN(*-magic-numbers)
+// NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
 TEST(Utils_RotateArray, RotateLeft)
 {
@@ -23,4 +23,4 @@ TEST(Utils_RotateArray, RotateLeft)
     ASSERT_THAT(array_input, ContainerEq(array_expected));
 }
 
-// NOLINTEND(*-magic-numbers)
+// NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

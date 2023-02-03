@@ -16,10 +16,10 @@ using ::testing::ContainerEq;
 
 using namespace parakeet_crypto;
 
-// NOLINTBEGIN(*-magic-numbers)
+// NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
 TEST(QMC2_Map, DecryptionKey256)
 {
 }
 
-// NOLINTEND(*-magic-numbers)
+// NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

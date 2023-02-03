@@ -14,7 +14,7 @@ using ::testing::ContainerEq;
 
 using namespace parakeet_crypto;
 
-// NOLINTBEGIN(*-magic-numbers)
+// NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
 TEST(Kuwo, EncryptAndDecrypt)
 {
@@ -40,4 +40,4 @@ TEST(Kuwo, EncryptAndDecrypt)
     ASSERT_THAT(buffer, ContainerEq(fixture_sample));
 }
 
-// NOLINTEND(*-magic-numbers)
+// NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
