@@ -43,15 +43,15 @@ jobs:
 
       - name: "🔧 CMake: Configure"
         shell: bash
-        run: cmake --preset "$PRESET_NAME" -A "${{ matrix.vs_arch }}"
+        run: cmake --preset msvc-2022 -A "${{ matrix.vs_arch }}"
 
       - name: "🛠️ CMake: Build"
         shell: bash
-        run: cmake --build --preset "$PRESET_NAME"
+        run: cmake --build --preset "msvc-2022-release"
 
       - name: "💣 Test um-crypto ..."
         shell: bash
-        run: ctest --preset "$PRESET_NAME" --output-on-failure
+        run: ctest --preset "msvc-2022-release" --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
