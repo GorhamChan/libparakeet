@@ -1,5 +1,4 @@
 #include "qmc1_key_utils.h"
-#include "transformer/qmc/qmc1_key_utils.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

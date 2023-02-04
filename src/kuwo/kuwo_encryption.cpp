@@ -1,9 +1,8 @@
 #include "kuwo_common.h"
-#include "parakeet-crypto/transformer/kuwo.h"
 
 #include "parakeet-crypto/ITransformer.h"
+#include "parakeet-crypto/transformer/kuwo.h"
 
-#include "transformer/kuwo/kuwo_common.h"
 #include "utils/EndianHelper.h"
 #include "utils/StringHelper.h"
 #include "utils/XorHelper.h"

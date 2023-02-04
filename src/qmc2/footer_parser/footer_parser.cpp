@@ -1,6 +1,7 @@
 #include "parakeet-crypto/qmc2/footer_parser.h"
-#include "qmc2/footer_parser_android.h"
-#include "qmc2/footer_parser_pc.h"
+#include "footer_parser_android.h"
+#include "footer_parser_pc.h"
+
 #include "utils/EndianHelper.h"
 
 #include <memory>

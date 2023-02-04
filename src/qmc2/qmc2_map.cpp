@@ -1,6 +1,5 @@
-#include "qmc1_decryption_transformer.h"
+#include "qmc1/qmc1_decryption_transformer.h"
 #include "qmc2_map_key_utils.h"
-#include "transformer/qmc/qmc2_map_key_utils.h"
 
 #include <memory>
 
