@@ -11,7 +11,7 @@ jobs:
       - name: "🖼️ Setup scene..."
         shell: bash
         run: |
-          .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
       - uses: ZedThree/clang-tidy-review@v0.10.1
         id: review
