@@ -34,6 +34,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install ninja-build
+          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
       - name: "🔧 CMake: Configure"
         shell: bash

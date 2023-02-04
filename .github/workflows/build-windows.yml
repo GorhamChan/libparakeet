@@ -36,6 +36,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: "🖼️ Setup scene..."
+        shell: bash
+        run: |
+          .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+
       - name: "🔧 CMake: Configure"
         shell: bash
         run: cmake --preset "$PRESET_NAME" -A "${{ matrix.vs_arch }}"
