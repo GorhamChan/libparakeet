@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "libparakeet",
+  "version": "0.2.4",
+  "builtin-baseline": "f14984af3738e69f197bf0e647a8dca12de92996",
+  "dependencies": [
+    {
+      "name": "cryptopp",
+      "version>=": "8.6.0",
+      "default-features": false,
+      "features": []
+    },
+    {
+      "name": "tc-tea",
+      "version>=": "0.1.3"
+    }
+  ]
+}

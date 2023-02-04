@@ -1,27 +1,16 @@
 cmake_minimum_required(VERSION 3.21)
+set(VCPKG_LIBRARY_LINKAGE "static" CACHE STRING "Vcpkg library linkage")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+  CACHE STRING "Vcpkg toolchain file")
 project(parakeet_crypro VERSION 0.2.4 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(cmake/CPM-Loader.cmake)
 include(cmake/git-info.cmake)
 
-CPMAddPackage(
-    NAME cryptopp-cmake
-    GITHUB_REPOSITORY abdes/cryptopp-cmake
-    GIT_TAG CRYPTOPP_8_7_0
-    OPTIONS
-        "CRYPTOPP_BUILD_TESTING OFF"
-)
-
-CPMAddPackage(
-    NAME libtctea
-    GITHUB_REPOSITORY jixunmoe/libtc_tea
-    GIT_TAG v0.1.3
-    OPTIONS
-        "TC_TEA_BUILD_TESTING OFF"
-)
+find_package(cryptopp CONFIG REQUIRED)
+find_package(tc-tea CONFIG REQUIRED)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
@@ -54,15 +43,13 @@ target_include_directories(parakeet_crypro
         src
         "${PROJECT_BINARY_DIR}/src"
 )
+
 target_link_libraries(parakeet_crypro
     PRIVATE 
         cryptopp::cryptopp
-        JixunMoe::LibTcTEA
+        tc-tea::tc-tea
 )
-set_target_properties(parakeet_crypro PROPERTIES 
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-)
+target_compile_features(parakeet_crypro PUBLIC cxx_std_17)
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro)
@@ -87,37 +74,32 @@ DESTINATION
 # Tests!
 if(PARAKEET_CRYPTO_BUILD_TESTING)
     enable_testing()
+    include(cmake/CPM-Loader.cmake)
     CPMAddPackage(
-        NAME googletest
-        GITHUB_REPOSITORY google/googletest
-        GIT_TAG release-1.12.1
-        VERSION 1.12.1
-        OPTIONS
-            "INSTALL_GTEST OFF"
-            "gtest_force_shared_crt ON"
+      NAME googletest
+      GITHUB_REPOSITORY google/googletest
+      GIT_TAG release-1.12.1
+      VERSION 1.12.1
+      OPTIONS
+          "INSTALL_GTEST OFF"
+          "gtest_force_shared_crt ON"
     )
+    include(GoogleTest)
 
     file(GLOB_RECURSE TESTS_SOURCE src/*.test.cc src/*.test.hh)
     add_executable(parakeet_crypto_test ${TESTS_SOURCE})
-    if(MSVC)
-        target_compile_options(parakeet_crypto_test PRIVATE "/MP")
-        target_compile_options(parakeet_crypto_test PRIVATE "/utf-8")
-    endif()
     target_include_directories(parakeet_crypto_test PRIVATE src)
-    set_target_properties(parakeet_crypto_test PROPERTIES 
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-    )
+    target_compile_features(parakeet_crypto_test PUBLIC cxx_std_17)
     target_link_libraries(parakeet_crypto_test 
-        cryptopp::cryptopp
-        GTest::gmock
-        GTest::gtest
-        GTest::gmock_main
-        GTest::gtest_main
-        ${PROJECT_NAME}
+        PRIVATE
+            GTest::gmock
+            GTest::gtest
+            GTest::gmock_main
+            GTest::gtest_main
+            cryptopp::cryptopp
+            parakeet_crypro
     )
     file(COPY fixture DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-    include(GoogleTest)
     gtest_discover_tests(parakeet_crypto_test)
 endif()

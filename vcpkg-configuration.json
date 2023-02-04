@@ -1,0 +1,12 @@
+{
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://github.com/parakeet-rs/vcpkg-registry.git",
+      "packages": [
+        "tc-tea"
+      ],
+      "baseline": "0dd434d242d67708e83e9e01cac3cc41508637db"
+    }
+  ]
+}

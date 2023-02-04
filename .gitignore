@@ -5,3 +5,4 @@ out/
 CMakeUserPresets.json
 .cache/
 old_code/
+vcpkg_installed/

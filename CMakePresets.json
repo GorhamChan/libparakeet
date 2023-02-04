@@ -7,6 +7,14 @@
   },
   "configurePresets": [
     {
+      "name": "vcpkg_base",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_LIBRARY_LINKAGE": "static"
+      }
+    },
+    {
       "name": "ninja-debug",
       "displayName": "Ninja (dbg)",
       "generator": "Ninja",
