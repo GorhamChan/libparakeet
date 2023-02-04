@@ -38,15 +38,15 @@ jobs:
 
       - name: "🔧 CMake: Configure"
         shell: bash
-        run: cmake --preset "$PRESET_NAME"
+        run: cmake --preset ninja
 
       - name: "🛠️ CMake: Build"
         shell: bash
-        run: cmake --build --preset "$PRESET_NAME"
+        run: cmake --build --preset ninja-release
 
       - name: "💣 Test um-crypto ..."
         shell: bash
-        run: ctest --preset "$PRESET_NAME" --output-on-failure
+        run: ctest --preset ninja-release --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
