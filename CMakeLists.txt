@@ -5,7 +5,6 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems
 project(parakeet_crypro VERSION 0.2.4 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/git-info.cmake)
 
@@ -27,8 +26,15 @@ file(GLOB_RECURSE SOURCES
     "${PROJECT_BINARY_DIR}/src/*.cpp"
 )
 
+file(GLOB_RECURSE INCLUDE_HEADERS
+    "include/*.h"
+    "${PROJECT_BINARY_DIR}/include/*.h"
+)
+
 # Add source to this project's executable.
-add_library(parakeet_crypro STATIC ${SOURCES})
+add_library(parakeet_crypro STATIC ${SOURCES} ${INCLUDE_HEADERS})
+set_target_properties(parakeet_crypro PROPERTIES
+    CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
 add_library(ParakeetCrypto::core ALIAS parakeet_crypro)
 if(MSVC)
     target_compile_options(parakeet_crypro PRIVATE "/MP")
@@ -49,7 +55,6 @@ target_link_libraries(parakeet_crypro
         cryptopp::cryptopp
         tc-tea::tc-tea
 )
-target_compile_features(parakeet_crypro PUBLIC cxx_std_17)
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro)
@@ -99,6 +104,8 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
             cryptopp::cryptopp
             parakeet_crypro
     )
+    set_target_properties(parakeet_crypto_test PROPERTIES
+        CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
     file(COPY fixture DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
     gtest_discover_tests(parakeet_crypto_test)
