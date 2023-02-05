@@ -1,15 +1,28 @@
 cmake_minimum_required(VERSION 3.21)
-set(VCPKG_LIBRARY_LINKAGE "static" CACHE STRING "Vcpkg library linkage")
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-  CACHE STRING "Vcpkg toolchain file")
 project(parakeet_crypro VERSION 0.2.4 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 
+include(cmake/CPM-Loader.cmake)
 include(cmake/git-info.cmake)
 
-find_package(cryptopp CONFIG REQUIRED)
-find_package(tc-tea CONFIG REQUIRED)
+CPMAddPackage(
+    NAME cryptopp-cmake
+    GITHUB_REPOSITORY abdes/cryptopp-cmake
+    GIT_TAG CRYPTOPP_8_7_0_1
+    OPTIONS
+        "CRYPTOPP_BUILD_TESTING OFF"
+        "CRYPTOPP_BUILD_DOCUMENTATION OFF"
+        # "USE_OPENMP OFF"
+)
+
+CPMAddPackage(
+    NAME libtctea
+    GITHUB_REPOSITORY jixunmoe/libtc_tea
+    GIT_TAG v0.1.4-RC1
+    OPTIONS
+        "TC_TEA_BUILD_TESTING OFF"
+)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
@@ -79,7 +92,6 @@ DESTINATION
 # Tests!
 if(PARAKEET_CRYPTO_BUILD_TESTING)
     enable_testing()
-    include(cmake/CPM-Loader.cmake)
     CPMAddPackage(
       NAME googletest
       GITHUB_REPOSITORY google/googletest

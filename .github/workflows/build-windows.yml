@@ -39,8 +39,7 @@ jobs:
       - name: "🖼️ Setup scene..."
         shell: bash
         run: |
-          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
-          ./vcpkg/vcpkg install
+          true
 
       - name: "🔧 CMake: Configure"
         shell: bash
