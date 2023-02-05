@@ -40,6 +40,7 @@ jobs:
         shell: bash
         run: |
           ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          ./vcpkg/vcpkg install
 
       - name: "🔧 CMake: Configure"
         shell: bash

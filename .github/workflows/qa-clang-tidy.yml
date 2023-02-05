@@ -12,6 +12,7 @@ jobs:
         shell: bash
         run: |
           ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          ./vcpkg/vcpkg install
 
       - uses: ZedThree/clang-tidy-review@v0.10.1
         id: review
