@@ -12,6 +12,7 @@ enum class TransformResult
     ERROR_OTHER = 1,
     ERROR_INSUFFICIENT_OUTPUT = 2,
     ERROR_INVALID_FORMAT = 3,
+    ERROR_NOT_IMPLEMENTED = 0xff,
 };
 
 class ITransformer
