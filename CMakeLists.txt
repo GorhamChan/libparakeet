@@ -17,7 +17,7 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME libtctea
+    NAME tc-tea
     GITHUB_REPOSITORY jixunmoe/libtc_tea
     GIT_TAG v0.1.4-RC1
     OPTIONS
