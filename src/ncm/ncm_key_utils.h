@@ -24,7 +24,7 @@ inline std::optional<std::array<uint8_t, kNCMFinalKeyLen>> DecryptNCMAudioKey(
     std::vector<uint8_t> content_key;
     std::vector<uint8_t> file_key_mut(file_key.size());
     std::transform(file_key.cbegin(), file_key.cend(), file_key_mut.begin(),
-                   [](auto key) { return key ^ kFileKeyXorKey; });
+                   [&](auto key) { return key ^ kFileKeyXorKey; });
 
     try
     {
