@@ -41,7 +41,8 @@ jobs:
         run: |
           true
 
-      - name: Restore cached dependencies
+      - name: Restore CPM dependencies
+        id: cache-cpm-deps
         uses: actions/cache/restore@v3
         with:
           path: |
@@ -56,6 +57,15 @@ jobs:
       - name: "🛠️ CMake: Build"
         shell: bash
         run: cmake --build --preset "${PRESET_NAME}-release"
+
+      - name: Save CPM dependencies
+        id: cache-cpm-deps-save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            out/cache-cpm
+            out/build/${PRESET_NAME}/_deps
+          key: ${{ steps.cache-cpm-deps.outputs.cache-primary-key }}
 
       - name: "💣 Test um-crypto ..."
         shell: bash
