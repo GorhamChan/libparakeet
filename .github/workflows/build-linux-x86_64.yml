@@ -70,7 +70,7 @@ jobs:
         run: |
           DIST_SOURCE="libparakeet-amd64/"
           mkdir -p "${DIST_SOURCE}/libparakeet/lib"
-          cp -R "out/build/$PRESET_NAME/"*.a "${DIST_SOURCE}/libparakeet/lib"
+          cp -R "out/build/$PRESET_NAME/Release/"*.a "${DIST_SOURCE}/libparakeet/lib"
           cp -R include "${DIST_SOURCE}/libparakeet"
           cp README.md CHANGELOG.md LICENSE.txt "${DIST_SOURCE}"
 

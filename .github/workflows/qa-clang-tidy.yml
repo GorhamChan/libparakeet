@@ -18,6 +18,6 @@ jobs:
       - uses: ZedThree/clang-tidy-review@v0.10.1
         id: review
         with:
-          cmake_command: cmake --preset "${PRESET_NAME}"
+          cmake_command: "cmake --preset ${PRESET_NAME}"
           build_dir: "./out/build/${PRESET_NAME}"
           config_file: ".clang-tidy"
