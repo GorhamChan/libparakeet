@@ -13,11 +13,11 @@ jobs:
       - name: "🖼️ Setup scene..."
         shell: bash
         run: |
-          true
+          cmake --preset "${{ env.PRESET_NAME }}"
 
       - uses: ZedThree/clang-tidy-review@v0.10.1
         id: review
         with:
-          cmake_command: "cmake --preset ${{ env.PRESET_NAME }}"
+          cmake_command: "true"
           build_dir: "./out/build/${{ env.PRESET_NAME }}"
           config_file: ".clang-tidy"
