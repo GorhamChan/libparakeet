@@ -5,7 +5,7 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-22.04
     env:
-      PRESET_NAME: ninja
+      PRESET_NAME: make
 
     steps:
       - uses: actions/checkout@v3

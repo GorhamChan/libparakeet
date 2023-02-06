@@ -36,6 +36,14 @@
       "displayName": "Ninja"
     },
     {
+      "name": "make",
+      "inherits": [
+        "base"
+      ],
+      "generator": "Unix Makefiles",
+      "displayName": "Make"
+    },
+    {
       "name": "msvc-2022",
       "displayName": "MSVC 2022",
       "generator": "Visual Studio 17 2022",
