@@ -48,7 +48,7 @@ jobs:
           path: |
             out/cache-cpm
             out/build/${PRESET_NAME}/_deps
-          key: ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt') }}
+          key: ${{ runner.os }}-cpm-${{ matrix.win_ver }}-${{ hashFiles('CMakeLists.txt') }}
 
       - name: "🔧 CMake: Configure"
         shell: bash
