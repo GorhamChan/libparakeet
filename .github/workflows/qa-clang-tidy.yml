@@ -3,7 +3,9 @@ on: [pull_request]
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    env:
+      PRESET_NAME: ninja
 
     steps:
       - uses: actions/checkout@v3
@@ -16,6 +18,6 @@ jobs:
       - uses: ZedThree/clang-tidy-review@v0.10.1
         id: review
         with:
-          cmake_command: cmake --preset ninja
-          build_dir: ./out/build/ninja
+          cmake_command: cmake --preset "${PRESET_NAME}"
+          build_dir: "./out/build/${PRESET_NAME}"
           config_file: ".clang-tidy"

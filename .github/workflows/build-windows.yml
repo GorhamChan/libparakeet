@@ -28,7 +28,7 @@ jobs:
 
     runs-on: windows-2022
     env:
-      PRESET_NAME: msvc-2022-release
+      PRESET_NAME: msvc-2022
 
     steps:
       - name: "⏳ Clone repo..."
@@ -41,17 +41,25 @@ jobs:
         run: |
           true
 
+      - name: Restore cached dependencies
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            out/cache-cpm
+            out/build/${PRESET_NAME}/_deps
+          key: ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt') }}
+
       - name: "🔧 CMake: Configure"
         shell: bash
-        run: cmake --preset msvc-2022 -A "${{ matrix.vs_arch }}"
+        run: cmake --preset "${PRESET_NAME}" -A "${{ matrix.vs_arch }}"
 
       - name: "🛠️ CMake: Build"
         shell: bash
-        run: cmake --build --preset "msvc-2022-release"
+        run: cmake --build --preset "${PRESET_NAME}-release"
 
       - name: "💣 Test um-crypto ..."
         shell: bash
-        run: ctest --preset "msvc-2022-release" --output-on-failure
+        run: ctest --preset "${PRESET_NAME}-release" --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
