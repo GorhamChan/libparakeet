@@ -28,10 +28,10 @@ TEST(NCM, TestDecryption)
                                                               0xB1, 0x66, 0xB3, 0x8D, 0x0C, 0xEB, 0xC7, 0x1A};
 
     std::vector<uint8_t> buffer(fixture_ncm.size() + 0x100);
-    auto decryption_transformer = transformer::CreateNeteaseNCMDecryptionTransformer(ncm_key.begin());
+    auto ncm_transformer = transformer::CreateNeteaseNCMDecryptionTransformer(ncm_key.data());
     size_t plain_len = buffer.size();
     auto decryption_state =
-        decryption_transformer->Transform(buffer.data(), plain_len, fixture_ncm.data(), fixture_ncm.size());
+        ncm_transformer->Transform(buffer.data(), plain_len, fixture_ncm.data(), fixture_ncm.size());
     buffer.resize(plain_len);
     ASSERT_EQ(decryption_state, TransformResult::OK);
     ASSERT_EQ(plain_len, fixture_plain.size());
