@@ -41,7 +41,7 @@ jobs:
         with:
           path: |
             out/cache-cpm
-            out/build/${PRESET_NAME}/_deps
+            out/build/${{ env.PRESET_NAME }}/_deps
           key: ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: |
             ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt') }}
@@ -49,11 +49,11 @@ jobs:
 
       - name: "🔧 CMake: Configure"
         shell: bash
-        run: cmake --preset "${PRESET_NAME}"
+        run: cmake --preset "${{ env.PRESET_NAME }}"
 
       - name: "🛠️ CMake: Build"
         shell: bash
-        run: cmake --build --preset "${PRESET_NAME}-release"
+        run: cmake --build --preset "${{ env.PRESET_NAME }}-release"
 
       - name: Save CPM dependencies
         id: cache-cpm-deps-save
@@ -61,12 +61,12 @@ jobs:
         with:
           path: |
             out/cache-cpm
-            out/build/${PRESET_NAME}/_deps
+            out/build/${{ env.PRESET_NAME }}/_deps
           key: ${{ steps.cache-cpm-deps.outputs.cache-primary-key }}
 
       - name: "💣 Test um-crypto ..."
         shell: bash
-        run: ctest --preset "${PRESET_NAME}-release" --output-on-failure
+        run: ctest --preset "${{ env.PRESET_NAME }}-release" --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
