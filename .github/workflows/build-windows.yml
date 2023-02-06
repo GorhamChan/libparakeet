@@ -89,7 +89,7 @@ jobs:
       - name: "🗜️ Packaging"
         working-directory: dist
         shell: pwsh
-        run: Compress-Archive "../libparakeet-${{ matrix.win_ver }}.zip" -CompressionLevel Optimal -Path *
+        run: Compress-Archive "../libparakeet-${{ matrix.win_ver }}.zip" -Path *
 
       - name: 📝 Draft Release
         if: startsWith(github.ref, 'refs/tags/v')
