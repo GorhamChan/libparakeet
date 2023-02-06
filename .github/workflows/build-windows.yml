@@ -49,6 +49,9 @@ jobs:
             out/cache-cpm
             out/build/${PRESET_NAME}/_deps
           key: ${{ runner.os }}-cpm-${{ matrix.win_ver }}-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt') }}
+            ${{ runner.os }}-cpm-
 
       - name: "🔧 CMake: Configure"
         shell: bash
