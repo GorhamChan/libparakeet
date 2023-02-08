@@ -1,8 +1,11 @@
 #pragma once
 
+#include "test/test_env.h"
+
 #include <cassert>
 #include <cstdint>
 #include <fstream>
+#include <ios>
 #include <optional>
 #include <string>
 #include <vector>
@@ -38,22 +41,37 @@ inline bool write_file(const char *path, const uint8_t *p_data, std::streamsize 
     return !ofs.bad();
 }
 
-inline std::vector<uint8_t> read_fixture(const char *name)
+inline bool write_local_file(const char *name, const std::vector<uint8_t> &data)
 {
-    std::string file_path("fixture/");
+    std::string file_path(get_local_file_directory());
     file_path += name;
 
-    for (int i = 0; i < 2; i++)
-    {
-        if (auto data = read_file(file_path.c_str()); data.has_value())
-        {
-            return data.value();
-        }
+    return write_file(file_path.c_str(), data.data(), static_cast<std::streamsize>(data.size()));
+}
 
-        file_path = std::string("../") + file_path; // NOLINT
+inline std::vector<uint8_t> read_fixture(const char *name)
+{
+    std::string file_path(get_fixture_directory());
+    file_path += name;
+
+    if (auto data = read_file(file_path.c_str()); data.has_value())
+    {
+        return *data;
     }
 
-    assert(0); // Could not read fixture
+    return {};
+}
+
+inline std::vector<uint8_t> read_local_file(const char *name)
+{
+    std::string file_path(get_local_file_directory());
+    file_path += name;
+
+    if (auto data = read_file(file_path.c_str()); data.has_value())
+    {
+        return *data;
+    }
+
     return {};
 }
 

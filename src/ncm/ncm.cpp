@@ -1,8 +1,10 @@
 #include "ncm_key_utils.h"
 
+#include "parakeet-crypto/IStream.h"
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/transformer/ncm.h"
 #include "utils/EndianHelper.h"
+#include "utils/PagedReader.h"
 #include "utils/SizedBlockReader.h"
 #include "utils/XorHelper.h"
 
@@ -35,179 +37,32 @@ class NCMTransformer : public ITransformer
     static constexpr size_t kCoverPadding{9};
 
     std::array<uint8_t, kNCMContentKeySize> content_key_{};
-    enum class State
+
+    [[nodiscard]] std::optional<std::array<uint8_t, kNCMFinalKeyLen>> ReadContentKey(IReadSeekable *input)
     {
-        WAITING_FOR_HEADER = 0,
-        SEEK_PADDING_HEADER,
-
-        READ_CONTENT_KEY_LEN,
-        READ_CONTENT_KEY,
-
-        READ_METADATA_LEN,
-        SEEK_METADATA,
-
-        SEEK_PADDING_COVER,
-        READ_COVER_LEN,
-        SEEK_COVER,
-
-        CONTENT_DECRYPTION,
-    };
-    State state_{State::WAITING_FOR_HEADER};
-    size_t offset_{0};
-    size_t audio_data_offset_{0};
-
-    std::array<uint8_t, kNCMFinalKeyLen> audio_xor_key_{};
-    std::vector<uint8_t> buffer_{};
-    size_t next_block_size_{0};
-    utils::SizedBlockReader sized_reader_{buffer_, offset_};
-    inline void ResetForNextSizedBuffer(size_t seek_counter = 0)
-    {
-        buffer_.resize(0);
-        next_block_size_ = 0;
-        sized_reader_.SetSeekCounter(seek_counter);
-    }
-
-    TransformResult HandleHeader(                                    //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        constexpr static std::array<const uint8_t, 8> kHeader{'C', 'T', 'E', 'N', 'F', 'D', 'A', 'M'};
-
-        if (sized_reader_.Read(input, input_len, kHeader.size()))
+        std::array<uint8_t, sizeof(uint32_t) / sizeof(uint8_t)> buffer{};
+        if (!input->ReadExact(buffer.data(), buffer.size()))
         {
-            if (!std::equal(kHeader.begin(), kHeader.end(), buffer_.begin()))
-            {
-                return TransformResult::ERROR_INVALID_FORMAT;
-            }
-
-            ResetForNextSizedBuffer(kHeaderPadding);
-            state_ = State::SEEK_PADDING_HEADER;
+            return {};
         }
-
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleSeekHeaderPadding(                         //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Seek(input, input_len))
+        auto block_size = size_t{ReadLittleEndian<uint32_t>(buffer.data())};
+        std::vector<uint8_t> key_buffer(block_size);
+        if (!input->ReadExact(key_buffer.data(), block_size))
         {
-            ResetForNextSizedBuffer();
-            state_ = State::READ_CONTENT_KEY_LEN;
+            return {};
         }
-
-        return TransformResult::OK;
+        return DecryptNCMAudioKey(key_buffer, content_key_);
     }
 
-    TransformResult HandleReadContentKeyLen(                         //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
+    [[nodiscard]] static bool SeekSizedBox(IReadSeekable *input)
     {
-        if (sized_reader_.Read(input, input_len, sizeof(uint32_t)))
+        std::array<uint8_t, sizeof(uint32_t) / sizeof(uint8_t)> buffer{};
+        if (!input->ReadExact(buffer.data(), buffer.size()))
         {
-            auto next_block_size = ReadLittleEndian<uint32_t>(buffer_.data());
-            ResetForNextSizedBuffer();
-            next_block_size_ = next_block_size;
-            state_ = State::READ_CONTENT_KEY;
+            return false;
         }
-
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleReadContentKey(                            //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Read(input, input_len, next_block_size_))
-        {
-            auto key = DecryptNCMAudioKey(buffer_, content_key_);
-            if (!key.has_value())
-            {
-                return TransformResult::ERROR_INVALID_KEY;
-            }
-
-            audio_xor_key_ = *key;
-            ResetForNextSizedBuffer();
-            state_ = State::READ_METADATA_LEN;
-        }
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleReadMetadataLen(                           //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Read(input, input_len, sizeof(uint32_t)))
-        {
-            ResetForNextSizedBuffer(ReadLittleEndian<uint32_t>(buffer_.data()));
-            state_ = State::SEEK_METADATA;
-        }
-
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleSeekMetadata(                              //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Seek(input, input_len))
-        {
-            ResetForNextSizedBuffer(kCoverPadding);
-            state_ = State::SEEK_PADDING_COVER;
-        }
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleSeekCoverPadding(                          //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Seek(input, input_len))
-        {
-            ResetForNextSizedBuffer();
-            state_ = State::READ_COVER_LEN;
-        }
-
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleReadCoverLen(                              //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Read(input, input_len, sizeof(uint32_t)))
-        {
-            ResetForNextSizedBuffer(ReadLittleEndian<uint32_t>(buffer_.data()));
-            state_ = State::SEEK_COVER;
-        }
-
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleSeekCover(                                 //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        if (sized_reader_.Seek(input, input_len))
-        {
-            ResetForNextSizedBuffer();
-            state_ = State::CONTENT_DECRYPTION;
-        }
-        return TransformResult::OK;
-    }
-
-    TransformResult HandleDecryption(                                //
-        size_t &bytes_written, uint8_t *&output, size_t &output_len, // NOLINT(misc-unused-parameters)
-        const uint8_t *&input, size_t &input_len)                    // NOLINT(misc-unused-parameters)
-    {
-        utils::XorFromOffset(output, input, input_len, audio_xor_key_.data(), audio_xor_key_.size(),
-                             audio_data_offset_);
-        audio_data_offset_ += input_len;
-        bytes_written += input_len;
-        output_len -= input_len;
-        input_len = 0;
-        return TransformResult::OK;
+        input->Seek(ReadLittleEndian<uint32_t>(buffer.data()), SeekDirection::CURRENT_POSITION);
+        return true;
     }
 
   public:
@@ -216,55 +71,47 @@ class NCMTransformer : public ITransformer
         std::copy_n(content_key, content_key_.size(), content_key_.begin());
     }
 
-    TransformResult Transform(uint8_t *output, size_t &output_len, const uint8_t *input, size_t input_len) override
+    TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
+        constexpr static std::array<const uint8_t, 8> kHeader{'C', 'T', 'E', 'N', 'F', 'D', 'A', 'M'};
 
-        if (output_len < input_len)
+        std::array<uint8_t, kHeader.size()> file_header{};
+        if (!input->ReadExact(file_header.data(), file_header.size()))
         {
-            output_len = input_len;
-            return TransformResult::ERROR_INSUFFICIENT_OUTPUT;
+            return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        size_t bytes_written{0};
-        TransformResult result{TransformResult::OK};
-        while (result == TransformResult::OK && input_len > 0)
+        input->Seek(kHeaderPadding, SeekDirection::CURRENT_POSITION);
+
+        // Parse key
+        auto tmp_key = ReadContentKey(input);
+        if (!tmp_key)
         {
-            switch (state_)
-            {
-            case State::WAITING_FOR_HEADER:
-                result = HandleHeader(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::SEEK_PADDING_HEADER:
-                result = HandleSeekHeaderPadding(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::READ_CONTENT_KEY_LEN:
-                result = HandleReadContentKeyLen(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::READ_CONTENT_KEY:
-                result = HandleReadContentKey(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::READ_METADATA_LEN:
-                result = HandleReadMetadataLen(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::SEEK_METADATA:
-                result = HandleSeekMetadata(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::SEEK_PADDING_COVER:
-                result = HandleSeekCoverPadding(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::READ_COVER_LEN:
-                result = HandleReadCoverLen(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::SEEK_COVER:
-                result = HandleSeekCover(bytes_written, output, output_len, input, input_len);
-                break;
-            case State::CONTENT_DECRYPTION:
-                result = HandleDecryption(bytes_written, output, output_len, input, input_len);
-                break;
-            }
+            return TransformResult::ERROR_INVALID_KEY;
         }
-        output_len = bytes_written;
-        return result;
+        auto audio_content_key = *tmp_key;
+
+        // skip metadata
+        if (!SeekSizedBox(input))
+        {
+            return TransformResult::ERROR_INVALID_FORMAT;
+        }
+        input->Seek(kCoverPadding, SeekDirection::CURRENT_POSITION); // skip cover padding
+        // skip cover
+        if (!SeekSizedBox(input))
+        {
+            return TransformResult::ERROR_INVALID_FORMAT;
+        }
+
+        auto audio_data_offset = input->GetOffset();
+        auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t offset, uint8_t *buffer, size_t n) {
+            utils::XorFromOffset(buffer, n, audio_content_key.data(), audio_content_key.size(),
+                                 offset - audio_data_offset);
+            output->Write(buffer, n);
+            return true;
+        });
+
+        return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_OTHER;
     }
 };
 

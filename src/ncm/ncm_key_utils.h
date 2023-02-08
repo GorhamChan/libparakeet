@@ -15,22 +15,21 @@ namespace parakeet_crypto::transformer
 
 static constexpr size_t kNCMFinalKeyLen = 0x100;
 inline std::optional<std::array<uint8_t, kNCMFinalKeyLen>> DecryptNCMAudioKey(
-    const std::vector<uint8_t> &file_key, std::array<uint8_t, kNCMContentKeySize> &aes_key)
+    std::vector<uint8_t> &file_key, const std::array<uint8_t, kNCMContentKeySize> &aes_key)
 {
     constexpr uint8_t kFileKeyXorKey{0x64};
     using AES = CryptoPP::ECB_Mode<CryptoPP::AES>::Decryption;
     using Filter = CryptoPP::StreamTransformationFilter;
 
     std::vector<uint8_t> content_key;
-    std::vector<uint8_t> file_key_mut(file_key.size());
-    std::transform(file_key.cbegin(), file_key.cend(), file_key_mut.begin(),
+    std::transform(file_key.cbegin(), file_key.cend(), file_key.begin(),
                    [&](auto key) { return key ^ kFileKeyXorKey; });
 
     try
     {
         AES aes(aes_key.data(), aes_key.size());
         Filter decryptor(aes, nullptr, Filter::PKCS_PADDING);
-        decryptor.PutMessageEnd(file_key_mut.data(), file_key_mut.size());
+        decryptor.PutMessageEnd(file_key.data(), file_key.size());
         content_key.resize(decryptor.MaxRetrievable());
         decryptor.Get(content_key.data(), content_key.size());
     }

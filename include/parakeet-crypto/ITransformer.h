@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include "IStream.h"
 
 namespace parakeet_crypto
 {
@@ -30,7 +29,7 @@ class ITransformer
      * @param input_len Input buffer size.
      * @return TransformResult
      */
-    virtual TransformResult Transform(uint8_t *output, size_t &output_len, const uint8_t *input, size_t input_len) = 0;
+    virtual TransformResult Transform(IWriteable *output, IReadSeekable *input) = 0;
 };
 
 } // namespace parakeet_crypto

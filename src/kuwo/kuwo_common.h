@@ -41,7 +41,7 @@ void SetupKuwoDecryptionKey(uint64_t resource_id, Iterator decryption_key, Itera
 
     while (decryption_key < decryption_key_end)
     {
-        *decryption_key++ = *p_rid_str++;
+        *decryption_key++ ^= *p_rid_str++;
 
         if (p_rid_str == p_rid_str_end)
         {

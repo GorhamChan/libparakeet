@@ -103,9 +103,15 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
     )
     include(GoogleTest)
 
+    configure_file (
+        "${PROJECT_SOURCE_DIR}/src/test/test_env.h.in"
+        "${PROJECT_BINARY_DIR}/src/test/test_env.h"
+        @ONLY
+    )
+
     file(GLOB_RECURSE TESTS_SOURCE src/*.test.cc src/*.test.hh)
     add_executable(parakeet_crypto_test ${TESTS_SOURCE})
-    target_include_directories(parakeet_crypto_test PRIVATE src)
+    target_include_directories(parakeet_crypto_test PRIVATE src "${PROJECT_BINARY_DIR}/src")
     target_compile_features(parakeet_crypto_test PUBLIC cxx_std_17)
     target_link_libraries(parakeet_crypto_test 
         PRIVATE
@@ -118,7 +124,6 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
     )
     set_target_properties(parakeet_crypto_test PROPERTIES
         CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
-    file(COPY fixture DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
     gtest_discover_tests(parakeet_crypto_test)
 endif()

@@ -1,6 +1,7 @@
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/transformer/ximalaya.h"
 #include "test/read_fixture.test.hh"
+#include "test/test_decryption.test.hh"
 
 #include <cstdio>
 #include <fstream>
@@ -89,18 +90,9 @@ static std::array<uint16_t, transformer::kXimalayaScrambleKeyLen> kTestScrambleK
 TEST(Ximalaya, X2MDecryption)
 {
     std::array<uint8_t, 4> content_key = {0x9A, 0x5A, 0xD5, 0x06};
-    auto fixture_plain = test::read_fixture("sample_test_121529_32kbps.ogg");
-    auto fixture_x2m = test::read_fixture("test_xmly.x2m");
-
-    std::vector<uint8_t> result = std::vector<uint8_t>(fixture_x2m.size());
-
     auto transformer = transformer::CreateXimalayaDecryptionTransformer(kTestScrambleKey.data(), content_key.data(),
                                                                         content_key.size());
-    size_t output_len = result.size();
-    ASSERT_EQ(TransformResult::OK,
-              transformer->Transform(result.data(), output_len, fixture_x2m.data(), fixture_x2m.size()));
-    result.resize(output_len);
-    ASSERT_THAT(result, ContainerEq(fixture_plain));
+    test::should_decrypt_to_fixture("test_xmly.x2m", transformer);
 }
 
 TEST(Ximalaya, X3MDecryption)
@@ -108,17 +100,8 @@ TEST(Ximalaya, X3MDecryption)
     std::array<uint8_t, 32> content_key = {0x59, 0x02, 0x06, 0xD9, 0xCA, 0xAC, 0xD2, 0xD3, 0x73, 0xCD, 0xBC,
                                            0x1A, 0xB5, 0x97, 0x9A, 0xC4, 0x57, 0xAB, 0x4E, 0x21, 0x13, 0xF3,
                                            0x7C, 0x7A, 0x26, 0xA5, 0xAC, 0x8B, 0xFC, 0x50, 0xFE, 0x97};
-    auto fixture_plain = test::read_fixture("sample_test_121529_32kbps.ogg");
-    auto fixture_x3m = test::read_fixture("test_xmly.x3m");
-
-    std::vector<uint8_t> result = std::vector<uint8_t>(fixture_x3m.size());
-
     auto transformer = transformer::CreateXimalayaDecryptionTransformer(kTestScrambleKey.data(), content_key.data(),
                                                                         content_key.size());
-    size_t output_len = result.size();
-    ASSERT_EQ(TransformResult::OK,
-              transformer->Transform(result.data(), output_len, fixture_x3m.data(), fixture_x3m.size()));
-    result.resize(output_len);
-    ASSERT_THAT(result, ContainerEq(fixture_plain));
+    test::should_decrypt_to_fixture("test_xmly.x3m", transformer);
 }
 // NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

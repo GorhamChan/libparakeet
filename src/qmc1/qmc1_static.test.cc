@@ -1,6 +1,7 @@
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/transformer/qmc.h"
 #include "test/read_fixture.test.hh"
+#include "test/test_decryption.test.hh"
 
 #include <cstdio>
 #include <gmock/gmock.h>
@@ -38,18 +39,8 @@ TEST(QMC1, DecryptionKey128)
         0xfe, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, //
     };
 
-    auto fixture_plain = test::read_fixture("sample_test_121529_32kbps.ogg");
-    auto fixture_qmc1 = test::read_fixture("test_qmc1.qmcogg");
-
-    std::vector<uint8_t> buffer(fixture_qmc1.size() + 0x100);
-    auto decryption_transformer =
-        transformer::CreateQMC1StaticDecryptionTransformer(test_key128.data(), test_key128.size());
-    size_t plain_len = buffer.size();
-    auto decryption_state =
-        decryption_transformer->Transform(buffer.data(), plain_len, fixture_qmc1.data(), fixture_qmc1.size());
-    buffer.resize(plain_len);
-    ASSERT_EQ(decryption_state, TransformResult::OK);
-    ASSERT_THAT(buffer, ContainerEq(fixture_plain));
+    auto transformer = transformer::CreateQMC1StaticDecryptionTransformer(test_key128.data(), test_key128.size());
+    test::should_decrypt_to_fixture("test_qmc1.qmcogg", transformer);
 }
 
 // NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
