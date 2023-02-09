@@ -1,6 +1,9 @@
 #include "IStream.h"
+#include "parakeet-crypto/IStream.h"
 
 #include <fstream>
+#include <memory>
+#include <utility>
 
 namespace parakeet_crypto
 {
@@ -95,7 +98,7 @@ class InputMemoryStream final : public IReadSeekable
             next_offset = offset_ + position;
             break;
         case SeekDirection::FILE_END_BACKWARDS:
-            next_offset = data_.size() - position;
+            next_offset = data_.size() + position;
             break;
         default:
             return;
@@ -110,6 +113,64 @@ class InputMemoryStream final : public IReadSeekable
     size_t GetOffset() override
     {
         return offset_;
+    }
+};
+
+class SlicedReadableStream final : public IReadSeekable
+{
+  private:
+    std::shared_ptr<IReadSeekable> parent_;
+    size_t start_{};
+    size_t end_{};
+
+  public:
+    SlicedReadableStream(std::shared_ptr<IReadSeekable> parent, //
+                         size_t start_index, size_t end_index)  // NOLINT(*-easily-swappable-parameters)
+        : parent_(std::move(parent)), start_(start_index), end_(end_index)
+    {
+    }
+
+    size_t Read(uint8_t *buffer, size_t len) override
+    {
+        auto offset = GetOffset();
+
+        if (offset < start_)
+        {
+            offset = start_;
+            parent_->Seek(start_, SeekDirection::FILE_BEGIN);
+        }
+
+        size_t read_len = std::min(end_ - offset, len);
+        return parent_->Read(buffer, read_len);
+    }
+
+    void Seek(size_t position, SeekDirection seek_dir) override
+    {
+        size_t next_offset{0};
+        switch (seek_dir)
+        {
+        case SeekDirection::FILE_BEGIN:
+            next_offset = position;
+            break;
+        case SeekDirection::CURRENT_POSITION:
+            next_offset = parent_->GetOffset() + position;
+            break;
+        case SeekDirection::FILE_END_BACKWARDS:
+            next_offset = end_ + position;
+            break;
+        default:
+            return;
+        }
+
+        parent_->Seek(std::max(std::min(next_offset, end_), start_), SeekDirection::FILE_BEGIN);
+    }
+    size_t GetSize() override
+    {
+        return end_ - start_;
+    }
+    size_t GetOffset() override
+    {
+        return std::min(parent_->GetOffset() - start_, end_);
     }
 };
 
