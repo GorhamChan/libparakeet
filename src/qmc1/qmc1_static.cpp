@@ -11,7 +11,7 @@ std::unique_ptr<ITransformer> CreateQMC1StaticDecryptionTransformer(const uint8_
     // NOLINTBEGIN(*-magic-numbers)
     if (key_len == 128)
     {
-        return std::make_unique<QMC1StaticDecryptionTransformer<qmc1::kIndexOffset>>(key);
+        return std::make_unique<QMC1StaticDecryptionTransformer>(key);
     }
 
     std::array<uint8_t, 128> key128{};
@@ -27,7 +27,7 @@ std::unique_ptr<ITransformer> CreateQMC1StaticDecryptionTransformer(const uint8_
     {
         return nullptr;
     }
-    return std::make_unique<QMC1StaticDecryptionTransformer<qmc1::kIndexOffset>>(key128.data());
+    return std::make_unique<QMC1StaticDecryptionTransformer>(key128.data());
     // NOLINTEND(*-magic-numbers)
 }
 

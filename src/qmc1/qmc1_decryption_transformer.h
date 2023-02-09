@@ -11,7 +11,7 @@
 namespace parakeet_crypto::transformer
 {
 
-template <uint32_t OFFSET> class QMC1StaticDecryptionTransformer : public ITransformer
+class QMC1StaticDecryptionTransformer : public ITransformer
 {
   private:
     static constexpr size_t kQMC1KeySize = 128;

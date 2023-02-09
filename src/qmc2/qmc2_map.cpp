@@ -10,7 +10,7 @@ std::unique_ptr<ITransformer> CreateQMC2MapDecryptionTransformer(const uint8_t *
 {
     std::array<uint8_t, 128> key128{}; // NOLINT(*-magic-numbers)
     qmc2_map::to_key128(key128.data(), key, key_len);
-    return std::make_unique<QMC1StaticDecryptionTransformer<qmc2_map::kIndexOffset>>(key128.data());
+    return std::make_unique<QMC1StaticDecryptionTransformer>(key128.data());
 }
 
 } // namespace parakeet_crypto::transformer
