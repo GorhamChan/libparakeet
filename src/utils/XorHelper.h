@@ -47,9 +47,8 @@ inline void XorFromOffset(uint8_t *dst, size_t dst_len, const uint8_t *key, size
     XorFromOffset(dst, dst, dst_len, key, key_len, offset);
 }
 
-inline void XorBlockFromOffset(uint8_t *dst, const uint8_t *src, size_t data_len, size_t block_len, //
-                               const uint8_t *key, size_t key_len, // NOLINT(bugprone-easily-swappable-parameters)
-                               size_t offset)
+inline void XorBlockFromOffset(uint8_t *dst, const uint8_t *src, size_t data_len, size_t block_len, const uint8_t *key,
+                               size_t key_len, size_t offset)
 {
     const auto *p_dst_end = dst + data_len;
 
@@ -78,9 +77,7 @@ inline void XorBlockFromOffset(uint8_t *dst, const uint8_t *src, size_t data_len
     }
 }
 
-inline void XorBlockFromOffset(uint8_t *dst, size_t data_len,      // NOLINT(bugprone-easily-swappable-parameters)
-                               size_t block_len,                   //
-                               const uint8_t *key, size_t key_len, // NOLINT(bugprone-easily-swappable-parameters)
+inline void XorBlockFromOffset(uint8_t *dst, size_t data_len, size_t block_len, const uint8_t *key, size_t key_len,
                                size_t offset)
 {
     XorBlockFromOffset(dst, dst, data_len, block_len, key, key_len, offset);

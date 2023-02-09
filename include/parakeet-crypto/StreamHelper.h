@@ -124,8 +124,7 @@ class SlicedReadableStream final : public IReadSeekable
     size_t end_{};
 
   public:
-    SlicedReadableStream(std::shared_ptr<IReadSeekable> parent, //
-                         size_t start_index, size_t end_index)  // NOLINT(*-easily-swappable-parameters)
+    SlicedReadableStream(std::shared_ptr<IReadSeekable> parent, size_t start_index, size_t end_index)
         : parent_(std::move(parent)), start_(start_index), end_(end_index)
     {
     }
