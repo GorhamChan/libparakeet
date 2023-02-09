@@ -5,6 +5,7 @@
 
 #include "parakeet-crypto/IStream.h"
 #include "parakeet-crypto/ITransformer.h"
+#include "parakeet-crypto/StreamHelper.h"
 #include "gmock/gmock.h"
 
 #include <cstdint>
