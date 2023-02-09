@@ -21,7 +21,7 @@ class QMCFooterParserImpl : public QMCFooterParser
     {
     }
 
-    std::unique_ptr<FooterParseResult> ParseFooter(const uint8_t *file_footer, size_t len) override
+    std::unique_ptr<FooterParseResult> Parse(const uint8_t *file_footer, size_t len) override
     {
         if (len < kMinimumFooterLen)
         {
@@ -36,12 +36,12 @@ class QMCFooterParserImpl : public QMCFooterParser
 
         if (FooterParserAndroid::IsAndroidQTag(magic_u32))
         {
-            return FooterParserAndroid(key_crypto_).ParseFooter(file_footer, len);
+            return FooterParserAndroid(key_crypto_).Parse(file_footer, len);
         }
 
         if (FooterParserPC::IsPCFooter(magic_u32))
         {
-            return FooterParserPC(key_crypto_).ParseFooter(file_footer, len);
+            return FooterParserPC(key_crypto_).Parse(file_footer, len);
         }
 
         return std::make_unique<FooterParseResult>(FooterParseState::UnknownContent);

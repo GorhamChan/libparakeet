@@ -29,7 +29,7 @@ class FooterParserPC
         return ReadLittleEndian<uint32_t>(magic_u32) < kMaxPCKeyLen;
     }
 
-    std::unique_ptr<FooterParseResult> ParseFooter(const uint8_t *file_footer, size_t len)
+    std::unique_ptr<FooterParseResult> Parse(const uint8_t *file_footer, size_t len)
     {
         const auto *footer_payload_end = &file_footer[len - sizeof(uint32_t)];
         size_t footer_len = ReadLittleEndian<uint32_t>(footer_payload_end) + sizeof(uint32_t);

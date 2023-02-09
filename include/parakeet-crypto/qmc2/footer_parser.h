@@ -56,7 +56,7 @@ class QMCFooterParser
   public:
     virtual ~QMCFooterParser() = default;
 
-    virtual std::unique_ptr<FooterParseResult> ParseFooter(const uint8_t *file_footer, size_t len) = 0;
+    virtual std::unique_ptr<FooterParseResult> Parse(const uint8_t *file_footer, size_t len) = 0;
 };
 
 std::unique_ptr<QMCFooterParser> CreateQMC2FooterParser(std::shared_ptr<IKeyCrypto> key_crypto);

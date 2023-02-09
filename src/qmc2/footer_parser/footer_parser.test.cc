@@ -45,7 +45,7 @@ TEST(QMCTailParser, PCClientTail)
     EXPECT_CALL(*key_crypto_mock, Decrypt(&test_data.at(12), 16)).WillOnce(Return(mocked_key));
 
     auto parser = CreateQMC2FooterParser(key_crypto_mock);
-    auto result = parser->ParseFooter(test_data.data(), test_data.size());
+    auto result = parser->Parse(test_data.data(), test_data.size());
 
     ASSERT_NE(result, nullptr);
     ASSERT_EQ(result->state, FooterParseState::OK);
@@ -69,7 +69,7 @@ TEST(QMCTailParser, ShouldRejectSTag)
     EXPECT_CALL(*key_crypto_mock, Decrypt(An<const uint8_t *>(), An<size_t>())).Times(0);
 
     auto parser = CreateQMC2FooterParser(key_crypto_mock);
-    auto result = parser->ParseFooter(test_data.data(), test_data.size());
+    auto result = parser->Parse(test_data.data(), test_data.size());
 
     ASSERT_NE(result, nullptr);
     ASSERT_EQ(result->state, FooterParseState::UnsupportedAndroidClientSTag);
@@ -95,7 +95,7 @@ TEST(QMCTailParser, ShouldWorkWithQTag)
     EXPECT_CALL(*key_crypto_mock, Decrypt(&test_data.at(12), 16)).WillOnce(Return(mocked_key));
 
     auto parser = CreateQMC2FooterParser(key_crypto_mock);
-    auto result = parser->ParseFooter(test_data.data(), test_data.size());
+    auto result = parser->Parse(test_data.data(), test_data.size());
 
     ASSERT_NE(result, nullptr);
     ASSERT_EQ(result->state, FooterParseState::OK);

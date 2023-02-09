@@ -54,7 +54,7 @@ class FooterParserAndroid
         return std::equal(kMagic.begin(), kMagic.end(), magic_u32);
     }
 
-    std::unique_ptr<FooterParseResult> ParseFooter(const uint8_t *file_footer, size_t len)
+    std::unique_ptr<FooterParseResult> Parse(const uint8_t *file_footer, size_t len)
     {
         constexpr size_t kMinRequiredLen = 8;
 
