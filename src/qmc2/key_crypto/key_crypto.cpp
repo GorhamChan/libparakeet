@@ -20,25 +20,26 @@ class KeyCryptoImpl : public IKeyCrypto
   private:
     static constexpr size_t kTeaKeySize = 16;
 
+    uint8_t seed_{};
     std::array<uint8_t, kTeaKeySize> enc_v2_key_1_{};
     std::array<uint8_t, kTeaKeySize> enc_v2_key_2_{};
 
   public:
-    KeyCryptoImpl(const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2)
+    KeyCryptoImpl(uint8_t initial_seed, const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2) : seed_(initial_seed)
     {
         std::copy_n(enc_v2_key_1, kTeaKeySize, enc_v2_key_1_.begin());
         std::copy_n(enc_v2_key_2, kTeaKeySize, enc_v2_key_2_.begin());
     }
     ~KeyCryptoImpl() override = default;
 
-    inline KeyEncryptionV2 GetEncV2()
+    [[nodiscard]] inline KeyEncryptionV2 GetEncV2() const
     {
         return {enc_v2_key_1_.data(), enc_v2_key_2_.data()};
     }
 
-    inline KeyEncryptionV1 GetEncV1() // NOLINT(*-member-functions-to-static)
+    [[nodiscard]] inline KeyEncryptionV1 GetEncV1() const
     {
-        return {};
+        return {seed_};
     }
 
     std::vector<uint8_t> Decrypt(const uint8_t *key_cipher, size_t len) override
@@ -75,9 +76,9 @@ class KeyCryptoImpl : public IKeyCrypto
     }
 };
 
-std::unique_ptr<IKeyCrypto> CreateKeyCrypto(const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2)
+std::unique_ptr<IKeyCrypto> CreateKeyCrypto(uint8_t seed, const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2)
 {
-    return std::make_unique<KeyCryptoImpl>(enc_v2_key_1, enc_v2_key_2);
+    return std::make_unique<KeyCryptoImpl>(seed, enc_v2_key_1, enc_v2_key_2);
 }
 
 } // namespace parakeet_crypto::qmc2

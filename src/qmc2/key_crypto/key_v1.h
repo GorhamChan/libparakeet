@@ -15,13 +15,14 @@ namespace parakeet_crypto::qmc2
 class SimpleKeyGenerator
 {
   private:
-    static constexpr double kInitialSeed = 106.0;
     static constexpr double kMultiplier = 100.0;
     static constexpr double kDelta = 0.1;
-    double seed = kInitialSeed - kDelta;
+    double seed;
 
   public:
-    SimpleKeyGenerator() = default;
+    SimpleKeyGenerator(uint8_t initial_seed) : seed(static_cast<double>(initial_seed) - kDelta)
+    {
+    }
 
     inline uint8_t Next()
     {
@@ -35,10 +36,11 @@ class KeyEncryptionV1
   private:
     static constexpr std::size_t kPlaintextKeyPrefixLen = 8;
     static constexpr std::size_t kSimpleKeySize = 16;
+    uint8_t seed_{0};
 
-    static std::array<uint8_t, kSimpleKeySize> GetTEAKey(const uint8_t *p_ekey)
+    std::array<uint8_t, kSimpleKeySize> GetTEAKey(const uint8_t *p_ekey) const
     {
-        SimpleKeyGenerator simple_key_generator{};
+        SimpleKeyGenerator simple_key_generator{seed_};
         std::array<uint8_t, kSimpleKeySize> tea_key{};
         for (auto it = tea_key.begin(); it < tea_key.end();) // NOLINT (readability-qualified-auto)
         {
@@ -50,8 +52,11 @@ class KeyEncryptionV1
     }
 
   public:
-    // NOLINTBEGIN(*-convert-member-functions-to-static)
-    std::optional<std::vector<uint8_t>> Decrypt(const std::vector<uint8_t> &cipher_key)
+    KeyEncryptionV1(uint8_t initial_seed) : seed_(initial_seed)
+    {
+    }
+
+    [[nodiscard]] std::optional<std::vector<uint8_t>> Decrypt(const std::vector<uint8_t> &cipher_key) const
     {
         if (cipher_key.size() < kPlaintextKeyPrefixLen)
         {
@@ -76,7 +81,7 @@ class KeyEncryptionV1
         return result;
     }
 
-    std::vector<uint8_t> Encrypt(const std::vector<uint8_t> &key_plain)
+    [[nodiscard]] std::vector<uint8_t> Encrypt(const std::vector<uint8_t> &key_plain) const
     {
         if (key_plain.size() < kPlaintextKeyPrefixLen)
         {
@@ -100,7 +105,6 @@ class KeyEncryptionV1
         result.resize(cipher_len + kPlaintextKeyPrefixLen); // Should be the same size
         return result;
     }
-    // NOLINTEND(*-convert-member-functions-to-static)
 };
 
 } // namespace parakeet_crypto::qmc2

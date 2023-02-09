@@ -23,6 +23,6 @@ class IKeyCrypto
     virtual std::vector<uint8_t> Encrypt(const uint8_t *key, size_t len, KeyVersion version) = 0;
 };
 
-std::unique_ptr<IKeyCrypto> CreateKeyCrypto(const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2);
+std::unique_ptr<IKeyCrypto> CreateKeyCrypto(uint8_t seed, const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2);
 
 } // namespace parakeet_crypto::qmc2
