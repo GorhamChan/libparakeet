@@ -197,4 +197,27 @@ class OutputMemoryStream final : public IWriteable
     }
 };
 
+class CappedOutputStream final : public IWriteable
+{
+  private:
+    size_t bytes_left_{0};
+    std::shared_ptr<IWriteable> parent_;
+
+  public:
+    CappedOutputStream(std::shared_ptr<IWriteable> parent, size_t capacity)
+        : parent_(std::move(parent)), bytes_left_(capacity)
+    {
+    }
+
+    void Write(const uint8_t *buffer, size_t len) override
+    {
+        auto bytes_to_copy = std::min(len, bytes_left_);
+        if (bytes_to_copy > 0)
+        {
+            parent_->Write(buffer, bytes_to_copy);
+            bytes_left_ -= bytes_to_copy;
+        }
+    }
+};
+
 }; // namespace parakeet_crypto
