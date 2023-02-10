@@ -57,7 +57,7 @@ TEST(QMCKeyCrypto, EncV2)
 
     auto key_crypto = qmc2::CreateKeyCrypto(123, key_1.data(), key_2.data());
     auto key_enc_v2 = key_crypto->Encrypt(kExpectedKey.data(), kExpectedKey.size(), qmc2::KeyVersion::VERSION_2);
-    ASSERT_EQ(key_enc_v2.size(), 432);
+    ASSERT_EQ(key_enc_v2.size(), 548);
     auto key = key_crypto->Decrypt(key_enc_v2.data(), key_enc_v2.size());
     ASSERT_THAT(key, ElementsAreArray(kExpectedKey));
 }
