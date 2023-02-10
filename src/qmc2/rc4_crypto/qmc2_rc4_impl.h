@@ -37,9 +37,10 @@ class RC4
     }
 
   private:
+    // probably with a size of 512
     std::vector<uint8_t> s_{};
-    size_t i_{0};
-    size_t j_{0};
+    uint16_t i_{0};
+    uint16_t j_{0};
 
     inline void MoveStateForward()
     {
@@ -50,9 +51,9 @@ class RC4
     }
 
   public:
-    RC4(std::vector<uint8_t> state, size_t discard) : s_(std::move(state))
+    RC4(std::vector<uint8_t> state, uint32_t discard) : s_(std::move(state))
     {
-        for (size_t i = 0; i < discard; i++)
+        for (uint32_t i = 0; i < discard; i++)
         {
             MoveStateForward();
         }

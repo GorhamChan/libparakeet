@@ -43,7 +43,7 @@ class QMC2RC4DecryptionTransformer final : public ITransformer
 
         auto seed = key_[segment_id & kKeyIndexMask];
         auto inital_discard = segment_key_.GetKey(segment_id, seed) & kKeyIndexMask;
-        auto discard_count = offset + inital_discard;
+        auto discard_count = static_cast<uint32_t>(offset + inital_discard);
 
         qmc2_rc4::RC4 rc4{rc4_state_, discard_count};
         for (size_t i = 0; i < buffer_len; i++)
