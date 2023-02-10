@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ITransformer` interface for transformation.
+- Test file for all transformer implemented.
+
+### Changed
+
+- (breaking) Interface changes
+  - dropped old `StreamDecryptor` interface, infavour of redesigned `ITransformer`.
+- Reduced C++ standard from C++20 to C++17 for better tooling support.
+- Fixed KGM-Type4 implementaion discovered during refactoring.
+
+### Removed
+
+- Removed `DecryptorManager`. You should implement your own.
+- Removed audio type detection, use [libparakeet-audio] instead.
+
 ## [0.2.4] - 2022-11-27
 
 ### Changed
@@ -51,5 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Audio type detection via file header.
 
 [parakeet-wx]: https://github.com/parakeet-rs/parakeet-wx
+[libparakeet-audio]: https://github.com/parakeet-rs/libparakeet-audio
 [0.2.0]: https://github.com/parakeet-rs/libparakeet/commits/v0.2.0
 [0.2.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.2.0...v0.2.1
