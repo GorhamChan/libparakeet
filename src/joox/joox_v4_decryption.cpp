@@ -66,6 +66,7 @@ class JooxDecryptionV4Transformer final : public ITransformer
         using Reader = utils::PagedReader;
 
         AES_ECB aes{key_.data(), kAESBlockSize};
+        bool io_ok{true};
         auto decrypt_ok = Reader{input}.WithPageSize(kEncryptedBlockSize, [&](size_t, uint8_t *buffer, size_t n) {
             if (n < kAESBlockSize || (n % kAESBlockSize != 0))
             {
@@ -96,11 +97,13 @@ class JooxDecryptionV4Transformer final : public ITransformer
             }
 
             // Validation ok, resume.
-            output->Write(buffer, n - size_t{trim});
-            return true;
+            io_ok = output->Write(buffer, n - size_t{trim});
+            return io_ok;
         });
 
-        return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_INVALID_KEY;
+        return decrypt_ok ? TransformResult::OK
+               : io_ok    ? TransformResult::ERROR_INVALID_KEY
+                          : TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
     }
 };
 

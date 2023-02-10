@@ -71,7 +71,10 @@ class QMC2RC4DecryptionTransformer final : public ITransformer
             }
 
             ProcessFirstSegment(buffer.data(), bytes_read);
-            output->Write(buffer.data(), bytes_read);
+            if (!output->Write(buffer.data(), bytes_read))
+            {
+                return TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
+            }
         }
 
         { // Finish first segment.
@@ -82,7 +85,10 @@ class QMC2RC4DecryptionTransformer final : public ITransformer
             }
 
             ProcessOtherSegment(kFirstSegmentSize, 0, buffer.data(), bytes_read);
-            output->Write(buffer.data(), bytes_read);
+            if (!output->Write(buffer.data(), bytes_read))
+            {
+                return TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
+            }
         }
 
         for (uint32_t segment_id = 1; true; segment_id++)
@@ -94,7 +100,10 @@ class QMC2RC4DecryptionTransformer final : public ITransformer
             }
 
             ProcessOtherSegment(0, segment_id, buffer.data(), bytes_read);
-            output->Write(buffer.data(), bytes_read);
+            if (!output->Write(buffer.data(), bytes_read))
+            {
+                return TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
+            }
         }
 
         return TransformResult::OK;

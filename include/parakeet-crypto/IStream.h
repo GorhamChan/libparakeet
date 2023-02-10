@@ -51,7 +51,7 @@ class IWriteable
 {
   public:
     virtual ~IWriteable() = default;
-    virtual void Write(const uint8_t *buffer, size_t len) = 0;
+    [[nodiscard]] virtual bool Write(const uint8_t *buffer, size_t len) = 0;
 };
 
 } // namespace parakeet_crypto

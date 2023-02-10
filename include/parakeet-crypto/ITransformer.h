@@ -13,6 +13,7 @@ enum class TransformResult
     ERROR_INVALID_FORMAT = 3,
     ERROR_INVALID_KEY = 4, // Failed to decrypt content, etc.
     ERROR_INSUFFICIENT_INPUT = 5,
+    ERROR_IO_OUTPUT_UNKNOWN = 6,
     ERROR_NOT_IMPLEMENTED = 0xff,
 };
 

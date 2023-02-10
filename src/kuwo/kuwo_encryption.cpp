@@ -41,16 +41,18 @@ class KuwoEncryptionTransformer : public ITransformer
         std::copy(kKnownKuwoHeader2.begin(), kKnownKuwoHeader2.end(), &hdr.header[0]);
         hdr.resource_id = SwapHostToLittleEndian(resource_id_);
         std::memcpy(buffer.data(), &hdr, sizeof(hdr));
-        output->Write(buffer.data(), buffer.size());
+        if (!output->Write(buffer.data(), buffer.size()))
+        {
+            return TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
+        }
 
         utils::LoopIterator key_iter{key_.data(), key_.size(), input->GetOffset()};
         auto encrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
             std::for_each_n(buffer, n, [&](auto &value) { value ^= key_iter.GetAndMove(); });
-            output->Write(buffer, n);
-            return true;
+            return output->Write(buffer, n);
         });
 
-        return encrypt_ok ? TransformResult::OK : TransformResult::ERROR_OTHER;
+        return encrypt_ok ? TransformResult::OK : TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
     }
 };
 

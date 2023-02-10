@@ -54,7 +54,10 @@ class JooxEncryptionV4Transformer final : public ITransformer
         std::array<uint8_t, kVer4HeaderSize> header{};
         std::copy(kMagicHeader.begin(), kMagicHeader.end(), header.begin());
         WriteBigEndian(&header.at(4), uint64_t{input->GetSize()});
-        output->Write(header.data(), header.size());
+        if (!output->Write(header.data(), header.size()))
+        {
+            return TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
+        }
 
         using Reader = utils::PagedReader;
 
@@ -65,17 +68,19 @@ class JooxEncryptionV4Transformer final : public ITransformer
             auto padding_byte = static_cast<uint8_t>(kAESBlockSize - exceed_bytes);
             auto actual_len = n - exceed_bytes;
             aes.ProcessData(buffer, buffer, actual_len);
-            output->Write(buffer, actual_len);
+            if (!output->Write(buffer, actual_len))
+            {
+                return false;
+            }
 
             // Write padding:
             std::fill(padding_block.begin(), padding_block.end(), padding_byte);
             std::copy_n(buffer + actual_len, exceed_bytes, padding_block.begin());
             aes.ProcessData(padding_block.data(), padding_block.data(), padding_block.size());
-            output->Write(padding_block.data(), padding_block.size());
-            return true;
+            return output->Write(padding_block.data(), padding_block.size());
         });
 
-        return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_INVALID_KEY;
+        return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
     }
 };
 

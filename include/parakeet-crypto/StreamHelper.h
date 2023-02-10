@@ -54,10 +54,11 @@ class OutputFileStream final : public IWriteable
     {
     }
 
-    void Write(const uint8_t *buffer, size_t len) override
+    bool Write(const uint8_t *buffer, size_t len) override
     {
         ofs_.write(reinterpret_cast<const char *>(buffer), // NOLINT(*-reinterpret-cast)
                    static_cast<std::streamsize>(len));
+        return ofs_.good();
     }
 };
 
@@ -191,9 +192,10 @@ class OutputMemoryStream final : public IWriteable
     {
     }
 
-    void Write(const uint8_t *buffer, size_t len) override
+    bool Write(const uint8_t *buffer, size_t len) override
     {
         data_.insert(data_.end(), buffer, buffer + len);
+        return true;
     }
 };
 
@@ -209,14 +211,19 @@ class CappedOutputStream final : public IWriteable
     {
     }
 
-    void Write(const uint8_t *buffer, size_t len) override
+    bool Write(const uint8_t *buffer, size_t len) override
     {
         auto bytes_to_copy = std::min(len, bytes_left_);
         if (bytes_to_copy > 0)
         {
-            parent_->Write(buffer, bytes_to_copy);
+            auto write_ok = parent_->Write(buffer, bytes_to_copy);
             bytes_left_ -= bytes_to_copy;
+            if (!write_ok)
+            {
+                return false;
+            }
         }
+        return bytes_to_copy == len;
     }
 };
 

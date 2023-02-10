@@ -55,8 +55,7 @@ class KuwoDecryptionTransformer : public ITransformer
         utils::LoopIterator key_iter{key_.data(), key_.size(), input->GetOffset()};
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
             std::for_each_n(buffer, n, [&](auto &value) { value ^= key_iter.GetAndMove(); });
-            output->Write(buffer, n);
-            return true;
+            return output->Write(buffer, n);
         });
 
         return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_OTHER;

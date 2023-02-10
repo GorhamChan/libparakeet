@@ -44,15 +44,17 @@ class XimalayaTransformer : public ITransformer
         utils::LoopIterator key_iter{content_key_.data(), content_key_.size(), 0};
         std::for_each(header_dst.begin(), header_dst.end(), [&](auto &value) { value ^= key_iter.GetAndMove(); });
 
-        output->Write(header_dst.data(), header_dst.size());
+        if (!output->Write(header_dst.data(), header_dst.size()))
+        {
+            return TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
+        }
 
         // Transparent copy.
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
-            output->Write(buffer, n);
-            return true;
+            return output->Write(buffer, n); //
         });
 
-        return TransformResult::OK;
+        return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_IO_OUTPUT_UNKNOWN;
     }
 };
 

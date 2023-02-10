@@ -58,8 +58,7 @@ class KGMDecryptionTransformer final : public ITransformer
 
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t offset, uint8_t *buffer, size_t n) {
             decryptor->Decrypt(offset - audio_offset, buffer, n);
-            output->Write(buffer, n);
-            return true;
+            return output->Write(buffer, n);
         });
 
         return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_OTHER;

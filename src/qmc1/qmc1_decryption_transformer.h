@@ -48,8 +48,7 @@ class QMC1StaticDecryptionTransformer : public ITransformer
                 buffer[boundary_index] ^= key_[kCipherPageSize % key_.size()] ^ key_[0];
             }
 
-            output->Write(buffer, n);
-            return true;
+            return output->Write(buffer, n);
         });
 
         return TransformResult::OK;

@@ -42,8 +42,7 @@ class XiamiDecryptionTransformer final : public ITransformer
         size_t copy_len = ReadLittleEndian<uint32_t>(&header.at(kHeaderKeyOffset)) & kLittleEndianOffsetMask;
 
         auto copy_ok = utils::PagedReader{input}.ReadInPages(copy_len, [&](size_t /*offset*/, uint8_t *buff, size_t n) {
-            output->Write(buff, n);
-            return true;
+            return output->Write(buff, n); //
         });
 
         if (!copy_ok)
@@ -56,8 +55,7 @@ class XiamiDecryptionTransformer final : public ITransformer
             std::transform(buffer, buffer + n, buffer, [&](auto value) {
                 return static_cast<uint8_t>(key - value); //
             });
-            output->Write(buffer, n);
-            return true;
+            return output->Write(buffer, n);
         });
 
         return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_OTHER;
