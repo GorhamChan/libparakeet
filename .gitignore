@@ -7,3 +7,6 @@ CMakeUserPresets.json
 old_code/
 vcpkg_installed/
 local/
+
+*.local.test.cc
+*.local.test.hh
