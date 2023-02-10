@@ -93,7 +93,7 @@ inline std::unique_ptr<IKGMCrypto> CreateKGMDecryptionCrypto(const FileHeader &h
 
     std::array<uint8_t, sizeof(header.decryption_test_data)> test_data{};
     std::copy_n(&header.decryption_test_data[0], sizeof(header.decryption_test_data), test_data.begin());
-    kgm_crypto->Decrypt(0, test_data.begin(), test_data.size());
+    kgm_crypto->Decrypt(0, test_data.data(), test_data.size());
 
     auto decryption_ok = mode == Mode::KGM //
                              ? IsKGMTestDataPlain(test_data.data())
