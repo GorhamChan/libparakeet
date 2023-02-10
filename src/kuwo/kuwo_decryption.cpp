@@ -5,6 +5,7 @@
 #include "parakeet-crypto/ITransformer.h"
 
 #include "utils/endian_helper.h"
+#include "utils/loop_iterator.h"
 #include "utils/paged_reader.h"
 #include "utils/string_helper.h"
 #include "utils/xor_helper.h"
@@ -51,8 +52,9 @@ class KuwoDecryptionTransformer : public ITransformer
 
         input->Seek(kFullKuwoHeaderLen, SeekDirection::FILE_BEGIN);
 
-        auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t offset, uint8_t *buffer, size_t n) {
-            utils::XorFromOffset(buffer, n, this->key_.data(), this->key_.size(), offset);
+        utils::LoopIterator key_iter{key_.data(), key_.size(), input->GetOffset()};
+        auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
+            std::for_each_n(buffer, n, [&](auto &value) { value ^= key_iter.GetAndMove(); });
             output->Write(buffer, n);
             return true;
         });

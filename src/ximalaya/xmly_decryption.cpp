@@ -1,5 +1,6 @@
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/transformer/ximalaya.h"
+#include "utils/loop_iterator.h"
 #include "utils/paged_reader.h"
 #include "utils/xor_helper.h"
 #include <algorithm>
@@ -40,7 +41,9 @@ class XimalayaTransformer : public ITransformer
             header_dst[i] = header_src[scramble_key_[i]];
         }
 
-        utils::XorFromOffset(header_dst.data(), header_dst.size(), content_key_.data(), content_key_.size(), 0);
+        utils::LoopIterator key_iter{content_key_.data(), content_key_.size(), 0};
+        std::for_each(header_dst.begin(), header_dst.end(), [&](auto &value) { value ^= key_iter.GetAndMove(); });
+
         output->Write(header_dst.data(), header_dst.size());
 
         // Transparent copy.

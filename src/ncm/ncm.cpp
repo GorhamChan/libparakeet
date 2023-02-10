@@ -5,6 +5,7 @@
 #include "parakeet-crypto/transformer/ncm.h"
 #include "sized_block_reader.h"
 #include "utils/endian_helper.h"
+#include "utils/loop_iterator.h"
 #include "utils/paged_reader.h"
 #include "utils/xor_helper.h"
 
@@ -103,11 +104,10 @@ class NCMTransformer : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        size_t offset{0};
+        utils::LoopIterator key_iter{audio_content_key.data(), audio_content_key.size(), 0};
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
-            utils::XorFromOffset(buffer, n, audio_content_key.data(), audio_content_key.size(), offset);
+            std::for_each_n(buffer, n, [&](auto &value) { value ^= key_iter.GetAndMove(); });
             output->Write(buffer, n);
-            offset += n;
             return true;
         });
 
