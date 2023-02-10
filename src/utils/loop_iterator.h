@@ -6,7 +6,7 @@
 namespace parakeet_crypto::kgm
 {
 
-class LoopIterator
+class loop_iterator
 {
   private:
     const uint8_t *begin_{nullptr};
@@ -14,8 +14,8 @@ class LoopIterator
     const uint8_t *current_{nullptr};
 
   public:
-    virtual ~LoopIterator() = default;
-    LoopIterator(const uint8_t *ptr, size_t len, size_t offset)
+    virtual ~loop_iterator() = default;
+    loop_iterator(const uint8_t *ptr, size_t len, size_t offset)
         : begin_(ptr), current_(ptr + (offset % len)), end_(ptr + len)
     {
     }

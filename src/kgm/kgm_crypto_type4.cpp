@@ -1,9 +1,9 @@
 #include "kgm/kgm_header.h"
 #include "kgm_crypto.h"
 #include "parakeet-crypto/transformer/kgm.h"
-#include "utils/LoopIterator.h"
 #include "utils/base64.h"
 #include "utils/hex.h"
+#include "utils/loop_iterator.h"
 #include "utils/md5.h"
 #include <algorithm>
 #include <cassert>
@@ -98,8 +98,8 @@ class KGMCryptoType4 final : public IKGMCrypto
 
     template <bool IS_ENCRYPT> void EncryptDecrypt(uint64_t offset, uint8_t *buffer, size_t len)
     {
-        LoopIterator slot_key{slot_key_.data(), slot_key_.size(), offset};
-        LoopIterator file_key{file_key_.data(), file_key_.size(), offset / slot_key_.size()};
+        loop_iterator slot_key{slot_key_.data(), slot_key_.size(), offset};
+        loop_iterator file_key{file_key_.data(), file_key_.size(), offset / slot_key_.size()};
 
         auto *end = buffer + len;
         for (auto *it = buffer; it < end; it++)

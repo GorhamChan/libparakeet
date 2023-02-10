@@ -1,5 +1,5 @@
-#include "RotateArray.h"
-#include "utils/RotateArray.h"
+#include "rotate_array.h"
+#include "utils/rotate_array.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

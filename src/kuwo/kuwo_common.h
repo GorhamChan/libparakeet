@@ -1,5 +1,5 @@
 #pragma once
-#include "utils/StringHelper.h"
+#include "utils/string_helper.h"
 
 #include <array>
 #include <cinttypes>

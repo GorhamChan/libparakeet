@@ -1,6 +1,6 @@
 #pragma once
 #include "parakeet-crypto/IStream.h"
-#include "utils/EndianHelper.h"
+#include "utils/endian_helper.h"
 #include <cstdint>
 #include <optional>
 

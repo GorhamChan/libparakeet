@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "EndianHelper.h"
+#include "endian_helper.h"
 
 #include <algorithm>
 #include <array>

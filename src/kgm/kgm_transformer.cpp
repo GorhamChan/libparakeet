@@ -3,9 +3,9 @@
 #include "parakeet-crypto/IStream.h"
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/transformer/kgm.h"
-#include "utils/EndianHelper.h"
-#include "utils/PagedReader.h"
-#include "utils/XorHelper.h"
+#include "utils/endian_helper.h"
+#include "utils/paged_reader.h"
+#include "utils/xor_helper.h"
 
 #include <algorithm>
 #include <array>

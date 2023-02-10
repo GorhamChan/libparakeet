@@ -4,10 +4,10 @@
 
 #include "parakeet-crypto/ITransformer.h"
 
-#include "utils/EndianHelper.h"
-#include "utils/PagedReader.h"
-#include "utils/StringHelper.h"
-#include "utils/XorHelper.h"
+#include "utils/endian_helper.h"
+#include "utils/paged_reader.h"
+#include "utils/string_helper.h"
+#include "utils/xor_helper.h"
 
 #include <cinttypes>
 #include <cstdint>

@@ -2,7 +2,7 @@
 #include "footer_parser_android.h"
 #include "footer_parser_pc.h"
 
-#include "utils/EndianHelper.h"
+#include "utils/endian_helper.h"
 
 #include <memory>
 #include <utility>

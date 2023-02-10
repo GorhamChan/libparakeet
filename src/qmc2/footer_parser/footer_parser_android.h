@@ -2,7 +2,7 @@
 
 #include "parakeet-crypto/qmc2/footer_parser.h"
 #include "parakeet-crypto/qmc2/key_crypto.h"
-#include "utils/EndianHelper.h"
+#include "utils/endian_helper.h"
 
 #include <algorithm>
 #include <array>
