@@ -1,8 +1,10 @@
-#include "parakeet-crypto/transformer/xiami.h"
 #include "parakeet-crypto/ITransformer.h"
+#include "parakeet-crypto/transformer/xiami.h"
 #include "utils/endian_helper.h"
 #include "utils/paged_reader.h"
+
 #include <algorithm>
+#include <array>
 #include <cstdint>
 
 namespace parakeet_crypto::transformer
