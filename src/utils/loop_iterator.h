@@ -3,10 +3,10 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace parakeet_crypto::kgm
+namespace parakeet_crypto::utils
 {
 
-class loop_iterator
+class LoopIterator
 {
   private:
     const uint8_t *begin_{nullptr};
@@ -14,8 +14,8 @@ class loop_iterator
     const uint8_t *current_{nullptr};
 
   public:
-    virtual ~loop_iterator() = default;
-    loop_iterator(const uint8_t *ptr, size_t len, size_t offset)
+    virtual ~LoopIterator() = default;
+    LoopIterator(const uint8_t *ptr, size_t len, size_t offset)
         : begin_(ptr), current_(ptr + (offset % len)), end_(ptr + len)
     {
     }
@@ -44,4 +44,4 @@ class loop_iterator
     }
 };
 
-} // namespace parakeet_crypto::kgm
+} // namespace parakeet_crypto::utils
