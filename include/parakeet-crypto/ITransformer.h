@@ -12,6 +12,7 @@ enum class TransformResult
     ERROR_INSUFFICIENT_OUTPUT = 2,
     ERROR_INVALID_FORMAT = 3,
     ERROR_INVALID_KEY = 4, // Failed to decrypt content, etc.
+    ERROR_INSUFFICIENT_INPUT = 5,
     ERROR_NOT_IMPLEMENTED = 0xff,
 };
 

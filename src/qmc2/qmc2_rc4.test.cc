@@ -6,11 +6,14 @@
 
 #include "test/read_fixture.test.hh"
 
+#include <cstdio>
+#include <fstream>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
-#include <cstdio>
 #include <memory>
 #include <vector>
 
@@ -20,12 +23,12 @@ using namespace parakeet_crypto;
 
 // NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
-TEST(QMC2_Map, DecryptionKey256)
+TEST(QMC2_RC4, BasicKeyEncV1Decryption)
 {
     auto plain_file = test::read_fixture("sample_test_121529_32kbps.ogg");
-    auto fixture_encrypted = test::read_fixture("test_qmc2_map.mgg");
+    auto fixture_encrypted = test::read_fixture("test_qmc2_rc4.mgg");
     std::vector<uint8_t> decrypted{};
-    test::DecryptQMC2Stream(decrypted, fixture_encrypted, transformer::CreateQMC2MapDecryptionTransformer);
+    test::DecryptQMC2Stream(decrypted, fixture_encrypted, transformer::CreateQMC2RC4DecryptionTransformer);
     ASSERT_EQ(decrypted.size(), plain_file.size());
     ASSERT_THAT(decrypted, ContainerEq(plain_file));
 }
