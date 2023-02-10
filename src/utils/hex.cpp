@@ -22,7 +22,7 @@ std::vector<uint8_t> UnHex(const uint8_t *hex_str, size_t len)
     decoder.Put(hex_str, len);
     decoder.MessageEnd();
 
-    std::vector<uint8_t> result(decoder.MaxRetrievable());
+    std::vector<uint8_t> result(decoder.MaxRetrievable(), 0);
     decoder.Get(result.data(), result.size());
     return result;
 }

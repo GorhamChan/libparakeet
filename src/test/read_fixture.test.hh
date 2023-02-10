@@ -22,7 +22,7 @@ inline std::optional<std::vector<uint8_t>> read_file(const char *path)
     }
     ifs.seekg(0, std::ifstream::end);
     size_t file_len = ifs.tellg();
-    std::vector<uint8_t> result(file_len);
+    std::vector<uint8_t> result(file_len, 0);
 
     ifs.seekg(0, std::ifstream::beg);
     ifs.read(reinterpret_cast<char *>(result.data()), static_cast<std::streamsize>(file_len)); // NOLINT

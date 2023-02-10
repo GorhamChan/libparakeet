@@ -40,7 +40,7 @@ class IReadSeekable
 
     [[nodiscard("use it")]] std::vector<uint8_t> Read(size_t len)
     {
-        std::vector<uint8_t> result(len);
+        std::vector<uint8_t> result(len, 0);
         auto new_size = Read(result.data(), result.size());
         result.resize(new_size);
         return result;

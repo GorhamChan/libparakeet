@@ -47,7 +47,7 @@ class NCMTransformer : public ITransformer
             return {};
         }
         auto block_size = size_t{ReadLittleEndian<uint32_t>(buffer.data())};
-        std::vector<uint8_t> key_buffer(block_size);
+        std::vector<uint8_t> key_buffer(block_size, 0);
         if (!input->ReadExact(key_buffer.data(), block_size))
         {
             return {};

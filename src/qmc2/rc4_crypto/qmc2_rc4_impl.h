@@ -19,7 +19,7 @@ class RC4
      */
     static std::vector<uint8_t> CreateStateFromKey(const uint8_t *key, size_t key_len)
     {
-        std::vector<uint8_t> s(key_len); // NOLINT(readability-identifier-length)
+        std::vector<uint8_t> s(key_len, 0); // NOLINT(readability-identifier-length)
 
         for (size_t i = 0; i < key_len; i++)
         {

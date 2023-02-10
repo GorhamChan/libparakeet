@@ -22,7 +22,7 @@ std::vector<uint8_t> Base64Decode(const uint8_t *input, size_t len)
     decoder.Put(input, len);
     decoder.MessageEnd();
 
-    std::vector<uint8_t> result(decoder.MaxRetrievable());
+    std::vector<uint8_t> result(decoder.MaxRetrievable(), 0);
     decoder.Get(result.data(), result.size());
     return result;
 }

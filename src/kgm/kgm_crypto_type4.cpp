@@ -44,7 +44,7 @@ class KGMCryptoType4 final : public IKGMCrypto
         auto md5_final = hash_type4(key, key_len);
         auto final_key_size = 4 * (V4_DIGEST_SIZE - 1) * (table_len - 1);
 
-        std::vector<uint8_t> expanded_key(final_key_size);
+        std::vector<uint8_t> expanded_key(final_key_size, 0);
         auto *p_key = expanded_key.data();
         for (uint32_t i = 1; i < V4_DIGEST_SIZE; i++)
         {

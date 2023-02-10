@@ -23,7 +23,7 @@ inline void to_key128(uint8_t *key128, const uint8_t *key_blob, size_t key_len)
         return;
     }
 
-    std::vector<uint8_t> long_key(key_len);
+    std::vector<uint8_t> long_key(key_len, 0);
 
     uint8_t shift_counter = 4;
     for (auto &key : long_key)
