@@ -103,11 +103,11 @@ class NCMTransformer : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        auto audio_data_offset = input->GetOffset();
-        auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t offset, uint8_t *buffer, size_t n) {
-            utils::XorFromOffset(buffer, n, audio_content_key.data(), audio_content_key.size(),
-                                 offset - audio_data_offset);
+        size_t offset{0};
+        auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
+            utils::XorFromOffset(buffer, n, audio_content_key.data(), audio_content_key.size(), offset);
             output->Write(buffer, n);
+            offset += n;
             return true;
         });
 
