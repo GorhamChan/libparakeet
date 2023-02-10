@@ -98,8 +98,9 @@ class KGMCryptoType4 final : public IKGMCrypto
 
     template <bool IS_ENCRYPT> void EncryptDecrypt(uint64_t offset, uint8_t *buffer, size_t len)
     {
-        utils::LoopIterator slot_key{slot_key_.data(), slot_key_.size(), offset};
-        utils::LoopIterator file_key{file_key_.data(), file_key_.size(), offset / slot_key_.size()};
+        utils::LoopIterator slot_key{slot_key_.data(), slot_key_.size(), static_cast<size_t>(offset)};
+        utils::LoopIterator file_key{file_key_.data(), file_key_.size(),
+                                     static_cast<size_t>(offset / slot_key_.size())};
 
         auto *end = buffer + len;
         for (auto *it = buffer; it < end; it++)
