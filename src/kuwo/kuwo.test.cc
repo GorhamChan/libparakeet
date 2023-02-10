@@ -43,20 +43,4 @@ TEST(Kuwo, DecryptSampleFile)
     test::should_decrypt_to_fixture("test_kuwo.kwm", transformer);
 }
 
-TEST(Kuwo, DecryptLocalFile)
-{
-    auto kwm_key = test::read_local_file("kwm.key");
-    auto kwm_src = test::read_local_file("test.kwm");
-
-    if (kwm_key.empty() || kwm_src.empty())
-    {
-        return; // skip test
-    }
-
-    auto decryption_transformer = transformer::CreateKuwoDecryptionTransformer(kwm_key.data());
-    auto [state, data] = test::transform_vector(kwm_src, decryption_transformer);
-    ASSERT_EQ(state, TransformResult::OK);
-    ASSERT_TRUE(test::write_local_file("kwm_plain.bin", data));
-}
-
 // NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
