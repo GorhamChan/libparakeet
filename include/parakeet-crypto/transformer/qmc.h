@@ -26,18 +26,15 @@ std::unique_ptr<ITransformer> CreateQMC2DecryptionTransformer(std::shared_ptr<qm
 
 // Make API a bit easier to consume...
 
-template <typename Container>
-inline std::unique_ptr<ITransformer> CreateQMC1StaticDecryptionTransformer(const Container &key)
+template <typename Container> inline std::unique_ptr<ITransformer> CreateQMC1StaticDecryptionTransformer(Container key)
 {
     return CreateQMC1StaticDecryptionTransformer(key.data(), key.size());
 }
-template <typename Container>
-inline std::unique_ptr<ITransformer> CreateQMC2MapDecryptionTransformer(const Container &key)
+template <typename Container> inline std::unique_ptr<ITransformer> CreateQMC2MapDecryptionTransformer(Container key)
 {
     return CreateQMC2MapDecryptionTransformer(key.data(), key.size());
 }
-template <typename Container>
-inline std::unique_ptr<ITransformer> CreateQMC2RC4DecryptionTransformer(const Container &key)
+template <typename Container> inline std::unique_ptr<ITransformer> CreateQMC2RC4DecryptionTransformer(Container key)
 {
     return CreateQMC2RC4DecryptionTransformer(key.data(), key.size());
 }
