@@ -25,7 +25,7 @@ class QMCFooterParserImpl : public QMCFooterParser
     {
         if (len < kMinimumFooterLen)
         {
-            return nullptr;
+            return std::make_unique<FooterParseResult>(FooterParseState::NeedMoreBytes, kMinimumFooterLen);
         }
 
         const auto *magic_u32 = &file_footer[len - sizeof(uint32_t)];
