@@ -1,17 +1,33 @@
 #include <algorithm>
 #include <parakeet-crypto/xmly/scramble_key.h>
+#include <utils/logger.h>
 
 #include <cassert>
 
 namespace parakeet_crypto::xmly
 {
 
-std::vector<uint16_t> CreateScrambleKey(double mul_init, double mul_step, std::size_t len)
+constexpr double kMinMulInit{0.00};
+constexpr double kMaxMulInit{1.00};
+constexpr double kMinMulStep{3.57};
+constexpr double kMaxMulStep{4.00};
+
+std::optional<std::vector<uint16_t>> CreateScrambleKey(double mul_init, double mul_step, std::size_t len)
 {
-    // NOLINTBEGIN(*)
-    assert(("mul_init is out of range.", mul_init >= 0.00 && mul_init <= 1.00));
-    assert(("mul_step is out of range.", mul_step >= 3.57 && mul_step <= 4.00));
-    // NOLINTEND(*)
+    if (mul_init < kMinMulInit || mul_init > kMaxMulInit)
+    {
+        logger::WARN() << "mul_init is out of range. "
+                       << "expected [" << kMinMulInit << ", " << kMaxMulInit << "], "
+                       << "got '" << mul_init << "'";
+        return {};
+    }
+    if (mul_step < kMinMulStep || mul_step > kMaxMulStep)
+    {
+        logger::WARN() << "mul_step is out of range. "
+                       << "expected [" << kMinMulStep << ", " << kMaxMulStep << "], "
+                       << "got '" << mul_step << "'";
+        return {};
+    }
 
     std::vector<double> vec_data(len, 0);
 
@@ -41,12 +57,16 @@ std::vector<uint16_t> CreateScrambleKey(double mul_init, double mul_step, std::s
     return indexes;
 }
 
-std::array<uint16_t, kXimalayaScrambleKeyLen> CreateScrambleKey(double mul_init, double mul_step)
+std::optional<std::array<uint16_t, kXimalayaScrambleKeyLen>> CreateScrambleKey(double mul_init, double mul_step)
 {
-    auto table = CreateScrambleKey(mul_init, mul_step, kXimalayaScrambleKeyLen);
-    std::array<uint16_t, kXimalayaScrambleKeyLen> result{};
-    std::copy(table.begin(), table.end(), result.begin());
-    return result;
+    if (auto table = CreateScrambleKey(mul_init, mul_step, kXimalayaScrambleKeyLen))
+    {
+        std::array<uint16_t, kXimalayaScrambleKeyLen> result{};
+        std::copy(table->begin(), table->end(), result.begin());
+        return result;
+    }
+
+    return {};
 }
 
 } // namespace parakeet_crypto::xmly
