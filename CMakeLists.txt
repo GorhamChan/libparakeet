@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 project(parakeet_crypro VERSION 0.2.4 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
+option(PARAKEET_CRYPTO_BUILD_EXAMPLES "Build examples" ON)
 
 include(cmake/CPM-Loader.cmake)
 include(cmake/git-info.cmake)
@@ -126,4 +127,8 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
         CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
 
     gtest_discover_tests(parakeet_crypto_test)
+endif()
+
+if(PARAKEET_CRYPTO_BUILD_EXAMPLES)
+    add_subdirectory(examples)
 endif()

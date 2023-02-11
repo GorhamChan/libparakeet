@@ -1,34 +1,3 @@
-# LibParakeet
-
-使用 C++ 实现的小鹦鹉流媒体解密操作库。
-
-## 构建
-
-```sh
-# Windows
-.\vcpkg\bootstrap-vcpkg.bat -disableMetrics
-
-# Linux
-./vcpkg/bootstrap-vcpkg.sh -disableMetrics
-```
-
-然后使用 CMake 进行构建即可。
-
-## 用例
-
-参考 `examples` 目录下的子项目。
-
-### QMC2
-
-命令行程序示例；传入 `<输入路径> <输出路径>` 这两个参数运行。
-
-💡 内置的默认密钥只能用作于测试文件目录 `fixture` 下的 `test_qmc2_*` 文件解密作示例用途。
-
-代码清单：
-
-* `./examples/qmc2/src/qmc2-example.cpp`
-
-```cpp
 #include <parakeet-crypto/StreamHelper.h>
 
 #include <parakeet-crypto/qmc2/footer_parser.h>
@@ -121,8 +90,3 @@ int main(int argc, char **argv)
 }
 
 // NOLINTEND(*-magic-numbers)
-```
-
-## License
-
-Licensed under the [MIT License](LICENSE.txt).
