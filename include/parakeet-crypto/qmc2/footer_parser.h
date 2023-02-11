@@ -95,4 +95,10 @@ class QMCFooterParser
 
 std::unique_ptr<QMCFooterParser> CreateQMC2FooterParser(std::shared_ptr<IKeyCrypto> key_crypto);
 
+inline std::unique_ptr<QMCFooterParser> CreateQMC2FooterParser(uint8_t seed, const uint8_t *enc_v2_key_1,
+                                                               const uint8_t *enc_v2_key_2)
+{
+    return CreateQMC2FooterParser(CreateKeyCrypto(seed, enc_v2_key_1, enc_v2_key_2));
+}
+
 } // namespace parakeet_crypto::qmc2
