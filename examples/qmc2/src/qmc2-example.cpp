@@ -4,6 +4,7 @@
 #include <parakeet-crypto/qmc2/key_crypto.h>
 #include <parakeet-crypto/transformer/qmc.h>
 
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <vector>
