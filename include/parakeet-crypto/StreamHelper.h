@@ -120,13 +120,13 @@ class InputMemoryStream final : public IReadSeekable
 class SlicedReadableStream final : public IReadSeekable
 {
   private:
-    std::shared_ptr<IReadSeekable> parent_;
+    IReadSeekable &parent_;
     size_t start_{};
     size_t end_{};
 
   public:
-    SlicedReadableStream(std::shared_ptr<IReadSeekable> parent, size_t start_index, size_t end_index)
-        : parent_(std::move(parent)), start_(start_index), end_(end_index)
+    SlicedReadableStream(IReadSeekable &parent, size_t start_index, size_t end_index)
+        : parent_(parent), start_(start_index), end_(end_index)
     {
     }
 
@@ -137,11 +137,11 @@ class SlicedReadableStream final : public IReadSeekable
         if (offset < start_)
         {
             offset = start_;
-            parent_->Seek(start_, SeekDirection::FILE_BEGIN);
+            parent_.Seek(start_, SeekDirection::FILE_BEGIN);
         }
 
         size_t read_len = std::min(end_ - offset, len);
-        return parent_->Read(buffer, read_len);
+        return parent_.Read(buffer, read_len);
     }
 
     void Seek(size_t position, SeekDirection seek_dir) override
@@ -153,7 +153,7 @@ class SlicedReadableStream final : public IReadSeekable
             next_offset = position;
             break;
         case SeekDirection::CURRENT_POSITION:
-            next_offset = parent_->GetOffset() + position;
+            next_offset = parent_.GetOffset() + position;
             break;
         case SeekDirection::FILE_END_BACKWARDS:
             next_offset = end_ + position;
@@ -162,7 +162,7 @@ class SlicedReadableStream final : public IReadSeekable
             return;
         }
 
-        parent_->Seek(std::max(std::min(next_offset, end_), start_), SeekDirection::FILE_BEGIN);
+        parent_.Seek(std::max(std::min(next_offset, end_), start_), SeekDirection::FILE_BEGIN);
     }
     size_t GetSize() override
     {
@@ -170,7 +170,7 @@ class SlicedReadableStream final : public IReadSeekable
     }
     size_t GetOffset() override
     {
-        return std::min(parent_->GetOffset() - start_, end_);
+        return std::min(parent_.GetOffset() - start_, end_);
     }
 };
 
@@ -203,11 +203,10 @@ class CappedOutputStream final : public IWriteable
 {
   private:
     size_t bytes_left_{0};
-    std::shared_ptr<IWriteable> parent_;
+    IWriteable &parent_;
 
   public:
-    CappedOutputStream(std::shared_ptr<IWriteable> parent, size_t capacity)
-        : parent_(std::move(parent)), bytes_left_(capacity)
+    CappedOutputStream(IWriteable &parent, size_t capacity) : parent_(parent), bytes_left_(capacity)
     {
     }
 
@@ -216,7 +215,7 @@ class CappedOutputStream final : public IWriteable
         auto bytes_to_copy = std::min(len, bytes_left_);
         if (bytes_to_copy > 0)
         {
-            auto write_ok = parent_->Write(buffer, bytes_to_copy);
+            auto write_ok = parent_.Write(buffer, bytes_to_copy);
             bytes_left_ -= bytes_to_copy;
             if (!write_ok)
             {

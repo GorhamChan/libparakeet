@@ -44,7 +44,7 @@ inline void DecryptQMC2Stream(std::vector<uint8_t> &vec_result, std::vector<uint
     ASSERT_EQ(footer->state, qmc2::FooterParseState::OK);
 
     std::unique_ptr<ITransformer> transformer = transformer_factory(footer->key.data(), footer->key.size());
-    auto full_reader = std::make_shared<InputMemoryStream>(vec_encrypted);
+    InputMemoryStream full_reader{vec_encrypted};
     SlicedReadableStream reader{full_reader, 0, len - footer->footer_size};
     OutputMemoryStream writer{};
     ASSERT_EQ(transformer->Transform(&writer, &reader), TransformResult::OK);
