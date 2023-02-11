@@ -41,4 +41,12 @@ std::vector<uint16_t> CreateScrambleKey(double mul_init, double mul_step, std::s
     return indexes;
 }
 
+std::array<uint16_t, kXimalayaScrambleKeyLen> CreateScrambleKey(double mul_init, double mul_step)
+{
+    auto table = CreateScrambleKey(mul_init, mul_step, kXimalayaScrambleKeyLen);
+    std::array<uint16_t, kXimalayaScrambleKeyLen> result{};
+    std::copy(table.begin(), table.end(), result.begin());
+    return result;
+}
+
 } // namespace parakeet_crypto::xmly
