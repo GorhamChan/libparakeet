@@ -7,3 +7,5 @@ target_include_directories(qmc2
     PRIVATE
         $<TARGET_PROPERTY:ParakeetCrypto::core,INCLUDE_DIRECTORIES>
 )
+set_target_properties(qmc2 PROPERTIES
+    CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
