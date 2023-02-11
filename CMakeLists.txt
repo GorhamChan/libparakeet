@@ -49,7 +49,7 @@ file(GLOB_RECURSE INCLUDE_HEADERS
 add_library(parakeet_crypro STATIC ${SOURCES} ${INCLUDE_HEADERS})
 set_target_properties(parakeet_crypro PROPERTIES
     CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
-add_library(ParakeetCrypto::core ALIAS parakeet_crypro)
+add_library(parakeet::crypto ALIAS parakeet_crypro)
 if(MSVC)
     target_compile_options(parakeet_crypro PRIVATE "/MP")
 else()
