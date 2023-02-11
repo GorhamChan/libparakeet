@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Expose `kEncV2KeyLen` in `parakeet-crypto/qmc2/key_crypto.h`.
+- Added `CreateScrambleKey` for Ximalaya.
+
 ## [0.3.0] - 2022-02-11
 
 ### Added
