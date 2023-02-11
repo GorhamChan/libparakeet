@@ -1,0 +1,16 @@
+#pragma once
+
+namespace parakeet_crypto::test
+{
+
+inline const char *get_fixture_directory()
+{
+    return "@PROJECT_SOURCE_DIR@/fixture/";
+}
+
+inline const char *get_local_file_directory()
+{
+    return "@PROJECT_SOURCE_DIR@/local/";
+}
+
+} // namespace parakeet_crypto::test

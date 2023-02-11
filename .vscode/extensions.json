@@ -1,6 +1,6 @@
 {
-    "recommendations": [
-        "xaver.clang-format",
-        "sonarsource.sonarlint-vscode"
-    ]
+  "recommendations": [
+    "llvm-vs-code-extensions.vscode-clangd",
+    "ms-vscode.cmake-tools"
+  ]
 }

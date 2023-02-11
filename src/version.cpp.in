@@ -1,9 +1,11 @@
 #include <parakeet-crypto/version.h>
 
-const char* parakeet_crypto::get_libparakeet_version() {
+const char *parakeet_crypto::get_libparakeet_version()
+{
     return "@PROJECT_VERSION@";
 }
 
-const char* parakeet_crypto::get_libparakeet_full_version() {
+const char *parakeet_crypto::get_libparakeet_full_version()
+{
     return "@PROJECT_VERSION@ (git-@LIBPARAKEET_GIT_COMMIT_HASH@, @LIBPARAKEET_GIT_COMMIT_DATE@)";
 }

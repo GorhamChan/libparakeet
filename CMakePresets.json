@@ -7,79 +7,130 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-debug",
-      "displayName": "Ninja (dbg)",
-      "generator": "Ninja",
+      "name": "base",
+      "hidden": true,
       "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "generator": "Ninja Multi-Config",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CPM_SOURCE_CACHE": "${sourceDir}/out/cache-cpm/${presetName}"
       }
     },
     {
-      "name": "ninja-release",
-      "displayName": "Ninja (rel)",
+      "name": "base-win",
       "inherits": [
-        "ninja-debug"
+        "base"
       ],
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
     },
     {
-      "name": "msvc-2022-debug",
-      "displayName": "msvc-2022 (dbg)",
+      "name": "ninja",
+      "inherits": [
+        "base"
+      ],
+      "displayName": "Ninja"
+    },
+    {
+      "name": "make",
+      "inherits": [
+        "base"
+      ],
+      "generator": "Unix Makefiles",
+      "displayName": "Make"
+    },
+    {
+      "name": "msvc-2022",
+      "displayName": "MSVC 2022",
       "generator": "Visual Studio 17 2022",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "inherits": [
+        "base-win"
+      ],
       "architecture": {
         "value": "x64"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [
-            "Windows"
-          ]
-        }
       }
     },
     {
-      "name": "msvc-2022-release",
-      "displayName": "msvc-2022 (rel)",
+      "name": "msys2-ucrt64",
+      "displayName": "MSYS2 ucrt64",
       "inherits": [
-        "msvc-2022-debug"
+        "base-win"
       ],
+      "environment": {
+        "MSYS_PATH": "c:/msys64",
+        "PATH": "$env{MSYS_PATH}/ucrt64/bin/;$env{MSYS_PATH}/usr/bin/;$penv{PATH}"
+      },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-static"
+      }
+    },
+    {
+      "name": "msys2-mingw64",
+      "displayName": "MSYS2 mingw64",
+      "inherits": [
+        "base-win"
+      ],
+      "environment": {
+        "MSYS_PATH": "c:/msys64",
+        "PATH": "$env{MSYS_PATH}/mingw64/bin/;$env{MSYS_PATH}/usr/bin/;$penv{PATH}"
+      },
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-static"
       }
     }
   ],
   "buildPresets": [
     {
       "name": "ninja-debug",
-      "configurePreset": "ninja-debug",
+      "configurePreset": "ninja",
       "displayName": "Debug",
       "configuration": "Debug"
     },
     {
       "name": "ninja-release",
-      "configurePreset": "ninja-release",
+      "configurePreset": "ninja",
       "displayName": "Release",
       "configuration": "Release"
     },
     {
       "name": "msvc-2022-debug",
-      "configurePreset": "msvc-2022-debug",
+      "configurePreset": "msvc-2022",
       "displayName": "Debug",
       "configuration": "Debug"
     },
     {
       "name": "msvc-2022-release",
-      "configurePreset": "msvc-2022-release",
+      "configurePreset": "msvc-2022",
       "displayName": "Release",
       "configuration": "Release"
+    },
+    {
+      "name": "ucrt64-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msys2-ucrt64"
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msys2-ucrt64"
+    },
+    {
+      "name": "mingw64-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msys2-mingw64"
+    },
+    {
+      "name": "mingw64-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msys2-mingw64"
     }
   ],
   "testPresets": [
@@ -87,25 +138,49 @@
       "name": "ninja-debug",
       "displayName": "Debug",
       "configuration": "Debug",
-      "configurePreset": "ninja-debug"
+      "configurePreset": "ninja"
     },
     {
       "name": "ninja-release",
       "displayName": "Release",
       "configuration": "Release",
-      "configurePreset": "ninja-release"
+      "configurePreset": "ninja"
     },
     {
       "name": "msvc-2022-debug",
       "displayName": "Debug",
       "configuration": "Debug",
-      "configurePreset": "msvc-2022-debug"
+      "configurePreset": "msvc-2022"
     },
     {
       "name": "msvc-2022-release",
       "displayName": "Release",
       "configuration": "Release",
-      "configurePreset": "msvc-2022-release"
+      "configurePreset": "msvc-2022"
+    },
+    {
+      "name": "ucrt64-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msys2-ucrt64"
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msys2-ucrt64"
+    },
+    {
+      "name": "mingw64-debug",
+      "displayName": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "msys2-mingw64"
+    },
+    {
+      "name": "mingw64-release",
+      "displayName": "Release",
+      "configuration": "Release",
+      "configurePreset": "msys2-mingw64"
     }
   ]
 }

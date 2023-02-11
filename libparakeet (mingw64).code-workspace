@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "C_Cpp.autoAddFileAssociations": false,
+    "cmake.cmakePath": "c:/msys64/mingw64/bin/cmake.exe",
+    "clangd.path": "c:/msys64/mingw64/bin/clangd.exe",
+    "clangd.arguments": [
+      "-background-index",
+      "-compile-commands-dir=${workspaceFolder}/out/build/msys2-mingw64"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "llvm-vs-code-extensions.vscode-clangd",
+      "ms-vscode.cmake-tools"
+    ]
+  }
+}

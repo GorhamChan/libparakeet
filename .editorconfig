@@ -10,7 +10,7 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 
-[*.{yml,json}]
+[*.{yml,json,code-workspace}]
 indent_size = 2
 
 [CMakeLists.txt]

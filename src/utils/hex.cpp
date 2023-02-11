@@ -1,38 +1,30 @@
 #include "utils/hex.h"
-#include "utils/StringHelper.h"
 
 #include <cryptopp/hex.h>
 
-namespace parakeet_crypto::utils {
+namespace parakeet_crypto::utils
+{
 
-std::string Hex(const std::span<const uint8_t> data) {
-    CryptoPP::HexEncoder encoder(nullptr, false, 2, " ");
-    encoder.Put(data.data(), data.size());
+std::string Hex(const uint8_t *data, size_t len, bool upper, bool add_space)
+{
+    CryptoPP::HexEncoder encoder(nullptr, upper, add_space ? 2 : 0, add_space ? " " : "");
+    encoder.Put(data, len);
     encoder.MessageEnd();
 
     std::string result(encoder.MaxRetrievable(), 0);
-    encoder.Get(reinterpret_cast<uint8_t*>(result.data()), result.size());
+    encoder.Get(reinterpret_cast<uint8_t *>(result.data()), result.size()); // NOLINT(*-type-reinterpret-cast)
     return result;
 }
 
-std::string HexCompactLowercase(const std::span<const uint8_t> data) {
-    CryptoPP::HexEncoder encoder(nullptr, false, 0, "", "");
-    encoder.Put(data.data(), data.size());
-    encoder.MessageEnd();
-
-    std::string result(encoder.MaxRetrievable(), 0);
-    encoder.Get(reinterpret_cast<uint8_t*>(result.data()), result.size());
-    return result;
-}
-
-std::vector<uint8_t> UnHex(const std::span<const uint8_t> hex_str) {
+std::vector<uint8_t> UnHex(const uint8_t *hex_str, size_t len)
+{
     CryptoPP::HexDecoder decoder;
-    decoder.Put(hex_str.data(), hex_str.size());
+    decoder.Put(hex_str, len);
     decoder.MessageEnd();
 
-    std::vector<uint8_t> result(decoder.MaxRetrievable());
+    std::vector<uint8_t> result(decoder.MaxRetrievable(), 0);
     decoder.Get(result.data(), result.size());
     return result;
 }
 
-}  // namespace parakeet_crypto::utils
+} // namespace parakeet_crypto::utils

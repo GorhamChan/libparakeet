@@ -3,13 +3,21 @@ on: [pull_request]
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    env:
+      PRESET_NAME: make
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ZedThree/clang-tidy-review@v0.10.0
+      - name: "🖼️ Setup scene..."
+        shell: bash
+        run: |
+          cmake --preset "${{ env.PRESET_NAME }}"
+
+      - uses: ZedThree/clang-tidy-review@v0.10.1
         id: review
         with:
-          cmake_command: cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=on
+          cmake_command: "true"
+          build_dir: "./out/build/${{ env.PRESET_NAME }}"
           config_file: ".clang-tidy"

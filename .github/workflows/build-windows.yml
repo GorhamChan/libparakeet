@@ -28,7 +28,7 @@ jobs:
 
     runs-on: windows-2022
     env:
-      PRESET_NAME: msvc-2022-release
+      PRESET_NAME: msvc-2022
 
     steps:
       - name: "⏳ Clone repo..."
@@ -36,17 +36,43 @@ jobs:
         with:
           submodules: recursive
 
+      - name: "🖼️ Setup scene..."
+        shell: bash
+        run: |
+          true
+
+      - name: Restore CPM dependencies
+        id: cache-cpm-deps
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            out/cache-cpm
+            out/build/${{ env.PRESET_NAME }}/_deps
+          key: ${{ runner.os }}-cpm-${{ matrix.win_ver }}-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cpm-${{ hashFiles('CMakeLists.txt') }}
+            ${{ runner.os }}-cpm-
+
       - name: "🔧 CMake: Configure"
         shell: bash
-        run: cmake --preset "$PRESET_NAME" -A "${{ matrix.vs_arch }}"
+        run: cmake --preset "${{ env.PRESET_NAME }}" -A "${{ matrix.vs_arch }}"
 
       - name: "🛠️ CMake: Build"
         shell: bash
-        run: cmake --build --preset "$PRESET_NAME"
+        run: cmake --build --preset "${{ env.PRESET_NAME }}-release"
+
+      - name: Save CPM dependencies
+        id: cache-cpm-deps-save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            out/cache-cpm
+            out/build/${{ env.PRESET_NAME }}/_deps
+          key: ${{ steps.cache-cpm-deps.outputs.cache-primary-key }}
 
       - name: "💣 Test um-crypto ..."
         shell: bash
-        run: ctest --preset "$PRESET_NAME" --output-on-failure
+        run: ctest --preset "${{ env.PRESET_NAME }}-release" --output-on-failure
 
       - name: "📦 Package static libs..."
         shell: bash
@@ -66,7 +92,7 @@ jobs:
       - name: "🗜️ Packaging"
         working-directory: dist
         shell: pwsh
-        run: Compress-Archive "../libparakeet-${{ matrix.win_ver }}.zip" -CompressionLevel Optimal -Path *
+        run: Compress-Archive "../libparakeet-${{ matrix.win_ver }}.zip" -Path *
 
       - name: 📝 Draft Release
         if: startsWith(github.ref, 'refs/tags/v')
