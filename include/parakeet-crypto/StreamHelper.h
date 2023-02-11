@@ -184,7 +184,6 @@ class OutputMemoryStream final : public IWriteable
 
   private:
     std::vector<uint8_t> data_{};
-    size_t offset_{0};
 
   public:
     OutputMemoryStream() = default;

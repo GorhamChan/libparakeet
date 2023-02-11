@@ -4,6 +4,7 @@
 #include "parakeet-crypto/StreamHelper.h"
 #include "parakeet-crypto/qmc2/footer_parser.h"
 #include "parakeet-crypto/qmc2/key_crypto.h"
+#include "parakeet-crypto/transformer/qmc.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -31,24 +32,14 @@ namespace parakeet_crypto::test
 
 // NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
-template <typename T>
-inline void DecryptQMC2Stream(std::vector<uint8_t> &vec_result, std::vector<uint8_t> &vec_encrypted,
-                              T transformer_factory)
+inline void DecryptQMC2Stream(std::vector<uint8_t> &vec_result, std::vector<uint8_t> &vec_encrypted)
 {
-    auto len = vec_encrypted.size();
     auto key_crypto = qmc2::CreateKeyCrypto(kTestSeed, kTestEncV2Key1.data(), kTestEncV2Key2.data());
     auto footer_parser = qmc2::CreateQMC2FooterParser(std::move(key_crypto));
-    auto footer = footer_parser->Parse(&vec_encrypted.at(len - kInitialFooterTestLe), kInitialFooterTestLe);
-    ASSERT_EQ(footer->state, qmc2::FooterParseState::NeedMoreBytes);
-    footer = footer_parser->Parse(&vec_encrypted.at(len - footer->footer_size), footer->footer_size);
-    ASSERT_EQ(footer->state, qmc2::FooterParseState::OK);
-
-    std::unique_ptr<ITransformer> transformer = transformer_factory(footer->key.data(), footer->key.size());
-    InputMemoryStream full_reader{vec_encrypted};
-    SlicedReadableStream reader{full_reader, 0, len - footer->footer_size};
+    std::unique_ptr<ITransformer> transformer = transformer::CreateQMC2DecryptionTransformer(std::move(footer_parser));
     OutputMemoryStream writer{};
+    InputMemoryStream reader{vec_encrypted};
     ASSERT_EQ(transformer->Transform(&writer, &reader), TransformResult::OK);
-
     vec_result.swap(writer.GetData());
 }
 

@@ -28,7 +28,7 @@ TEST(QMC2_RC4, BasicKeyEncV1Decryption)
     auto plain_file = test::read_fixture("sample_test_121529_32kbps.ogg");
     auto fixture_encrypted = test::read_fixture("test_qmc2_rc4.mgg");
     std::vector<uint8_t> decrypted{};
-    test::DecryptQMC2Stream(decrypted, fixture_encrypted, transformer::CreateQMC2RC4DecryptionTransformer);
+    test::DecryptQMC2Stream(decrypted, fixture_encrypted);
     ASSERT_EQ(decrypted.size(), plain_file.size());
     ASSERT_THAT(decrypted, ContainerEq(plain_file));
 }
@@ -38,7 +38,7 @@ TEST(QMC2_RC4, BasicKeyEncV2Decryption)
     auto plain_file = test::read_fixture("sample_test_121529_32kbps.ogg");
     auto fixture_encrypted = test::read_fixture("test_qmc2_rc4_EncV2.mgg");
     std::vector<uint8_t> decrypted{};
-    test::DecryptQMC2Stream(decrypted, fixture_encrypted, transformer::CreateQMC2RC4DecryptionTransformer);
+    test::DecryptQMC2Stream(decrypted, fixture_encrypted);
     ASSERT_EQ(decrypted.size(), plain_file.size());
     ASSERT_THAT(decrypted, ContainerEq(plain_file));
 }

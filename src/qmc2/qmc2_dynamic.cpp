@@ -32,14 +32,14 @@ class QMC2DecryptionTransformer final : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        SlicedReadableStream reader{*input, 0, input->GetSize() - parse_result->footer_size};
         auto key_size = parse_result->key.size();
 
         constexpr size_t kQMC2UseRC4Boundary = 300;
         auto next_transformer = (key_size >= kQMC2UseRC4Boundary) //
                                     ? CreateQMC2RC4DecryptionTransformer(parse_result->key)
                                     : CreateQMC2MapDecryptionTransformer(parse_result->key);
-        return next_transformer->Transform(output, input);
+        SlicedReadableStream reader{*input, 0, input->GetSize() - parse_result->footer_size};
+        return next_transformer->Transform(output, &reader);
     }
 };
 
