@@ -46,6 +46,11 @@ class JooxDecryptionV4Transformer final : public ITransformer
         SetupKey(config);
     }
 
+    const char *GetName() override
+    {
+        return "JOOX (Dv4)";
+    }
+
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
         constexpr std::size_t kVer4HeaderSize = 12; /* 'E!04' + uint64_t_be(file size) */

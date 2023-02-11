@@ -26,6 +26,11 @@ class XiamiDecryptionTransformer final : public ITransformer
   public:
     XiamiDecryptionTransformer() = default;
 
+    const char *GetName() override
+    {
+        return "Xiami";
+    }
+
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
         constexpr std::array<uint8_t, 4> kMagicHeader1 = {'i', 'f', 'm', 't'};

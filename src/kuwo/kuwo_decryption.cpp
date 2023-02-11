@@ -21,7 +21,7 @@
 namespace parakeet_crypto::transformer
 {
 
-class KuwoDecryptionTransformer : public ITransformer
+class KuwoDecryptionTransformer final : public ITransformer
 {
   private:
     std::array<uint8_t, kKuwoDecryptionKeySize> key_{};
@@ -30,6 +30,11 @@ class KuwoDecryptionTransformer : public ITransformer
     KuwoDecryptionTransformer(const uint8_t *key) : ITransformer()
     {
         std::copy_n(key, kKuwoDecryptionKeySize, key_.begin());
+    }
+
+    const char *GetName() override
+    {
+        return "Kuwo (D)";
     }
 
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override

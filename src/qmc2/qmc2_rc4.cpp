@@ -59,6 +59,11 @@ class QMC2RC4DecryptionTransformer final : public ITransformer
     {
     }
 
+    const char *GetName() override
+    {
+        return "QMCv2 (RC4)";
+    }
+
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
         std::array<uint8_t, kSegmentSize> buffer{};

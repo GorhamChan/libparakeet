@@ -26,6 +26,11 @@ class KGMDecryptionTransformer final : public ITransformer
     {
     }
 
+    const char *GetName() override
+    {
+        return "KGM";
+    }
+
     /**
      * @brief Transform a given block of data.
      *

@@ -13,7 +13,7 @@
 namespace parakeet_crypto::transformer
 {
 
-class XimalayaTransformer : public ITransformer
+class XimalayaTransformer final : public ITransformer
 {
   private:
     size_t offset_{};
@@ -25,6 +25,11 @@ class XimalayaTransformer : public ITransformer
     {
         std::copy_n(scramble_key, scramble_key_.size(), scramble_key_.begin());
         content_key_.assign(content_key, content_key + content_key_len);
+    }
+
+    const char *GetName() override
+    {
+        return "Xmly (X2M/X3M)";
     }
 
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override

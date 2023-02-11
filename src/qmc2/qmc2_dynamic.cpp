@@ -24,6 +24,11 @@ class QMC2DecryptionTransformer final : public ITransformer
     {
     }
 
+    const char *GetName() override
+    {
+        return "QMCv2 (MAP/RC4)";
+    }
+
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
         auto parse_result = footer_parser_->Parse(*input);

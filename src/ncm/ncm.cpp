@@ -31,7 +31,7 @@ namespace parakeet_crypto::transformer
  *   - Audio Data (Encrypted with Content Key);
  */
 
-class NCMTransformer : public ITransformer
+class NCMTransformer final : public ITransformer
 {
   private:
     static constexpr size_t kHeaderPadding{2};
@@ -70,6 +70,11 @@ class NCMTransformer : public ITransformer
     NCMTransformer(const uint8_t *content_key) : ITransformer()
     {
         std::copy_n(content_key, content_key_.size(), content_key_.begin());
+    }
+
+    const char *GetName() override
+    {
+        return "NCM";
     }
 
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
