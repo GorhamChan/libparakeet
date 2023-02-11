@@ -62,7 +62,7 @@ class NCMTransformer : public ITransformer
         {
             return false;
         }
-        input->Seek(ReadLittleEndian<uint32_t>(buffer.data()), SeekDirection::CURRENT_POSITION);
+        input->Seek(ReadLittleEndian<uint32_t>(buffer.data()), SeekDirection::SEEK_CURRENT_POSITION);
         return true;
     }
 
@@ -82,7 +82,7 @@ class NCMTransformer : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        input->Seek(kHeaderPadding, SeekDirection::CURRENT_POSITION);
+        input->Seek(kHeaderPadding, SeekDirection::SEEK_CURRENT_POSITION);
 
         // Parse key
         auto tmp_key = ReadContentKey(input);
@@ -97,7 +97,7 @@ class NCMTransformer : public ITransformer
         {
             return TransformResult::ERROR_INVALID_FORMAT;
         }
-        input->Seek(kCoverPadding, SeekDirection::CURRENT_POSITION); // skip cover padding
+        input->Seek(kCoverPadding, SeekDirection::SEEK_CURRENT_POSITION); // skip cover padding
         // skip cover
         if (!SeekSizedBox(input))
         {

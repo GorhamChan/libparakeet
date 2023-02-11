@@ -26,9 +26,9 @@ class InputFileStream final : public IReadSeekable
     void Seek(size_t position, SeekDirection seek_dir) override
     {
         ifs_.seekg(static_cast<std::streamsize>(position),
-                   seek_dir == SeekDirection::CURRENT_POSITION ? std::ifstream::cur
-                   : seek_dir == SeekDirection::FILE_BEGIN     ? std::ifstream::beg
-                                                               : std::ifstream::end);
+                   seek_dir == SeekDirection::SEEK_CURRENT_POSITION ? std::ifstream::cur
+                   : seek_dir == SeekDirection::SEEK_FILE_BEGIN     ? std::ifstream::beg
+                                                                    : std::ifstream::end);
     }
     size_t GetSize() override
     {
@@ -92,13 +92,13 @@ class InputMemoryStream final : public IReadSeekable
         size_t next_offset{0};
         switch (seek_dir)
         {
-        case SeekDirection::FILE_BEGIN:
+        case SeekDirection::SEEK_FILE_BEGIN:
             next_offset = position;
             break;
-        case SeekDirection::CURRENT_POSITION:
+        case SeekDirection::SEEK_CURRENT_POSITION:
             next_offset = offset_ + position;
             break;
-        case SeekDirection::FILE_END_BACKWARDS:
+        case SeekDirection::SEEK_FILE_END:
             next_offset = data_.size() + position;
             break;
         default:
@@ -137,7 +137,7 @@ class SlicedReadableStream final : public IReadSeekable
         if (offset < start_)
         {
             offset = start_;
-            parent_.Seek(start_, SeekDirection::FILE_BEGIN);
+            parent_.Seek(start_, SeekDirection::SEEK_FILE_BEGIN);
         }
 
         size_t read_len = std::min(end_ - offset, len);
@@ -149,20 +149,20 @@ class SlicedReadableStream final : public IReadSeekable
         size_t next_offset{0};
         switch (seek_dir)
         {
-        case SeekDirection::FILE_BEGIN:
+        case SeekDirection::SEEK_FILE_BEGIN:
             next_offset = position;
             break;
-        case SeekDirection::CURRENT_POSITION:
+        case SeekDirection::SEEK_CURRENT_POSITION:
             next_offset = parent_.GetOffset() + position;
             break;
-        case SeekDirection::FILE_END_BACKWARDS:
+        case SeekDirection::SEEK_FILE_END:
             next_offset = end_ + position;
             break;
         default:
             return;
         }
 
-        parent_.Seek(std::max(std::min(next_offset, end_), start_), SeekDirection::FILE_BEGIN);
+        parent_.Seek(std::max(std::min(next_offset, end_), start_), SeekDirection::SEEK_FILE_BEGIN);
     }
     size_t GetSize() override
     {

@@ -17,9 +17,9 @@ constexpr size_t kDecryptionPageSize{PARAKEET_CRYPTO_PAGE_SIZE};
 
 enum class SeekDirection
 {
-    FILE_BEGIN = 0,
-    CURRENT_POSITION = 1,
-    FILE_END_BACKWARDS = 2,
+    SEEK_FILE_BEGIN = 0,
+    SEEK_CURRENT_POSITION = 1,
+    SEEK_FILE_END = 2,
 };
 
 class IReadSeekable

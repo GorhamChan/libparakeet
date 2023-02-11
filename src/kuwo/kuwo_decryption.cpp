@@ -50,7 +50,7 @@ class KuwoDecryptionTransformer : public ITransformer
         auto resource_id = SwapLittleEndianToHost(file_header.as_header.resource_id);
         SetupKuwoDecryptionKey(resource_id, key_.begin(), key_.end());
 
-        input->Seek(kFullKuwoHeaderLen, SeekDirection::FILE_BEGIN);
+        input->Seek(kFullKuwoHeaderLen, SeekDirection::SEEK_FILE_BEGIN);
 
         utils::LoopIterator key_iter{key_.data(), key_.size(), input->GetOffset()};
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
