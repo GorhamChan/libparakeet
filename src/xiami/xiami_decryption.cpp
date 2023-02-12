@@ -55,7 +55,7 @@ class XiamiDecryptionTransformer final : public ITransformer
             return TransformResult::ERROR_OTHER;
         }
 
-        uint8_t key = header.back();
+        uint8_t key = uint8_t{1} + header.back();
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
             std::transform(buffer, buffer + n, buffer, [&](auto value) {
                 return static_cast<uint8_t>(key - value); //
