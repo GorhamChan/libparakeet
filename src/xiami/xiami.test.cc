@@ -31,7 +31,7 @@ void GenerateTestData()
     plain.insert(plain.begin(), header.begin(), header.end());
     for (auto it = plain.begin() + 0x30; it < plain.end(); it++)
     {
-        *it = 0x7F + 1 - *it;
+        *it = 0x7F - 1 - *it;
     }
     test::write_local_file("../fixture/test.xm", plain);
 }
