@@ -51,9 +51,9 @@ class KuwoDecryptionTransformer final : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        std::array<uint8_t, kKuwoDecryptionKeySize> key{key_};
+        std::array<uint8_t, kKuwoDecryptionKeySize> key{};
         auto resource_id = SwapLittleEndianToHost(file_header.as_header.resource_id);
-        SetupKuwoDecryptionKey(resource_id, key.begin(), key.end());
+        SetupKuwoDecryptionKey(key, key_, resource_id);
 
         input->Seek(kFullKuwoHeaderLen, SeekDirection::SEEK_FILE_BEGIN);
 
