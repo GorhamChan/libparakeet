@@ -34,7 +34,7 @@ union KuwoHeaderUnion {
 #pragma pack(pop)
 
 template <typename Container1, typename Container2>
-void SetupKuwoDecryptionKey(Container1 &key_dst, const Container2 &key_src, uint64_t resource_id)
+void SetupKuwoDecryptionKey(Container1 &&key_dst, Container2 &&key_src, uint64_t resource_id)
 {
     auto rid_str = utils::Format("%" PRIu64, resource_id);
     utils::LoopIterator<char> rid_iter{rid_str, 0};

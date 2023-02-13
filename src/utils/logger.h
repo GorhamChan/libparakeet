@@ -10,7 +10,7 @@ namespace parakeet_crypto::logger
 
 class NopLogger final
 {
-    template <typename T> NopLogger &operator<<(const T & /*data*/)
+    template <typename T> NopLogger &operator<<(T && /*data*/)
     {
         return *this;
     }
@@ -36,7 +36,7 @@ class DebugLogger final
         std::cerr << ss_.str() << std::endl;
     }
 
-    template <typename T> DebugLogger &operator<<(const T &data)
+    template <typename T> DebugLogger &operator<<(T &&data)
     {
         ss_ << data;
         return *this;

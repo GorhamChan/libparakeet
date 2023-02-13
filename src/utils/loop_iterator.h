@@ -19,7 +19,7 @@ template <typename ItemType = uint8_t> class LoopIterator
     {
     }
     template <typename Container>
-    LoopIterator(Container container, size_t offset) : LoopIterator(container.data(), container.size(), offset)
+    LoopIterator(Container &&container, size_t offset) : LoopIterator(container.data(), container.size(), offset)
     {
     }
 
