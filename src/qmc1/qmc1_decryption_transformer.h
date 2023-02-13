@@ -12,7 +12,7 @@
 namespace parakeet_crypto::transformer
 {
 
-class QMC1StaticDecryptionTransformer : public ITransformer
+class QMC1StaticDecryptionTransformer final : public ITransformer
 {
   private:
     static constexpr size_t kQMC1KeySize = 128;
@@ -24,6 +24,11 @@ class QMC1StaticDecryptionTransformer : public ITransformer
     QMC1StaticDecryptionTransformer(const uint8_t *key) : ITransformer()
     {
         std::copy_n(key, key_.size(), key_.begin());
+    }
+
+    const char *GetName() override
+    {
+        return "QMCv1";
     }
 
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override

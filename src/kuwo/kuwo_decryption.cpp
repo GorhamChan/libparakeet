@@ -21,7 +21,7 @@
 namespace parakeet_crypto::transformer
 {
 
-class KuwoDecryptionTransformer : public ITransformer
+class KuwoDecryptionTransformer final : public ITransformer
 {
   private:
     std::array<uint8_t, kKuwoDecryptionKeySize> key_{};
@@ -30,6 +30,11 @@ class KuwoDecryptionTransformer : public ITransformer
     KuwoDecryptionTransformer(const uint8_t *key) : ITransformer()
     {
         std::copy_n(key, kKuwoDecryptionKeySize, key_.begin());
+    }
+
+    const char *GetName() override
+    {
+        return "Kuwo (D)";
     }
 
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
@@ -46,13 +51,13 @@ class KuwoDecryptionTransformer : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        std::array<uint8_t, kKuwoDecryptionKeySize> key{key_};
+        std::array<uint8_t, kKuwoDecryptionKeySize> key{};
         auto resource_id = SwapLittleEndianToHost(file_header.as_header.resource_id);
-        SetupKuwoDecryptionKey(resource_id, key_.begin(), key_.end());
+        SetupKuwoDecryptionKey(key, key_, resource_id);
 
-        input->Seek(kFullKuwoHeaderLen, SeekDirection::FILE_BEGIN);
+        input->Seek(kFullKuwoHeaderLen, SeekDirection::SEEK_FILE_BEGIN);
 
-        utils::LoopIterator key_iter{key_.data(), key_.size(), input->GetOffset()};
+        utils::LoopIterator key_iter{key.data(), key.size(), input->GetOffset()};
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
             std::for_each_n(buffer, n, [&](auto &value) { value ^= key_iter.GetAndMove(); });
             return output->Write(buffer, n);

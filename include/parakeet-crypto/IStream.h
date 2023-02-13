@@ -8,18 +8,11 @@
 namespace parakeet_crypto
 {
 
-#ifndef PARAKEET_CRYPTO_PAGE_SIZE
-// default to 2MB
-constexpr size_t kDecryptionPageSize{1ULL * 2 * 1024 * 1024};
-#else
-constexpr size_t kDecryptionPageSize{PARAKEET_CRYPTO_PAGE_SIZE};
-#endif
-
 enum class SeekDirection
 {
-    FILE_BEGIN = 0,
-    CURRENT_POSITION = 1,
-    FILE_END_BACKWARDS = 2,
+    SEEK_FILE_BEGIN = 0,
+    SEEK_CURRENT_POSITION = 1,
+    SEEK_FILE_END = 2,
 };
 
 class IReadSeekable

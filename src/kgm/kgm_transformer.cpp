@@ -26,6 +26,11 @@ class KGMDecryptionTransformer final : public ITransformer
     {
     }
 
+    const char *GetName() override
+    {
+        return "KGM";
+    }
+
     /**
      * @brief Transform a given block of data.
      *
@@ -54,7 +59,7 @@ class KGMDecryptionTransformer final : public ITransformer
         }
 
         const auto audio_offset = header.offset_to_data;
-        input->Seek(audio_offset, SeekDirection::FILE_BEGIN);
+        input->Seek(audio_offset, SeekDirection::SEEK_FILE_BEGIN);
 
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t offset, uint8_t *buffer, size_t n) {
             decryptor->Decrypt(offset - audio_offset, buffer, n);

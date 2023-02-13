@@ -65,7 +65,7 @@ class QMCFooterParser
         constexpr size_t kInitialFooterSize = 1024;
         auto initial_seek_pos = input_stream.GetOffset();
 
-        input_stream.Seek(-kInitialFooterSize, SeekDirection::FILE_END_BACKWARDS);
+        input_stream.Seek(-kInitialFooterSize, SeekDirection::SEEK_FILE_END);
         std::vector<uint8_t> footer_buffer(kInitialFooterSize, 0);
 
         // In case of partial read (file too small?), keep track of the numuber of bytes available.
@@ -77,10 +77,10 @@ class QMCFooterParser
         {
             // We need more data, resize our buffer.
             footer_buffer.resize(footer->footer_size);
-            input_stream.Seek(-footer->footer_size, SeekDirection::FILE_END_BACKWARDS);
+            input_stream.Seek(-footer->footer_size, SeekDirection::SEEK_FILE_END);
             if (!input_stream.ReadExact(footer_buffer.data(), footer_buffer.size()))
             {
-                input_stream.Seek(initial_seek_pos, SeekDirection::FILE_BEGIN);
+                input_stream.Seek(initial_seek_pos, SeekDirection::SEEK_FILE_BEGIN);
                 return std::make_unique<FooterParseResult>(FooterParseState::IOReadFailure, footer_buffer.size());
             }
 
@@ -88,11 +88,17 @@ class QMCFooterParser
             footer = Parse(footer_buffer.data(), footer->footer_size);
         }
 
-        input_stream.Seek(initial_seek_pos, SeekDirection::FILE_BEGIN);
+        input_stream.Seek(initial_seek_pos, SeekDirection::SEEK_FILE_BEGIN);
         return footer;
     }
 };
 
 std::unique_ptr<QMCFooterParser> CreateQMC2FooterParser(std::shared_ptr<IKeyCrypto> key_crypto);
+
+inline std::unique_ptr<QMCFooterParser> CreateQMC2FooterParser(uint8_t seed, const uint8_t *enc_v2_key_1,
+                                                               const uint8_t *enc_v2_key_2)
+{
+    return CreateQMC2FooterParser(CreateKeyCrypto(seed, enc_v2_key_1, enc_v2_key_2));
+}
 
 } // namespace parakeet_crypto::qmc2

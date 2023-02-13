@@ -18,17 +18,15 @@ namespace parakeet_crypto::qmc2
 class KeyCryptoImpl : public IKeyCrypto
 {
   private:
-    static constexpr size_t kTeaKeySize = 16;
-
     uint8_t seed_{};
-    std::array<uint8_t, kTeaKeySize> enc_v2_key_1_{};
-    std::array<uint8_t, kTeaKeySize> enc_v2_key_2_{};
+    std::array<uint8_t, kEncV2KeyLen> enc_v2_key_1_{};
+    std::array<uint8_t, kEncV2KeyLen> enc_v2_key_2_{};
 
   public:
     KeyCryptoImpl(uint8_t initial_seed, const uint8_t *enc_v2_key_1, const uint8_t *enc_v2_key_2) : seed_(initial_seed)
     {
-        std::copy_n(enc_v2_key_1, kTeaKeySize, enc_v2_key_1_.begin());
-        std::copy_n(enc_v2_key_2, kTeaKeySize, enc_v2_key_2_.begin());
+        std::copy_n(enc_v2_key_1, kEncV2KeyLen, enc_v2_key_1_.begin());
+        std::copy_n(enc_v2_key_2, kEncV2KeyLen, enc_v2_key_2_.begin());
     }
     ~KeyCryptoImpl() override = default;
 

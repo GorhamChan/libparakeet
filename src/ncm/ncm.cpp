@@ -31,7 +31,7 @@ namespace parakeet_crypto::transformer
  *   - Audio Data (Encrypted with Content Key);
  */
 
-class NCMTransformer : public ITransformer
+class NCMTransformer final : public ITransformer
 {
   private:
     static constexpr size_t kHeaderPadding{2};
@@ -62,7 +62,7 @@ class NCMTransformer : public ITransformer
         {
             return false;
         }
-        input->Seek(ReadLittleEndian<uint32_t>(buffer.data()), SeekDirection::CURRENT_POSITION);
+        input->Seek(ReadLittleEndian<uint32_t>(buffer.data()), SeekDirection::SEEK_CURRENT_POSITION);
         return true;
     }
 
@@ -72,6 +72,11 @@ class NCMTransformer : public ITransformer
         std::copy_n(content_key, content_key_.size(), content_key_.begin());
     }
 
+    const char *GetName() override
+    {
+        return "NCM";
+    }
+
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
         constexpr static std::array<const uint8_t, 8> kHeader{'C', 'T', 'E', 'N', 'F', 'D', 'A', 'M'};
@@ -79,10 +84,14 @@ class NCMTransformer : public ITransformer
         std::array<uint8_t, kHeader.size()> file_header{};
         if (!input->ReadExact(file_header.data(), file_header.size()))
         {
+            return TransformResult::ERROR_INSUFFICIENT_INPUT;
+        }
+        if (!std::equal(kHeader.begin(), kHeader.end(), file_header.begin()))
+        {
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        input->Seek(kHeaderPadding, SeekDirection::CURRENT_POSITION);
+        input->Seek(kHeaderPadding, SeekDirection::SEEK_CURRENT_POSITION);
 
         // Parse key
         auto tmp_key = ReadContentKey(input);
@@ -97,7 +106,7 @@ class NCMTransformer : public ITransformer
         {
             return TransformResult::ERROR_INVALID_FORMAT;
         }
-        input->Seek(kCoverPadding, SeekDirection::CURRENT_POSITION); // skip cover padding
+        input->Seek(kCoverPadding, SeekDirection::SEEK_CURRENT_POSITION); // skip cover padding
         // skip cover
         if (!SeekSizedBox(input))
         {

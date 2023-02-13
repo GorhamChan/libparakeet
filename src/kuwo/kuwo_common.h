@@ -1,4 +1,5 @@
 #pragma once
+#include "utils/loop_iterator.h"
 #include "utils/string_helper.h"
 
 #include <array>
@@ -10,7 +11,7 @@ namespace parakeet_crypto::transformer
 
 constexpr size_t kFullKuwoHeaderLen = 0x400; // 1024
 static constexpr std::array<uint8_t, 16> kKnownKuwoHeader1 = {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-',
-                                                              'k', 'u', 'w', 'o', 0,   0,   0,   0};
+                                                              'k', 'u', 'w', 'o', '-', 't', 'm', 'e'};
 static constexpr std::array<uint8_t, 16> kKnownKuwoHeader2 = {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-',
                                                               'k', 'u', 'w', 'o', 0,   0,   0,   0};
 
@@ -32,21 +33,16 @@ union KuwoHeaderUnion {
 // NOLINTEND(*-magic-numbers, *-avoid-c-arrays)
 #pragma pack(pop)
 
-template <typename Iterator>
-void SetupKuwoDecryptionKey(uint64_t resource_id, Iterator decryption_key, Iterator decryption_key_end)
+template <typename Container1, typename Container2>
+void SetupKuwoDecryptionKey(Container1 &&key_dst, Container2 &&key_src, uint64_t resource_id)
 {
     auto rid_str = utils::Format("%" PRIu64, resource_id);
-    auto p_rid_str = rid_str.begin();
-    auto p_rid_str_end = rid_str.end();
+    utils::LoopIterator<char> rid_iter{rid_str, 0};
 
-    while (decryption_key < decryption_key_end)
+    auto it_dst = key_dst.begin();
+    for (auto it_src = key_src.cbegin(); it_src < key_src.cend(); it_src++)
     {
-        *decryption_key++ ^= *p_rid_str++;
-
-        if (p_rid_str == p_rid_str_end)
-        {
-            p_rid_str = rid_str.begin();
-        }
+        *it_dst++ = *it_src ^ static_cast<uint8_t>(rid_iter.GetAndMove());
     }
 }
 

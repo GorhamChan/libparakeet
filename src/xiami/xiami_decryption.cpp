@@ -26,10 +26,18 @@ class XiamiDecryptionTransformer final : public ITransformer
   public:
     XiamiDecryptionTransformer() = default;
 
+    const char *GetName() override
+    {
+        return "Xiami";
+    }
+
     TransformResult Transform(IWriteable *output, IReadSeekable *input) override
     {
         constexpr std::array<uint8_t, 4> kMagicHeader1 = {'i', 'f', 'm', 't'};
+        constexpr size_t kMagicHeader1Offset = 0x00;
         constexpr std::array<uint8_t, 4> kMagicHeader2 = {0xfe, 0xfe, 0xfe, 0xfe};
+        constexpr size_t kMagicHeader2Offset = 0x08;
+
         constexpr size_t kHeaderSize = 0x10;
         constexpr size_t kHeaderKeyOffset = 0x0C;
         constexpr size_t kLittleEndianOffsetMask = 0x00FFFFFF;
@@ -38,6 +46,11 @@ class XiamiDecryptionTransformer final : public ITransformer
         if (!input->ReadExact(header.data(), header.size()))
         {
             return TransformResult::ERROR_INSUFFICIENT_INPUT;
+        }
+        if (!std::equal(kMagicHeader1.begin(), kMagicHeader1.end(), &header.at(kMagicHeader1Offset)) ||
+            !std::equal(kMagicHeader2.begin(), kMagicHeader2.end(), &header.at(kMagicHeader2Offset)))
+        {
+            return TransformResult::ERROR_INVALID_FORMAT;
         }
         size_t copy_len = ReadLittleEndian<uint32_t>(&header.at(kHeaderKeyOffset)) & kLittleEndianOffsetMask;
 
@@ -50,7 +63,7 @@ class XiamiDecryptionTransformer final : public ITransformer
             return TransformResult::ERROR_OTHER;
         }
 
-        uint8_t key = header.back();
+        uint8_t key = header.back() - uint8_t{1};
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
             std::transform(buffer, buffer + n, buffer, [&](auto value) {
                 return static_cast<uint8_t>(key - value); //

@@ -25,7 +25,7 @@ TEST(QMC2_Map, DecryptionKey256)
     auto plain_file = test::read_fixture("sample_test_121529_32kbps.ogg");
     auto fixture_encrypted = test::read_fixture("test_qmc2_map.mgg");
     std::vector<uint8_t> decrypted{};
-    test::DecryptQMC2Stream(decrypted, fixture_encrypted, transformer::CreateQMC2MapDecryptionTransformer);
+    test::DecryptQMC2Stream(decrypted, fixture_encrypted);
     ASSERT_EQ(decrypted.size(), plain_file.size());
     ASSERT_THAT(decrypted, ContainerEq(plain_file));
 }

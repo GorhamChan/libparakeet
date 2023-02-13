@@ -6,6 +6,7 @@
   ],
   "settings": {
     "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.intelliSenseEngine": "disabled",
     "clangd.path": "clangd-15",
     "clangd.arguments": [
       "-background-index",

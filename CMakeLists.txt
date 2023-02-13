@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
-project(parakeet_crypro VERSION 0.3.0 LANGUAGES CXX)
+project(parakeet_crypro VERSION 0.4.0 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 option(PARAKEET_CRYPTO_BUILD_EXAMPLES "Build examples" ON)
+
+option(PARAKEET_CRYPTO_LOGGING_ENABLE_WARN "Enabled warning logging" ON)
+option(PARAKEET_CRYPTO_LOGGING_ENABLE_ERROR "Enabled error logging" ON)
 
 include(cmake/CPM-Loader.cmake)
 include(cmake/git-info.cmake)
@@ -30,6 +33,11 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/version.cpp.in"
     "${PROJECT_BINARY_DIR}/src/version.cpp"
+    @ONLY
+)
+configure_file (
+    "${PROJECT_SOURCE_DIR}/src/utils/logger_config.h.in"
+    "${PROJECT_BINARY_DIR}/src/utils/logger_config.h"
     @ONLY
 )
 

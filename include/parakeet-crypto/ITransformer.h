@@ -23,6 +23,13 @@ class ITransformer
     virtual ~ITransformer() = default;
 
     /**
+     * @brief Get transformer name.
+     * 
+     * @return const char* 
+     */
+    virtual const char* GetName() = 0;
+
+    /**
      * @brief Transform a given block of data.
      *
      * @param output Output buffer.
