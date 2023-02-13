@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-02-13
+
 ### Added
 
 - QMC2: Expose constant `kEncV2KeyLen`.
@@ -90,3 +92,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/parakeet-rs/libparakeet/commits/v0.2.0
 [0.2.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.2.1...v0.3.0
+[0.4.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.3.0...v0.4.0
+[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.4.0...v0.x.0
