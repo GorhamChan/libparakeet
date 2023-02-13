@@ -84,6 +84,10 @@ class NCMTransformer final : public ITransformer
         std::array<uint8_t, kHeader.size()> file_header{};
         if (!input->ReadExact(file_header.data(), file_header.size()))
         {
+            return TransformResult::ERROR_INSUFFICIENT_INPUT;
+        }
+        if (!std::equal(kHeader.begin(), kHeader.end(), file_header.begin()))
+        {
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
