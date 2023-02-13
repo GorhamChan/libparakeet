@@ -19,8 +19,8 @@ inline uint8_t xor_u32_bytes(uint32_t value)
 
 enum class Mode
 {
-    KGM = 0,
-    VPR = 0,
+    KGM = 1,
+    VPR = 2,
 };
 
 class IKGMCrypto
