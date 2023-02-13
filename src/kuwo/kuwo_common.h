@@ -10,7 +10,7 @@ namespace parakeet_crypto::transformer
 
 constexpr size_t kFullKuwoHeaderLen = 0x400; // 1024
 static constexpr std::array<uint8_t, 16> kKnownKuwoHeader1 = {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-',
-                                                              'k', 'u', 'w', 'o', 0,   0,   0,   0};
+                                                              'k', 'u', 'w', 'o', '-', 't', 'm', 'e'};
 static constexpr std::array<uint8_t, 16> kKnownKuwoHeader2 = {'y', 'e', 'e', 'l', 'i', 'o', 'n', '-',
                                                               'k', 'u', 'w', 'o', 0,   0,   0,   0};
 
