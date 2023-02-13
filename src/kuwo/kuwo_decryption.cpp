@@ -53,11 +53,11 @@ class KuwoDecryptionTransformer final : public ITransformer
 
         std::array<uint8_t, kKuwoDecryptionKeySize> key{key_};
         auto resource_id = SwapLittleEndianToHost(file_header.as_header.resource_id);
-        SetupKuwoDecryptionKey(resource_id, key_.begin(), key_.end());
+        SetupKuwoDecryptionKey(resource_id, key.begin(), key.end());
 
         input->Seek(kFullKuwoHeaderLen, SeekDirection::SEEK_FILE_BEGIN);
 
-        utils::LoopIterator key_iter{key_.data(), key_.size(), input->GetOffset()};
+        utils::LoopIterator key_iter{key.data(), key.size(), input->GetOffset()};
         auto decrypt_ok = utils::PagedReader{input}.ReadInPages([&](size_t /*offset*/, uint8_t *buffer, size_t n) {
             std::for_each_n(buffer, n, [&](auto &value) { value ^= key_iter.GetAndMove(); });
             return output->Write(buffer, n);
