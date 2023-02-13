@@ -6,20 +6,24 @@
 namespace parakeet_crypto::utils
 {
 
-class LoopIterator
+template <typename ItemType = uint8_t> class LoopIterator
 {
   private:
-    const uint8_t *begin_{nullptr};
-    const uint8_t *end_{nullptr};
-    const uint8_t *current_{nullptr};
+    const ItemType *begin_{nullptr};
+    const ItemType *end_{nullptr};
+    const ItemType *current_{nullptr};
 
   public:
-    LoopIterator(const uint8_t *ptr, size_t len, size_t offset)
+    LoopIterator(const ItemType *ptr, size_t len, size_t offset)
         : begin_(ptr), current_(ptr + (offset % len)), end_(ptr + len)
     {
     }
+    template <typename Container>
+    LoopIterator(Container container, size_t offset) : LoopIterator(container.data(), container.size(), offset)
+    {
+    }
 
-    inline uint8_t Get()
+    inline ItemType Get()
     {
         return *current_;
     }
@@ -42,7 +46,7 @@ class LoopIterator
         return false;
     }
 
-    inline uint8_t GetAndMove()
+    inline ItemType GetAndMove()
     {
         auto result = Get();
         Next();
