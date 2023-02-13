@@ -9,8 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Expose `kEncV2KeyLen` in `parakeet-crypto/qmc2/key_crypto.h`.
-- Added `CreateScrambleKey` for Ximalaya.
+- QMC2: Expose constant `kEncV2KeyLen`.
+- QMC2: Added a helper transformer that can handle both QMC2(MAP) & QMC2(RC4).
+- XMLY: Added helper function `CreateScrambleKey`.
+- MISC: Logger that can be disabled using CMAKE options `PARAKEET_CRYPTO_LOGGING_ENABLE_WARN` and
+        `PARAKEET_CRYPTO_LOGGING_ENABLE_ERROR`.
+- MISC: Various helper functions that takes container template.
+
+### Changed
+
+- KGM: Broken `vpr` implementation (mode selection)
+- NCM: Check for header and exit early
+- KUWO: non-reusable decryption transformer (key initialisation)
+- XIAMI: Fixed key derivation
 
 ## [0.3.0] - 2022-02-11
 
