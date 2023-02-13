@@ -8,13 +8,6 @@
 namespace parakeet_crypto
 {
 
-#ifndef PARAKEET_CRYPTO_PAGE_SIZE
-// default to 2MB
-constexpr size_t kDecryptionPageSize{1ULL * 2 * 1024 * 1024};
-#else
-constexpr size_t kDecryptionPageSize{PARAKEET_CRYPTO_PAGE_SIZE};
-#endif
-
 enum class SeekDirection
 {
     SEEK_FILE_BEGIN = 0,

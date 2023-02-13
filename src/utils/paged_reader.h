@@ -2,6 +2,7 @@
 
 #include "parakeet-crypto/IStream.h"
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
@@ -10,6 +11,13 @@
 
 namespace parakeet_crypto::utils
 {
+
+#ifndef PARAKEET_CRYPTO_PAGE_SIZE
+// default to 64KiB
+constexpr size_t kDecryptionPageSize = static_cast<size_t>(64 * 1024);
+#else
+constexpr size_t kDecryptionPageSize{PARAKEET_CRYPTO_PAGE_SIZE};
+#endif
 
 class PagedReader
 {
