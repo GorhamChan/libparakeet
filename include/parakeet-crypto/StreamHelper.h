@@ -25,6 +25,8 @@ class InputFileStream final : public IReadSeekable
     }
     void Seek(size_t position, SeekDirection seek_dir) override
     {
+        ifs_.clear(); // reset flags, especially if we read past the stream previously.
+
         ifs_.seekg(static_cast<std::streamsize>(position),
                    seek_dir == SeekDirection::SEEK_CURRENT_POSITION ? std::ifstream::cur
                    : seek_dir == SeekDirection::SEEK_FILE_BEGIN     ? std::ifstream::beg
