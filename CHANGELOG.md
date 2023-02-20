@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2022-02-20
+
+### Changed
+
+- QMC2: Fixed a bug in segment key generation.
+
 ## [0.4.0] - 2022-02-13
 
 ### Added
@@ -93,4 +99,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.3.0...v0.4.0
-[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.4.0...v0.x.0
+[0.4.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.4.0...v0.4.1
+[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.4.1...v0.x.0
