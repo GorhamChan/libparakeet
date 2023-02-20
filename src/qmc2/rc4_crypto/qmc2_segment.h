@@ -10,9 +10,13 @@ namespace parakeet_crypto::qmc2_rc4
 class SegmentKeyImpl
 {
   private:
-    uint64_t hash_{0};
+    double hash_{0.0};
 
   public:
+    SegmentKeyImpl(double hash) : hash_(hash)
+    {
+    }
+
     SegmentKeyImpl(const uint8_t *key, size_t key_len)
     {
         uint32_t hash = 1;
@@ -33,8 +37,7 @@ class SegmentKeyImpl
             hash = next_hash;
         }
 
-        constexpr uint64_t kMagic{100};
-        hash_ = kMagic * hash;
+        hash_ = static_cast<double>(hash);
     }
 
     [[nodiscard]] uint64_t GetKey(uint64_t segment_id, uint64_t seed) const
@@ -44,7 +47,10 @@ class SegmentKeyImpl
             return 0;
         }
 
-        return hash_ / (seed * (segment_id + 1));
+        // Note: mul-then-div can cause the value to vary by 1.
+        //       overflow/truncation was expected.
+        constexpr double kMagic{100.0};
+        return static_cast<uint64_t>(hash_ / static_cast<double>(seed * (segment_id + 1)) * kMagic);
     }
 };
 
