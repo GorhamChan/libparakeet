@@ -38,7 +38,7 @@ template <size_t BlockSize> class BufferedTransform
             }
         }
 
-        while (n > BlockSize)
+        while (n >= BlockSize)
         {
             if (!callback(buffer))
             {
