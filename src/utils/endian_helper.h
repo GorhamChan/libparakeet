@@ -139,6 +139,16 @@ template <typename A> inline A ReadLittleEndian(const uint8_t *ptr)
     return SwapHostToLittleEndian(*reinterpret_cast<const A *>(ptr));
 }
 
+template <typename A> inline A ReadBigEndian(const char *ptr)
+{
+    return ReadBigEndian<A>(reinterpret_cast<const uint8_t *>(ptr));
+}
+
+template <typename A> inline A ReadLittleEndian(const char *ptr)
+{
+    return ReadLittleEndian<A>(reinterpret_cast<const uint8_t *>(ptr));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Pointer access - Write
 
