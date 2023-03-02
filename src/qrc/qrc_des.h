@@ -36,6 +36,15 @@ class QRC_DES
         auto result = des_crypt_block(block, is_decrypt);
         WriteLittleEndian(p_block, result);
     }
+    void encrypt_block(uint8_t *data) const
+    {
+        des_crypt_block(data, false);
+    }
+
+    void decrypt_block(uint8_t *data) const
+    {
+        des_crypt_block(data, true);
+    }
     bool des_crypt(uint8_t *data, size_t n, bool is_decrypt) const
     {
         if (n % 8 != 0)
@@ -50,6 +59,16 @@ class QRC_DES
             n -= 8;
         }
         return true;
+    }
+
+    bool encrypt(uint8_t *data, size_t n) const
+    {
+        return des_crypt(data, n, false);
+    }
+
+    bool decrypt(uint8_t *data, size_t n) const
+    {
+        return des_crypt(data, n, true);
     }
 };
 // NOLINTEND(*-magic-numbers)

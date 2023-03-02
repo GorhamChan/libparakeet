@@ -61,9 +61,9 @@ class RawDESTransformer final : public IWriteable
         std::array<uint8_t, kDESBlockSize> block{};
         buffer_.ProcessBuffer(buffer, len, [&](const uint8_t *buffer) {
             std::copy_n(buffer, block.size(), block.begin());
-            des1_.des_crypt_block(block.data(), true);
-            des2_.des_crypt_block(block.data(), false);
-            des3_.des_crypt_block(block.data(), true);
+            des1_.decrypt_block(block.data());
+            des2_.encrypt_block(block.data());
+            des3_.decrypt_block(block.data());
             return dest_->Write(block.data(), block.size());
         });
         return false;

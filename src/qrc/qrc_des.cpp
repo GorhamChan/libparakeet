@@ -3,47 +3,38 @@
 #include "qrc_des_data.h"
 
 #include "utils/endian_helper.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <numeric>
 
 namespace parakeet_crypto::qrc
 {
 
-inline uint64_t des_crypt_proc(const QRC_DES_Subkeys &subkeys, uint64_t state, int key_idx)
+inline uint64_t sbox_transform(uint64_t state)
+{
+    constexpr std::array<uint8_t, 8> kLargeStateShifts = {26, 20, 14, 8, 58, 52, 46, 40};
+    constexpr uint8_t kMaskSelectLast6Bit = 0b111111;
+
+    auto large_state_it = kLargeStateShifts.cbegin(); // NOLINT(readability-qualified-auto)
+    return std::accumulate(data::g_sboxes.cbegin(), data::g_sboxes.cend(), uint32_t{0},
+                           [&](const auto &next, const auto &sbox) {
+                               auto sbox_idx = (state >> *large_state_it++) & kMaskSelectLast6Bit;
+                               return (next << 4) | sbox[sbox_idx];
+                           });
+}
+
+inline uint64_t des_crypt_proc(uint64_t state, uint64_t key)
 {
     // Expantion Permutation
-    const std::array<uint8_t, 24> kKeyExpansionTablePart1 = {32, 1, 2,  3,  4,  5,  4,  5,  6,  7,  8,  9,
-                                                             8,  9, 10, 11, 12, 13, 12, 13, 14, 15, 16, 17};
-    const std::array<uint8_t, 24> kKeyExpansionTablePart2 = {16, 17, 18, 19, 20, 21, 20, 21, 22, 23, 24, 25,
-                                                             24, 25, 26, 27, 28, 29, 28, 29, 30, 31, 32, 1};
-
     auto state_hi32 = int_helper::u64_get_hi32(state);
     auto state_lo32 = int_helper::u64_get_lo32(state);
 
-    auto t1 = int_helper::map_u32_bits(state_hi32, kKeyExpansionTablePart1); // NOLINT(readability-identifier-length)
-    auto t2 = int_helper::map_u32_bits(state_hi32, kKeyExpansionTablePart2); // NOLINT(readability-identifier-length)
-    state = int_helper::make_u64(t2, t1) ^ subkeys[key_idx];
+    state = int_helper::map_2_u32_bits_to_u64(state_hi32, data::kKeyExpansionTablePart1, //
+                                              state_hi32, data::kKeyExpansionTablePart2);
+    state ^= key;
 
-    // NOLINTBEGIN (*-magic-numbers)
-    const std::array<uint8_t, 8> large_state{
-        static_cast<uint8_t>((state >> 26) & uint8_t{0x3F}), //
-        static_cast<uint8_t>((state >> 20) & uint8_t{0x3F}), //
-        static_cast<uint8_t>((state >> 14) & uint8_t{0x3F}), //
-        static_cast<uint8_t>((state >> 8) & uint8_t{0x3F}),  //
-        static_cast<uint8_t>((state >> 58) & uint8_t{0x3F}), //
-        static_cast<uint8_t>((state >> 52) & uint8_t{0x3F}), //
-        static_cast<uint8_t>((state >> 46) & uint8_t{0x3F}), //
-        static_cast<uint8_t>((state >> 40) & uint8_t{0x3F}), //
-    };
-    // NOLINTEND (*-magic-numbers)
-
-    // S-Box Permutation
-    uint32_t next_lo32 = {0};
-    for (int i = 0; i < 8; i++) // NOLINT (*-magic-numbers)
-    {
-        next_lo32 = (next_lo32 << 4) | data::g_sboxes[i][large_state[i]];
-    }
-
+    auto next_lo32 = sbox_transform(state);
     next_lo32 = int_helper::map_u32_bits(next_lo32, data::PBox);
     next_lo32 ^= state_lo32;
 
@@ -70,22 +61,17 @@ void QRC_DES::setup_key(const char *key_str)
     auto param_c = int_helper::map_u64_to_u32_bits(key, data::key_perm_c);
     auto param_d = int_helper::map_u64_to_u32_bits(key, data::key_perm_d);
 
-    // NOLINTBEGIN (*-magic-numbers)
-    for (int i = 0; i < 16; i++)
-    {
-        auto shift_left = data::key_rnd_shift[i];
+    auto subkey_it = subkeys.begin(); // NOLINT(readability-qualified-auto)
+    std::for_each(data::key_rnd_shift.begin(), data::key_rnd_shift.end(), [&](const auto &shift_left) {
+        // NOLINTBEGIN (*-magic-numbers)
         auto shift_right = 28 - shift_left;
         param_c = (param_c << shift_left) | ((param_c >> shift_right) & 0xFFFFFFF0); // rotate 28 bit int
         param_d = (param_d << shift_left) | ((param_d >> shift_right) & 0xFFFFFFF0);
+        // NOLINTEND (*-magic-numbers)
 
-        for (int j = 0; j < 24; j++)
-        {
-            uint32_t key_lo32 = int_helper::map_u32_bits(param_c, data::kKeyCompressionTablePart1, -1);
-            uint32_t key_hi32 = int_helper::map_u32_bits(param_d, data::kKeyCompressionTablePart2, -28);
-            subkeys[i] = int_helper::make_u64(key_hi32, key_lo32);
-        }
-    }
-    // NOLINTEND (*-magic-numbers)
+        *subkey_it++ = int_helper::map_2_u32_bits_to_u64(param_c, data::kKeyCompressionTablePart1, //
+                                                         param_d, data::kKeyCompressionTablePart2);
+    });
 }
 
 uint64_t QRC_DES::des_crypt_block(uint64_t data, bool is_decrypt) const
@@ -95,17 +81,11 @@ uint64_t QRC_DES::des_crypt_block(uint64_t data, bool is_decrypt) const
 
     if (is_decrypt)
     {
-        for (int i = 15; i >= 0; --i)
-        {
-            state = des_crypt_proc(subkeys, state, i);
-        }
+        state = std::accumulate(subkeys.crbegin(), subkeys.crend(), state, des_crypt_proc);
     }
     else
     {
-        for (int i = 0; i < 16; ++i)
-        {
-            state = des_crypt_proc(subkeys, state, i);
-        }
+        state = std::accumulate(subkeys.cbegin(), subkeys.cend(), state, des_crypt_proc);
     }
 
     // Swap data hi32/lo32

@@ -25,7 +25,18 @@ TEST(QRC_LRC, DecryptSomeData)
                                              0x77, 0x63, 0x3B, 0x02, 0x45, 0x4E, 0x70, 0x7A};
 
     QRC_DES des("TEST!KEY");
-    ASSERT_TRUE(des.des_crypt(input.data(), input.size(), true));
+    ASSERT_TRUE(des.decrypt(input.data(), input.size()));
+    ASSERT_THAT(input, ContainerEq(expected_data));
+}
+
+TEST(QRC_LRC, EncryptSomeData)
+{
+    std::array<uint8_t, 16> input = {0xFD, 0x0E, 0x64, 0x06, 0x65, 0xBE, 0x74, 0x13,
+                                     0x77, 0x63, 0x3B, 0x02, 0x45, 0x4E, 0x70, 0x7A};
+    std::array<uint8_t, 16> expected_data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
+
+    QRC_DES des("TEST!KEY");
+    ASSERT_TRUE(des.encrypt(input.data(), input.size()));
     ASSERT_THAT(input, ContainerEq(expected_data));
 }
 
