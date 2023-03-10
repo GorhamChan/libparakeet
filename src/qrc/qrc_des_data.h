@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <array>
 #include <cstdint>
 
@@ -67,6 +68,21 @@ static constexpr auto kIpInvTable = ([] {
     return data;
 })();
 
+static constexpr auto kKeyPermutationTable = ([] {
+    std::array<uint8_t, 56> data = {
+        // key_param_c
+        57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60, 52, 44, 36,
+        // key_param_d
+        63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22, 14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 28, 20, 12, 4
+        //
+    };
+
+    for (auto &value : data)
+        value -= 1;
+
+    return data;
+}());
+
 static constexpr auto key_perm_c = ([] {
     std::array<uint8_t, 28> data = {57, 49, 41, 33, 25, 17, 9,  1,  58, 50, 42, 34, 26, 18,
                                     10, 2,  59, 51, 43, 35, 27, 19, 11, 3,  60, 52, 44, 36};
@@ -87,28 +103,29 @@ static constexpr auto key_perm_d = ([] {
     return data;
 }());
 
-static constexpr auto kKeyCompressionTablePart1 = ([] {
-    std::array<uint8_t, 24> data = {14, 17, 11, 24, 1,  5, 3,  28, 15, 6,  21, 10,
-                                    23, 19, 12, 4,  26, 8, 16, 7,  27, 20, 13, 2};
-    for (auto &value : data)
-        value -= 1;
-
-    return data;
-}());
-
-static constexpr auto kKeyCompressionTablePart2 = ([] {
-    std::array<uint8_t, 24> data = {
+static constexpr auto kKeyCompressionTable = ([] {
+    std::array<uint8_t, 48> data = {
+        14, 17, 11, 24, 1,  5,  3,  28, 15, 6,  21, 10, 23, 19, 12, 4,  26, 8,  16, 7,  27, 20, 13, 2, //
         41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32,
     };
 
-    for (auto &value : data)
-        value -= 28;
+    for (int i = 0; i < 24; i++)
+    {
+        data[i] -= 1;
+    }
+
+    for (int i = 24; i < 48; i++)
+    {
+        data[i] = data[i] - 28 + 32;
+    }
 
     return data;
 }());
 
-static constexpr auto kKeyExpansionTablePart1 = ([] {
-    std::array<uint8_t, 24> data = {32, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 12, 13, 14, 15, 16, 17};
+static constexpr auto kKeyExpansionTable = ([] {
+    std::array<uint8_t, 48> data = {                                                                    //
+        32, 1,  2,  3,  4,  5,  4,  5,  6,  7,  8,  9,  8,  9,  10, 11, 12, 13, 12, 13, 14, 15, 16, 17, //
+        16, 17, 18, 19, 20, 21, 20, 21, 22, 23, 24, 25, 24, 25, 26, 27, 28, 29, 28, 29, 30, 31, 32, 1};
 
     for (auto &value : data)
         value -= 1;
@@ -116,12 +133,14 @@ static constexpr auto kKeyExpansionTablePart1 = ([] {
     return data;
 }());
 
-static constexpr auto kKeyExpansionTablePart2 = ([] {
-    std::array<uint8_t, 24> data = {16, 17, 18, 19, 20, 21, 20, 21, 22, 23, 24, 25,
-                                    24, 25, 26, 27, 28, 29, 28, 29, 30, 31, 32, 1};
+static constexpr auto kU64ShiftTable = ([] {
+    std::array<uint64_t, 64> data{};
 
-    for (auto &value : data)
-        value -= 1;
+    for (int i = 0; i < 32; i++)
+    {
+        data[i] = uint64_t{1} << (31 - i);
+        data[i + 32] = uint64_t{1} << (31 - i + 32);
+    }
 
     return data;
 }());

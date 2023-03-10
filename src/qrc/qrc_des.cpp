@@ -1,5 +1,6 @@
 #include "qrc_des.h"
 #include "int_helper.h"
+#include "qrc/int_helper.h"
 #include "qrc_des_data.h"
 
 #include "utils/endian_helper.h"
@@ -26,12 +27,11 @@ inline uint64_t sbox_transform(uint64_t state)
 
 inline uint64_t des_crypt_proc(uint64_t state, uint64_t key)
 {
-    // Expantion Permutation
+    // Expansion Permutation
     auto state_hi32 = int_helper::u64_get_hi32(state);
     auto state_lo32 = int_helper::u64_get_lo32(state);
 
-    state = int_helper::map_2_u32_bits_to_u64(state_hi32, data::kKeyExpansionTablePart1, //
-                                              state_hi32, data::kKeyExpansionTablePart2);
+    state = int_helper::map_u64(int_helper::make_u64(state_hi32, state_hi32), data::kKeyExpansionTable);
     state ^= key;
 
     auto next_lo32 = sbox_transform(state);
@@ -46,31 +46,36 @@ inline uint64_t des_crypt_proc(uint64_t state, uint64_t key)
 
 inline constexpr uint64_t IP(uint64_t data)
 {
-    return int_helper::map_u64_bits(data, data::kIpTable);
+    return int_helper::map_u64(data, data::kIpTable);
 }
 
 inline constexpr uint64_t IPInv(uint64_t state)
 {
-    return int_helper::map_u64_bits(state, data::kIpInvTable);
+    return int_helper::map_u64(state, data::kIpInvTable);
 }
 
 void QRC_DES::setup_key(const char *key_str)
 {
     auto key = parakeet_crypto::ReadLittleEndian<uint64_t>(key_str);
 
-    auto param_c = int_helper::map_u64_to_u32_bits(key, data::key_perm_c);
-    auto param_d = int_helper::map_u64_to_u32_bits(key, data::key_perm_d);
+    auto param = int_helper::map_u64(key, data::kKeyPermutationTable);
+    auto param_c = int_helper::u64_get_lo32(param);
+    auto param_d = int_helper::u64_get_hi32(param);
+
+    auto update_param = [](uint32_t &value, uint8_t shift_left) {
+        // NOLINTBEGIN (*-magic-numbers)
+        auto shift_right = 28 - shift_left;
+        value = (value << shift_left) | (value >> shift_right) & 0xFFFFFFF0;
+        // NOLINTEND (*-magic-numbers)
+    };
 
     auto subkey_it = subkeys.begin(); // NOLINT(readability-qualified-auto)
     std::for_each(data::key_rnd_shift.begin(), data::key_rnd_shift.end(), [&](const auto &shift_left) {
-        // NOLINTBEGIN (*-magic-numbers)
-        auto shift_right = 28 - shift_left;
-        param_c = (param_c << shift_left) | ((param_c >> shift_right) & 0xFFFFFFF0); // rotate 28 bit int
-        param_d = (param_d << shift_left) | ((param_d >> shift_right) & 0xFFFFFFF0);
-        // NOLINTEND (*-magic-numbers)
+        update_param(param_c, shift_left);
+        update_param(param_d, shift_left);
 
-        *subkey_it++ = int_helper::map_2_u32_bits_to_u64(param_c, data::kKeyCompressionTablePart1, //
-                                                         param_d, data::kKeyCompressionTablePart2);
+        auto key = int_helper::make_u64(param_d, param_c);
+        *subkey_it++ = int_helper::map_u64(key, data::kKeyCompressionTable);
     });
 }
 

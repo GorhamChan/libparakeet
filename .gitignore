@@ -11,3 +11,5 @@ local/
 *.local.test.cc
 *.local.test.hh
 *.local.h
+
+.vs/

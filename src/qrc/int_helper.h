@@ -32,23 +32,22 @@ inline constexpr uint32_t u64_get_hi32(uint64_t value)
 
 inline uint64_t constexpr get_u64_by_shift_idx(uint8_t shift_idx)
 {
-    return uint64_t{1} << (31 - shift_idx);
-}
-
-inline uint32_t constexpr map_bit_u64_to_u32(uint64_t data, uint8_t check_idx, uint8_t set_bit_idx)
-{
-    uint64_t check_mask = get_u64_by_shift_idx(check_idx);
-    if ((data & check_mask) != uint64_t{0})
+    if constexpr (sizeof(void *) == 8)
     {
-        return get_u64_by_shift_idx(set_bit_idx);
+        return uint64_t{1} << (31 - shift_idx);
     }
 
-    return 0;
+    // 32-bit: use table lookup instead for performance
+    return data::kU64ShiftTable[shift_idx % data::kU64ShiftTable.size()];
 }
 
-inline uint32_t constexpr map_bit_u32(uint32_t data, uint8_t check_idx, uint8_t set_bit_idx)
+template <typename T> inline void constexpr map_bit(T &result, uint64_t src, uint8_t check, uint8_t set)
 {
-    return map_bit_u64_to_u32(static_cast<uint64_t>(data), check_idx, set_bit_idx);
+    uint64_t check_mask = get_u64_by_shift_idx(check);
+    if ((src & check_mask) != uint64_t{0})
+    {
+        result |= get_u64_by_shift_idx(set);
+    }
 }
 
 template <size_t N> inline uint32_t constexpr map_u32_bits(uint32_t src_value, const std::array<uint8_t, N> &table)
@@ -57,50 +56,28 @@ template <size_t N> inline uint32_t constexpr map_u32_bits(uint32_t src_value, c
 
     int i = 0;
     return std::accumulate(table.cbegin(), table.cend(), uint32_t{0}, [&](uint32_t result, const auto &check_idx) {
-        return result | map_bit_u32(src_value, check_idx, i++);
+        map_bit(result, src_value, check_idx, i++);
+        return result;
     });
 }
 
-template <size_t N>
-inline uint64_t constexpr map_2_u32_bits_to_u64(uint32_t src_lo32, const std::array<uint8_t, N> &table_lo32,
-                                                uint32_t src_hi32, const std::array<uint8_t, N> &table_hi32)
+template <size_t N> inline uint64_t constexpr map_u64(uint64_t src_value, const std::array<uint8_t, N> &table)
 {
-    uint64_t result{0};
-    auto lo32_it = table_lo32.cbegin();
-    auto hi32_it = table_hi32.cbegin();
-    for (int i = 0; i < N; i++)
-    {
-        auto temp_lo32 = map_bit_u32(src_lo32, *lo32_it++, i);
-        result |= uint64_t{temp_lo32};
+    static_assert(N % 2 == 0, "N should be even");
+    constexpr size_t N_MID = N / 2;
 
-        auto temp_hi32 = map_bit_u32(src_hi32, *hi32_it++, i);
-        result |= uint64_t{temp_hi32} << 32;
+    auto lo32_it = table.cbegin();
+    uint32_t lo32{0};
+
+    auto hi32_it = table.cbegin() + N_MID;
+    uint32_t hi32{0};
+
+    for (int i = 0; i < N_MID; i++)
+    {
+        map_bit(lo32, src_value, *lo32_it++, i);
+        map_bit(hi32, src_value, *hi32_it++, i);
     }
 
-    return result;
-}
-
-template <typename It>
-inline constexpr uint32_t map_u64_to_u32_bits(uint64_t src_value, const It &&begin, const It &&end)
-{
-    int i = 0;
-    return std::accumulate(begin, end, uint32_t{0}, [&](uint32_t result, const auto &check_idx) {
-        return result | map_bit_u64_to_u32(src_value, check_idx, i++);
-    });
-}
-
-template <size_t N>
-inline constexpr uint32_t map_u64_to_u32_bits(uint64_t src_value, const std::array<uint8_t, N> &table)
-{
-    static_assert(N <= 32, "table is too big to fit inside u32");
-
-    return map_u64_to_u32_bits(src_value, table.cbegin(), table.cend());
-}
-
-inline constexpr uint64_t map_u64_bits(uint64_t value, const std::array<uint8_t, 64> &table)
-{
-    uint32_t lo32 = map_u64_to_u32_bits(value, table.cbegin(), table.cbegin() + 32);
-    uint32_t hi32 = map_u64_to_u32_bits(value, table.cbegin() + 32, table.cend());
     return make_u64(hi32, lo32);
 }
 

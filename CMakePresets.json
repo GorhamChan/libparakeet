@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 5,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 22,
@@ -55,6 +55,17 @@
       }
     },
     {
+      "name": "msvc-2022-win32",
+      "displayName": "MSVC 2022 (Win32)",
+      "generator": "Visual Studio 17 2022",
+      "inherits": [
+        "base-win"
+      ],
+      "architecture": {
+        "value": "Win32"
+      }
+    },
+    {
       "name": "msys2-ucrt64",
       "displayName": "MSYS2 ucrt64",
       "inherits": [
@@ -105,6 +116,18 @@
     {
       "name": "msvc-2022-release",
       "configurePreset": "msvc-2022",
+      "displayName": "Release",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc-2022-win32-debug",
+      "configurePreset": "msvc-2022-win32",
+      "displayName": "Debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "msvc-2022-win32-release",
+      "configurePreset": "msvc-2022-win32",
       "displayName": "Release",
       "configuration": "Release"
     },
