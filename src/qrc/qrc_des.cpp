@@ -18,7 +18,7 @@ inline uint64_t sbox_transform(uint64_t state)
     constexpr uint8_t kMaskSelectLast6Bit = 0b111111;
 
     auto large_state_it = kLargeStateShifts.cbegin(); // NOLINT(readability-qualified-auto)
-    return std::accumulate(data::g_sboxes.cbegin(), data::g_sboxes.cend(), uint32_t{0},
+    return std::accumulate(data::kSBoxes.cbegin(), data::kSBoxes.cend(), uint32_t{0},
                            [&](const auto &next, const auto &sbox) {
                                auto sbox_idx = (state >> *large_state_it++) & kMaskSelectLast6Bit;
                                return (next << 4) | sbox[sbox_idx];
@@ -35,7 +35,7 @@ inline uint64_t des_crypt_proc(uint64_t state, uint64_t key)
     state ^= key;
 
     auto next_lo32 = sbox_transform(state);
-    next_lo32 = int_helper::map_u32_bits(next_lo32, data::PBox);
+    next_lo32 = int_helper::map_u32_bits(next_lo32, data::kPBox);
     next_lo32 ^= state_lo32;
 
     // make u64, then swap
