@@ -22,7 +22,10 @@ struct KuwoHeader
     // Offset: 0x00
     uint8_t header[16];
     // Offset: 0x10
-    uint64_t _unknown_1;
+    // 1: KWM Format
+    // 2: QMCv2 Format (mflac / mgg etc)
+    uint64_t encryption_version;
+    // Offset: 0x18
     uint64_t resource_id;
 };
 
