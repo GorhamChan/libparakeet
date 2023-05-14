@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(parakeet_crypro VERSION 0.5.0 LANGUAGES CXX)
+project(parakeet_crypto VERSION 0.4.1 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 option(PARAKEET_CRYPTO_BUILD_EXAMPLES "Build examples" ON)
@@ -54,16 +54,16 @@ file(GLOB_RECURSE INCLUDE_HEADERS
 )
 
 # Add source to this project's executable.
-add_library(parakeet_crypro STATIC ${SOURCES} ${INCLUDE_HEADERS})
-set_target_properties(parakeet_crypro PROPERTIES
+add_library(parakeet_crypto STATIC ${SOURCES} ${INCLUDE_HEADERS})
+set_target_properties(parakeet_crypto PROPERTIES
     CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
-add_library(parakeet::crypto ALIAS parakeet_crypro)
+add_library(parakeet::crypto ALIAS parakeet_crypto)
 if(MSVC)
-    target_compile_options(parakeet_crypro PRIVATE "/MP")
+    target_compile_options(parakeet_crypto PRIVATE "/MP")
 else()
-    target_link_libraries(parakeet_crypro PRIVATE m)
+    target_link_libraries(parakeet_crypto PRIVATE m)
 endif()
-target_include_directories(parakeet_crypro
+target_include_directories(parakeet_crypto
     PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -72,30 +72,30 @@ target_include_directories(parakeet_crypro
         "${PROJECT_BINARY_DIR}/src"
 )
 
-target_link_libraries(parakeet_crypro
+target_link_libraries(parakeet_crypto
     PRIVATE 
         cryptopp::cryptopp
         tc-tea::tc-tea
 )
 
 include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypto)
 
-install(TARGETS parakeet_crypro
-    EXPORT parakeet_crypro-targets
+install(TARGETS parakeet_crypto
+    EXPORT parakeet_crypto-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-set_target_properties(parakeet_crypro PROPERTIES EXPORT_NAME ParakeetCrypto)
+set_target_properties(parakeet_crypto PROPERTIES EXPORT_NAME ParakeetCrypto)
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(EXPORT parakeet_crypro-targets
+install(EXPORT parakeet_crypto-targets
 FILE
     ParakeetCryptoTargets.cmake
 NAMESPACE
     ParakeetCrypto::
 DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypro
+    ${CMAKE_INSTALL_LIBDIR}/cmake/parakeet_crypto
 )
 
 # Tests!
@@ -129,7 +129,7 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
             GTest::gmock_main
             GTest::gtest_main
             cryptopp::cryptopp
-            parakeet_crypro
+            parakeet_crypto
     )
     set_target_properties(parakeet_crypto_test PROPERTIES
         CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON EXPORT_COMPILE_COMMANDS ON)
