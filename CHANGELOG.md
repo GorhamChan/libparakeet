@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for QRC Lyrics decryption.
 
+### Changed
+
+- Documented kuwo's crypto_version field.
+- Target CMake 3.22.1 with preset version 3 (was 5)
+
 ## [0.4.1] - 2022-02-20
 
 ### Changed
