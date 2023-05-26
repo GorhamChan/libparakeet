@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(qrc-decode)
 
-add_executable(${PROJECT_NAME} src/qrc-example.cpp)
+add_executable(${PROJECT_NAME} src/qrc-cli.cpp)
 target_link_libraries(${PROJECT_NAME} parakeet::crypto)
 target_include_directories(${PROJECT_NAME}
     PRIVATE

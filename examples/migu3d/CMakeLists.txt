@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(migu3d)
 
-add_executable(${PROJECT_NAME} src/migu3d-example.cpp)
+add_executable(${PROJECT_NAME} src/migu3d-cli.cpp)
 target_link_libraries(${PROJECT_NAME} parakeet::crypto)
 target_include_directories(${PROJECT_NAME}
     PRIVATE
