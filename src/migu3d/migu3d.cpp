@@ -15,6 +15,7 @@
 #include <vector>
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include <cryptopp/hex.h>
 #include <cryptopp/md5.h>
 
 namespace parakeet_crypto::transformer
@@ -23,8 +24,8 @@ namespace parakeet_crypto::transformer
 class Migu3DTransformer final : public ITransformer
 {
   private:
-    static constexpr std::size_t kSaltSize = 32;
-    static constexpr std::size_t kFileKeySize = 32;
+    static constexpr std::size_t kSaltSize = 16;
+    static constexpr std::size_t kFileKeySize = 16;
     static constexpr std::size_t kFinalKeySize = migu3d::kMiguFinalKeySize;
 
     std::array<uint8_t, kFinalKeySize> key_{};
@@ -34,9 +35,21 @@ class Migu3DTransformer final : public ITransformer
     Migu3DTransformer(const uint8_t *salt, const uint8_t *file_key)
     {
         CryptoPP::Weak::MD5 hash;
+        std::array<uint8_t, utils::MD5_DIGEST_SIZE> digest{};
         hash.Update(salt, kSaltSize);
         hash.Update(file_key, kFileKeySize);
-        hash.Final(key_.data());
+        hash.Final(digest.data());
+
+        CryptoPP::HexEncoder encoder(nullptr, true, 0, "");
+        encoder.Put(digest.data(), digest.size());
+        encoder.MessageEnd();
+        encoder.Get(key_.data(), key_.size());
+
+        if (logger::DEBUG_Enabled)
+        {
+            std::string key_str(key_.begin(), key_.end());
+            logger::DEBUG() << "Migu3D key: " << key_str;
+        }
     }
 
     const char *GetName() override
@@ -64,7 +77,7 @@ class Migu3DTransformer final : public ITransformer
             if (logger::DEBUG_Enabled)
             {
                 std::string key_str(key.begin(), key.end());
-                logger::DEBUG() << "Migu3D key (by freq analysis): " << key_str;
+                logger::DEBUG() << "Migu3D key recovered by freq analysis: " << key_str;
             }
             migu3d::DecryptSegment(segment.data(), segment.size(), 0, key.data());
             if (!output->Write(segment.data(), segment.size()))
