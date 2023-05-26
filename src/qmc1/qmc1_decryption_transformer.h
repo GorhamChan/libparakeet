@@ -56,7 +56,7 @@ class QMC1StaticDecryptionTransformer final : public ITransformer
             return output->Write(buffer, n);
         });
 
-        return TransformResult::OK;
+        return decrypt_ok ? TransformResult::OK : TransformResult::ERROR_INSUFFICIENT_OUTPUT;
     }
 };
 
