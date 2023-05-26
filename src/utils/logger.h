@@ -10,6 +10,7 @@ namespace parakeet_crypto::logger
 
 class NopLogger final
 {
+  public:
     template <typename T> NopLogger &operator<<(T && /*data*/)
     {
         return *this;
@@ -43,12 +44,28 @@ class DebugLogger final
     }
 };
 
+#if PARAKEET_CRYPTO_LOGGING_ENABLE_INFO
+inline DebugLogger INFO()
+{
+    return {"INFO"};
+}
+constexpr bool INFO_Enabled = true;
+#else
+inline NopLogger INFO()
+{
+    return {};
+}
+constexpr bool INFO_Enabled = false;
+#endif
+
 #if PARAKEET_CRYPTO_LOGGING_ENABLE_WARN
+constexpr bool WARN_Enabled = true;
 inline DebugLogger WARN()
 {
     return {"WARN"};
 }
 #else
+constexpr bool WARN_Enabled = false;
 inline NopLogger WARN()
 {
     return {};
@@ -56,12 +73,28 @@ inline NopLogger WARN()
 #endif
 
 #if PARAKEET_CRYPTO_LOGGING_ENABLE_ERROR
+constexpr bool ERROR_Enabled = true;
 inline DebugLogger ERROR()
 {
     return {"ERROR"};
 }
 #else
+constexpr bool ERROR_Enabled = false;
 inline NopLogger ERROR()
+{
+    return {};
+}
+#endif
+
+#if PARAKEET_CRYPTO_LOGGING_ENABLE_DEBUG
+constexpr bool DEBUG_Enabled = true;
+inline DebugLogger DEBUG()
+{
+    return {"DEBUG"};
+}
+#else
+constexpr bool DEBUG_Enabled = false;
+inline NopLogger DEBUG()
 {
     return {};
 }

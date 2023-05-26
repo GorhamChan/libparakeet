@@ -4,6 +4,8 @@ project(parakeet_crypto VERSION 0.4.1 LANGUAGES CXX)
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 option(PARAKEET_CRYPTO_BUILD_EXAMPLES "Build examples" ON)
 
+option(PARAKEET_CRYPTO_LOGGING_ENABLE_DEBUG "Enabled debug logging" OFF)
+option(PARAKEET_CRYPTO_LOGGING_ENABLE_INFO "Enabled info logging" ON)
 option(PARAKEET_CRYPTO_LOGGING_ENABLE_WARN "Enabled warning logging" ON)
 option(PARAKEET_CRYPTO_LOGGING_ENABLE_ERROR "Enabled error logging" ON)
 
