@@ -30,6 +30,17 @@
           "ignoreFailures": true
         }
       ]
+    },
+    {
+      "name": "qrc-decode (lldb)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/out/build/ninja/examples/qrc/Debug/qrc-decode",
+      "args": [
+        "${workspaceRoot}/local/test_file.qrc",
+        "${workspaceRoot}/local/test_file.qrc.xml"
+      ],
+      "cwd": "${workspaceRoot}"
     }
   ]
 }
