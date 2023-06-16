@@ -50,6 +50,12 @@ cmake --build --preset "ninja-release" --target qrc-decode
 ./out/build/ninja/examples/qrc/Release/qrc-decode "test.qrc" "test.qrc.xml"
 ```
 
+## 发布新版本
+
+1. 更新 `CHANGELOG.md`
+2. 更新 `CMakeLists.txt` 声明的版本号
+3. 合并到主分支，然后打上 `git tag`
+
 ## License
 
 Licensed under the [MIT License](LICENSE.txt).
