@@ -43,6 +43,7 @@ class KuwoEncryptionTransformer final : public ITransformer
     {
         std::array<uint8_t, kFullKuwoHeaderLen> buffer{};
         KuwoHeader hdr{};
+        hdr.encryption_version = SwapHostToLittleEndian(1);
         std::copy(kKnownKuwoHeader2.begin(), kKnownKuwoHeader2.end(), &hdr.header[0]);
         hdr.resource_id = SwapHostToLittleEndian(resource_id_);
         std::memcpy(buffer.data(), &hdr, sizeof(hdr));

@@ -1,7 +1,9 @@
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/StreamHelper.h"
 #include "parakeet-crypto/qmc2/footer_parser.h"
+#include "parakeet-crypto/qmc2/key_util.h"
 #include "parakeet-crypto/transformer/qmc.h"
+
 #include "qmc2/rc4_crypto/qmc2_rc4_impl.h"
 #include "qmc2/rc4_crypto/qmc2_segment.h"
 
@@ -37,10 +39,7 @@ class QMC2DecryptionTransformer final : public ITransformer
             return TransformResult::ERROR_INVALID_FORMAT;
         }
 
-        auto key_size = parse_result->key.size();
-
-        constexpr size_t kQMC2UseRC4Boundary = 300;
-        auto next_transformer = (key_size >= kQMC2UseRC4Boundary) //
+        auto next_transformer = (qmc2::GetEncryptionType(parse_result->key) == qmc2::QMC2EncryptionType::RC4)
                                     ? CreateQMC2RC4DecryptionTransformer(parse_result->key)
                                     : CreateQMC2MapDecryptionTransformer(parse_result->key);
         SlicedReadableStream reader{*input, 0, input->GetSize() - parse_result->footer_size};
