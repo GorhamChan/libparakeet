@@ -135,13 +135,6 @@ class SlicedReadableStream final : public IReadSeekable
     size_t Read(uint8_t *buffer, size_t len) override
     {
         auto offset = GetOffset();
-
-        if (offset < start_)
-        {
-            offset = start_;
-            parent_.Seek(start_, SeekDirection::SEEK_FILE_BEGIN);
-        }
-
         size_t read_len = std::min(end_ - offset, len);
         return parent_.Read(buffer, read_len);
     }
@@ -172,7 +165,14 @@ class SlicedReadableStream final : public IReadSeekable
     }
     size_t GetOffset() override
     {
-        return std::min(parent_.GetOffset() - start_, end_);
+        auto offset = parent_.GetOffset();
+        if (offset < start_)
+        {
+            offset = start_;
+            parent_.Seek(start_, SeekDirection::SEEK_FILE_BEGIN);
+        }
+
+        return std::min(offset, end_);
     }
 };
 
