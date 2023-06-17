@@ -31,7 +31,7 @@ struct KuwoHeader
     uint32_t unknown_1;
 
     // Offset: 0x18
-    uint64_t resource_id;
+    uint32_t resource_id;
 };
 
 union KuwoHeaderUnion {
@@ -42,9 +42,9 @@ union KuwoHeaderUnion {
 #pragma pack(pop)
 
 template <typename Container1, typename Container2>
-void SetupKuwoDecryptionKey(Container1 &&key_dst, Container2 &&key_src, uint64_t resource_id)
+void SetupKuwoDecryptionKey(Container1 &&key_dst, Container2 &&key_src, uint32_t resource_id)
 {
-    auto rid_str = utils::Format("%" PRIu64, resource_id);
+    auto rid_str = utils::Format("%u", resource_id);
     utils::LoopIterator<char> rid_iter{rid_str, 0};
 
     auto it_dst = key_dst.begin();

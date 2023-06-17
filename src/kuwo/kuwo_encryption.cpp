@@ -24,11 +24,11 @@ namespace parakeet_crypto::transformer
 class KuwoEncryptionTransformer final : public ITransformer
 {
   private:
-    uint64_t resource_id_{};
+    uint32_t resource_id_{};
     std::array<uint8_t, kKuwoDecryptionKeySize> key_{};
 
   public:
-    KuwoEncryptionTransformer(const uint8_t *key, uint64_t resource_id) : ITransformer(), resource_id_(resource_id)
+    KuwoEncryptionTransformer(const uint8_t *key, uint32_t resource_id) : ITransformer(), resource_id_(resource_id)
     {
         std::copy_n(key, kKuwoDecryptionKeySize, key_.begin());
         SetupKuwoDecryptionKey(key_, key_, resource_id);
@@ -62,7 +62,7 @@ class KuwoEncryptionTransformer final : public ITransformer
     }
 };
 
-std::unique_ptr<ITransformer> CreateKuwoEncryptionTransformer(const uint8_t *key, uint64_t resource_id)
+std::unique_ptr<ITransformer> CreateKuwoEncryptionTransformer(const uint8_t *key, uint32_t resource_id)
 {
     return std::make_unique<KuwoEncryptionTransformer>(key, resource_id);
 }

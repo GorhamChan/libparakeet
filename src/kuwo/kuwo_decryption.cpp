@@ -46,7 +46,7 @@ class KuwoDecryptionTransformer final : public ITransformer
         return "Kuwo (D)";
     }
 
-    TransformResult TransformV1(uint64_t resource_id, IWriteable *output, IReadSeekable *input)
+    TransformResult TransformV1(uint32_t resource_id, IWriteable *output, IReadSeekable *input)
     {
         std::array<uint8_t, kKuwoDecryptionKeySize> key{};
         SetupKuwoDecryptionKey(key, key_, resource_id);
