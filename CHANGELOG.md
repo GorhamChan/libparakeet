@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2023-06-17
+
+### Changed
+
+- Fixed `SlicedReadableStream` read/seek behaviour at start boundary.
+- Fixed kuwo parser to use `uint32_t` for `resource_id`.
+
 ## [0.6.0] - 2023-06-17
 
 ### Added

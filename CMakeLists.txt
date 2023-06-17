@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(parakeet_crypto VERSION 0.6.0 LANGUAGES CXX)
+project(parakeet_crypto VERSION 0.6.1 LANGUAGES CXX)
 
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 option(PARAKEET_CRYPTO_BUILD_EXAMPLES "Build examples" ON)
