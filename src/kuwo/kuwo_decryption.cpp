@@ -29,13 +29,14 @@ class KuwoDecryptionTransformer final : public ITransformer
 {
   private:
     std::array<uint8_t, kKuwoDecryptionKeySize> key_{};
-    std::vector<uint8_t> v2_ekey_{};
+    std::vector<uint8_t> v2_key_{};
 
   public:
     KuwoDecryptionTransformer(const uint8_t *key) : KuwoDecryptionTransformer(key, std::vector<uint8_t>())
     {
     }
-    KuwoDecryptionTransformer(const uint8_t *key, std::vector<uint8_t> ekey) : ITransformer(), v2_ekey_(std::move(ekey))
+    KuwoDecryptionTransformer(const uint8_t *key, std::vector<uint8_t> v2_key)
+        : ITransformer(), v2_key_(std::move(v2_key))
     {
         std::copy_n(key, kKuwoDecryptionKeySize, key_.begin());
     }
@@ -63,9 +64,9 @@ class KuwoDecryptionTransformer final : public ITransformer
 
     TransformResult TransformV2(IWriteable *output, IReadSeekable *input)
     {
-        auto next_transformer = qmc2::GetEncryptionType(v2_ekey_) == qmc2::QMC2EncryptionType::RC4
-                                    ? CreateQMC2RC4DecryptionTransformer(v2_ekey_)
-                                    : CreateQMC2MapDecryptionTransformer(v2_ekey_);
+        auto next_transformer = qmc2::GetEncryptionType(v2_key_) == qmc2::QMC2EncryptionType::RC4
+                                    ? CreateQMC2RC4DecryptionTransformer(v2_key_)
+                                    : CreateQMC2MapDecryptionTransformer(v2_key_);
 
         input->Seek(kFullKuwoHeaderLen, SeekDirection::SEEK_FILE_BEGIN);
         SlicedReadableStream reader{*input, kFullKuwoHeaderLen, input->GetSize()};
@@ -107,9 +108,9 @@ std::unique_ptr<ITransformer> CreateKuwoDecryptionTransformer(const uint8_t *key
     return std::make_unique<KuwoDecryptionTransformer>(key);
 }
 
-std::unique_ptr<ITransformer> CreateKuwoDecryptionTransformer(const uint8_t *key, std::vector<uint8_t> ekey)
+std::unique_ptr<ITransformer> CreateKuwoDecryptionTransformer(const uint8_t *key, std::vector<uint8_t> v2_key)
 {
-    return std::make_unique<KuwoDecryptionTransformer>(key, std::move(ekey));
+    return std::make_unique<KuwoDecryptionTransformer>(key, std::move(v2_key));
 }
 
 } // namespace parakeet_crypto::transformer
