@@ -1,0 +1,3 @@
+[submodule "vendor/tiny-AES-c"]
+	path = vendor/tiny-AES-c
+	url = https://github.com/kokke/tiny-AES-c.git

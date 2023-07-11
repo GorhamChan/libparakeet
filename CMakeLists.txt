@@ -15,7 +15,7 @@ include(cmake/git-info.cmake)
 CPMAddPackage(
     NAME cryptopp-cmake
     GITHUB_REPOSITORY abdes/cryptopp-cmake
-    GIT_TAG CRYPTOPP_8_7_0_1
+    GIT_TAG v8.8.0
     OPTIONS
         "CRYPTOPP_BUILD_TESTING OFF"
         "CRYPTOPP_BUILD_DOCUMENTATION OFF"
@@ -31,6 +31,16 @@ CPMAddPackage(
 )
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
+
+# Configure: Tiny-AES-C
+configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/vendor/tiny-AES-c/aes.c"
+    "${PROJECT_BINARY_DIR}/src/vendor/tiny-AES-c/aes.c"
+    COPYONLY)
+configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/vendor/tiny-AES-c/aes.h"
+    "${PROJECT_BINARY_DIR}/src/vendor/tiny-AES-c/aes.h"
+    COPYONLY)
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/version.cpp.in"
