@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#define AES128 (1)
 #define AES192 (0)
 #define AES256 (0)
 
@@ -14,7 +15,7 @@ namespace parakeet_crypto::aes
 
 namespace aes_128_ecb
 {
-#include "vendor/tiny-AES-c/aes.c" // NOLINT
+#include "tiny_aes_c/aes_impl.h"
 
 template <bool ENCRYPT_MODE>
 class AES_128_ECB final : public AES<kAes128BlockSize> // NOLINT(*-special-member-functions)

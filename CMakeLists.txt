@@ -32,16 +32,6 @@ CPMAddPackage(
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
-# Configure: Tiny-AES-C
-configure_file(
-    "${CMAKE_CURRENT_LIST_DIR}/vendor/tiny-AES-c/aes.c"
-    "${PROJECT_BINARY_DIR}/src/vendor/tiny-AES-c/aes.c"
-    COPYONLY)
-configure_file(
-    "${CMAKE_CURRENT_LIST_DIR}/vendor/tiny-AES-c/aes.h"
-    "${PROJECT_BINARY_DIR}/src/vendor/tiny-AES-c/aes.h"
-    COPYONLY)
-
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/version.cpp.in"
     "${PROJECT_BINARY_DIR}/src/version.cpp"
