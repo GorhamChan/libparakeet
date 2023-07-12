@@ -17,14 +17,6 @@
 namespace parakeet_crypto::utils::hash
 {
 
-/*
- * Constants defined by the MD5 algorithm
- */
-constexpr uint32_t A = 0x67452301;
-constexpr uint32_t B = 0xefcdab89;
-constexpr uint32_t C = 0x98badcfe;
-constexpr uint32_t D = 0x10325476;
-
 constexpr std::array<uint32_t, 64> kMD5Shifts = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
                                                  5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
                                                  4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
@@ -42,10 +34,10 @@ constexpr std::array<uint32_t, 64> kMD5Consts = {
 
 void md5_transform(md5_ctx *ctx)
 {
-    uint32_t a = ctx->state[0];
-    uint32_t b = ctx->state[1];
-    uint32_t c = ctx->state[2];
-    uint32_t d = ctx->state[3];
+    uint32_t a{ctx->state[0]};
+    uint32_t b{ctx->state[1]};
+    uint32_t c{ctx->state[2]};
+    uint32_t d{ctx->state[3]};
 
     auto get_m = [ctx](size_t i) { return ReadLittleEndian<uint32_t>(&ctx->buffer[(i % 16) * 4]); };
 
@@ -159,6 +151,14 @@ void md5_init(md5_ctx *ctx)
 {
     std::fill_n(&ctx->buffer[0], sizeof(ctx->buffer), 0);
     ctx->count = 0;
+
+    /*
+     * Constants defined by the MD5 algorithm
+     */
+    constexpr uint32_t A = 0x67452301;
+    constexpr uint32_t B = 0xefcdab89;
+    constexpr uint32_t C = 0x98badcfe;
+    constexpr uint32_t D = 0x10325476;
 
     ctx->state[0] = A;
     ctx->state[1] = B;
