@@ -1,14 +1,12 @@
+#include "joox/joox_const.h"
 #include "parakeet-crypto/ITransformer.h"
 #include "parakeet-crypto/transformer/joox.h"
+#include "parakeet-crypto/utils/aes.h"
+#include "parakeet-crypto/utils/hash/pbkdf2_hmac_sha1.h"
+#include "parakeet-crypto/utils/hash/sha1.h"
 #include "utils/endian_helper.h"
 #include "utils/paged_reader.h"
 #include "utils/pkcs7.hpp"
-
-#include "parakeet-crypto/utils/aes.h"
-
-#include <cryptopp/modes.h>
-#include <cryptopp/pwdbased.h>
-#include <cryptopp/sha.h>
 
 #include <algorithm>
 #include <array>
@@ -29,16 +27,11 @@ class JooxDecryptionV4Transformer final : public ITransformer
     static constexpr std::size_t kPlainBlockSize = 0x100000;                   // 1MiB
     static constexpr std::size_t kEncryptedBlockSize = kPlainBlockSize + 0x10; // padding (0x10, ...)
 
-    std::array<uint8_t, CryptoPP::SHA1::DIGESTSIZE> key_{};
+    std::array<uint8_t, utils::hash::kSHA1DigestSize> key_{};
 
     inline void SetupKey(JooxConfig &config)
     {
-        constexpr size_t kDeriveIteration = 1000;
-        CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA1> pbkdf{};
-        pbkdf.DeriveKey(
-            key_.data(), key_.size(), 0 /* unused */,
-            reinterpret_cast<const uint8_t *>(config.install_uuid.c_str()), // NOLINT(*-type-reinterpret-cast)
-            config.install_uuid.size(), config.salt.data(), config.salt.size(), kDeriveIteration, 0);
+        utils::hash::pbkdf2_hmac_sha1(key_, config.install_uuid, config.salt, joox::kDeriveIteration);
     }
 
   public:
