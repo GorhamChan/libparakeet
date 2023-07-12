@@ -2,8 +2,8 @@
 #include "kgm_crypto.h"
 #include "parakeet-crypto/transformer/kgm.h"
 #include "parakeet-crypto/utils/hash/md5.h"
+#include "parakeet-crypto/utils/hex.h"
 #include "utils/base64.h"
-#include "utils/hex.h"
 #include "utils/loop_iterator.h"
 #include <algorithm>
 #include <cassert>
@@ -72,7 +72,7 @@ class KGMCryptoType4 final : public IKGMCrypto
     {
         using namespace parakeet_crypto::utils;
         auto slot_key_md5 = utils::hash::md5(slot_key.data(), slot_key.size());
-        auto md5_hex = utils::Hex(slot_key_md5.data(), slot_key_md5.size(), false, false);
+        auto md5_hex = utils::Hex(slot_key_md5.data(), slot_key_md5.size(), false);
         auto md5_b64 = utils::Base64Encode(md5_hex);
         slot_key_ = key_expansion(config.v4.slot_key_table, md5_b64.data(), md5_b64.size());
     }
