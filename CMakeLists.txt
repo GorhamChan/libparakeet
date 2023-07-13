@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(parakeet_crypto VERSION 0.6.1 LANGUAGES CXX)
 
+set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
+
 option(PARAKEET_CRYPTO_BUILD_TESTING "Build library tests" ON)
 option(PARAKEET_CRYPTO_BUILD_EXAMPLES "Build examples" ON)
 
@@ -13,14 +15,34 @@ include(cmake/CPM-Loader.cmake)
 include(cmake/git-info.cmake)
 
 CPMAddPackage(
-    NAME cryptopp-cmake
-    GITHUB_REPOSITORY abdes/cryptopp-cmake
-    GIT_TAG v8.8.0
-    OPTIONS
-        "CRYPTOPP_BUILD_TESTING OFF"
-        "CRYPTOPP_BUILD_DOCUMENTATION OFF"
-        # "USE_OPENMP OFF"
+    NAME zlib 
+    GITHUB_REPOSITORY madler/zlib
+    GIT_TAG "v1.2.13"
+    DOWNLOAD_ONLY YES
 )
+
+if (zlib_ADDED)
+    add_subdirectory("${zlib_SOURCE_DIR}")
+
+    add_library(ZLIB::ZLIB ALIAS zlibstatic)
+    target_include_directories(zlib
+      PUBLIC
+        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
+    )
+    target_include_directories(zlibstatic
+      PUBLIC
+        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
+    )
+    install(TARGETS zlib zlibstatic EXPORT zlib-targets
+        RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+    install(FILES ${ZLIB_PUBLIC_HDRS} EXPORT zlib-targets DESTINATION "${INSTALL_INC_DIR}")
+    install(FILES zlib.3 EXPORT zlib-targets DESTINATION "${INSTALL_MAN_DIR}/man3")
+    install(FILES ${ZLIB_PC} EXPORT zlib-targets DESTINATION "${INSTALL_PKGCONFIG_DIR}")
+    install(EXPORT zlib-targets DESTINATION lib)
+    configure_file("${zlib_SOURCE_DIR}/zconf.h.included" "${zlib_SOURCE_DIR}/zconf.h" COPYONLY)
+endif()
 
 CPMAddPackage(
     NAME tc-tea
@@ -74,10 +96,12 @@ target_include_directories(parakeet_crypto
         "${PROJECT_BINARY_DIR}/src"
 )
 
+
 target_link_libraries(parakeet_crypto
     PRIVATE 
-        cryptopp::cryptopp
+        # cryptopp::cryptopp
         tc-tea::tc-tea
+        ZLIB::ZLIB
 )
 
 include(GNUInstallDirs)
@@ -130,7 +154,7 @@ if(PARAKEET_CRYPTO_BUILD_TESTING)
             GTest::gtest
             GTest::gmock_main
             GTest::gtest_main
-            cryptopp::cryptopp
+            # cryptopp::cryptopp
             parakeet_crypto
     )
     set_target_properties(parakeet_crypto_test PROPERTIES
