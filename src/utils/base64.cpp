@@ -13,6 +13,7 @@
 */
 
 #include <algorithm>
+#include <array>
 
 namespace parakeet_crypto::utils
 {

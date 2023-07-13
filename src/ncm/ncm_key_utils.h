@@ -27,7 +27,7 @@ inline std::optional<std::array<uint8_t, kNCMFinalKeyLen>> DecryptNCMAudioKey(
         return {}; // invalid data size
     }
 
-    if (!utils::PKCS7_unpad<kNCMContentKeySize, typeof(content_key) &>(content_key))
+    if (!utils::PKCS7_unpad<kNCMContentKeySize, decltype(content_key) &>(content_key))
     {
         return {}; // invalid padding
     }

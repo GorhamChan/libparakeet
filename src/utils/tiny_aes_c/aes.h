@@ -1,12 +1,12 @@
 #pragma once
-
 // Adapted from: https://github.com/kokke/tiny-AES-c/raw/f06ac37fc31dfdaca2e0d9bec83f90d5663c319b/aes.h
 // License:      The Unlicense (Public Domain)
 
 // NOLINTBEGIN(*-c-arrays,*-identifier-length)
 
-#include <cstddef>
-#include <cstdint>
+// If implementation were to be imported under namespace, import the following header prior
+//   to include the implementation.
+#include "aes_imports.h"
 
 // #define the macros below to 1/0 to enable/disable the mode of operation.
 //

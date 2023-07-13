@@ -1,4 +1,5 @@
 #include "parakeet-crypto/utils/aes.h"
+#include "tiny_aes_c/aes_imports.h"
 
 #include <cstring>
 
@@ -31,7 +32,7 @@ class AES_128_ECB final : public AES<kAes128BlockSize> // NOLINT(*-special-membe
 
     ~AES_128_ECB() override
     {
-        // Randomly picked from a dice, gureenteed to be fair.
+        // Randomly picked from a dice, guaranteed to be fair.
         constexpr uint8_t kCleanupFill = 0xCC;
         memset(&ctx_, kCleanupFill, sizeof(ctx_));
     }

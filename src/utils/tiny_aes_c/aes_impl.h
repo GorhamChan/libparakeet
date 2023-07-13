@@ -41,14 +41,7 @@ NOTE:   String length must be evenly divisible by 16byte (str_len % 16 == 0)
         For AES192/256 the key size is proportionally larger.
 
 */
-
-/*****************************************************************************/
-/* Includes:                                                                 */
-/*****************************************************************************/
 #include "aes.h"
-
-#include <array>
-#include <cstring> // CBC mode, for memset
 
 /*****************************************************************************/
 /* Defines:                                                                  */
@@ -120,7 +113,7 @@ constexpr ::std::array<uint8_t, 256> rsbox = {
 
 // The round constant word array, Rcon[i], contains the values given by
 // x to the power (i-1) being powers of x (x is denoted as {02}) in the field GF(2^8)
-constexpr ::std::array<uint8_t, 11> Rcon = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+constexpr ::std::array<uint8_t, 11> Rcon{0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
 
 /*
  * Jordan Goulder points out in PR #12 (https://github.com/kokke/tiny-AES-C/pull/12),

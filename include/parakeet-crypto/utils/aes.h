@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <memory>
-#include <ranges>
 
 namespace parakeet_crypto::aes
 {
