@@ -1,14 +1,13 @@
 #pragma once
 #include "ncm_rc4.h"
 #include "parakeet-crypto/transformer/ncm.h"
+#include "utils/pkcs7.hpp"
 
 #include <algorithm>
 #include <optional>
 #include <vector>
 
-#include <cryptopp/aes.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/modes.h>
+#include "parakeet-crypto/utils/aes.h"
 
 namespace parakeet_crypto::transformer
 {
@@ -18,24 +17,19 @@ inline std::optional<std::array<uint8_t, kNCMFinalKeyLen>> DecryptNCMAudioKey(
     std::vector<uint8_t> &file_key, const std::array<uint8_t, kNCMContentKeySize> &aes_key)
 {
     constexpr uint8_t kFileKeyXorKey{0x64};
-    using AES = CryptoPP::ECB_Mode<CryptoPP::AES>::Decryption;
-    using Filter = CryptoPP::StreamTransformationFilter;
 
-    std::vector<uint8_t> content_key;
-    std::transform(file_key.cbegin(), file_key.cend(), file_key.begin(),
+    std::vector<uint8_t> content_key(file_key.size());
+    std::transform(file_key.cbegin(), file_key.cend(), content_key.begin(),
                    [&](auto key) { return key ^ kFileKeyXorKey; });
-
-    try
+    auto aes_decrypt = aes::make_aes_128_ecb_decryptor(aes_key.data());
+    if (!aes_decrypt->process(content_key))
     {
-        AES aes(aes_key.data(), aes_key.size());
-        Filter decryptor(aes, nullptr, Filter::PKCS_PADDING);
-        decryptor.PutMessageEnd(file_key.data(), file_key.size());
-        content_key.resize(decryptor.MaxRetrievable());
-        decryptor.Get(content_key.data(), content_key.size());
+        return {}; // invalid data size
     }
-    catch (const CryptoPP::Exception &ex)
+
+    if (!utils::PKCS7_unpad<kNCMContentKeySize, decltype(content_key) &>(content_key))
     {
-        return {};
+        return {}; // invalid padding
     }
 
     constexpr static std::array<const uint8_t, 17> kContentKeyPrefix{'n', 'e', 't', 'e', 'a', 's', 'e', 'c', 'l',

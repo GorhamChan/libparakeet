@@ -31,10 +31,11 @@
 #include "utils/buffered_transform.h"
 #include "utils/endian_helper.h"
 #include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <utility>
 
-#include <cryptopp/zlib.h>
+#include <zlib.h>
 
 namespace parakeet_crypto::transformer
 {
@@ -58,15 +59,17 @@ class RawDESTransformer final : public IWriteable
 
     [[nodiscard]] bool Write(const uint8_t *buffer, size_t len) override
     {
+        bool write_ok{true};
         std::array<uint8_t, kDESBlockSize> block{};
         buffer_.ProcessBuffer(buffer, len, [&](const uint8_t *buffer) {
             std::copy_n(buffer, block.size(), block.begin());
             des1_.decrypt_block(block.data());
             des2_.encrypt_block(block.data());
             des3_.decrypt_block(block.data());
-            return dest_->Write(block.data(), block.size());
+            write_ok = dest_->Write(block.data(), block.size());
+            return write_ok;
         });
-        return false;
+        return write_ok;
     }
 };
 
@@ -101,41 +104,62 @@ class ZLibInflate final : public IWriteable
 {
   private:
     IWriteable *dest_;
-    CryptoPP::ZlibDecompressor inflator_{};
+    std::array<uint8_t, 1024> buffer_{};
+    z_stream strm_{};
 
   public:
+    ZLibInflate(const ZLibInflate &) = default;
+    ZLibInflate(ZLibInflate &&) = delete;
+    ZLibInflate &operator=(const ZLibInflate &) = default;
+    ZLibInflate &operator=(ZLibInflate &&) = delete;
     ZLibInflate(IWriteable *dest) : dest_(dest){};
+    ~ZLibInflate() override
+    {
+        inflateEnd(&strm_);
+    }
 
     [[nodiscard]] bool Write(const uint8_t *buffer, size_t len) override
     {
-        inflator_.Put(buffer, len, true);
+        return WriteInflator(buffer, len, Z_NO_FLUSH);
+    }
 
-        auto available = inflator_.MaxRetrievable();
-        if (available > 0)
+    [[nodiscard]] bool WriteInflator(const uint8_t *buffer, size_t len, int flush)
+    {
+        if (strm_.next_in == nullptr)
         {
-            std::vector<uint8_t> result(available, 0);
-            inflator_.Get(result.data(), available);
-            return dest_->Write(result.data(), result.size());
+            if (inflateInit(&strm_) != Z_OK)
+            {
+                return false; // zlib init failed
+            }
         }
+
+        strm_.next_in = const_cast<uint8_t *>(buffer); // NOLINT(*-const-cast)
+        strm_.avail_in = len;
+        auto expected_in = strm_.total_in + len;
+
+        int err{};
+
+        do // NOLINT(*-avoid-do-while)
+        {
+            strm_.next_out = buffer_.data();
+            strm_.avail_out = buffer_.size();
+            err = inflate(&strm_, flush);
+            if (!dest_->Write(buffer_.data(), buffer_.size() - strm_.avail_out))
+            {
+                return false;
+            }
+            if (err != Z_OK && err != Z_STREAM_END)
+            {
+                return false;
+            }
+        } while (strm_.avail_out == 0);
 
         return true;
     }
 
     bool Flush()
     {
-        constexpr std::array<uint8_t, 0> dummy{};
-        inflator_.PutMessageEnd(dummy.data(), 0);
-        inflator_.Flush(true);
-
-        auto available = inflator_.MaxRetrievable();
-        if (available > 0)
-        {
-            std::vector<uint8_t> result(available, 0);
-            inflator_.Get(result.data(), available);
-            return dest_->Write(result.data(), result.size());
-        }
-
-        return true;
+        return WriteInflator(buffer_.data(), 0, Z_FINISH);
     }
 };
 
@@ -185,23 +209,15 @@ class QRCTransformer final : public ITransformer
         RawDESTransformer qrc_des(&zlib, des1_, des2_, des3_);
         DropHeader<kMagicEncryptedHeader.size()> header_removal(&qrc_des);
 
-        try
+        auto result = qmc1_static_transformer_->Transform(&header_removal, input);
+        if (result == TransformResult::OK)
         {
-            auto result = qmc1_static_transformer_->Transform(&header_removal, input);
-            if (result == TransformResult::OK)
+            if (!zlib.Flush())
             {
-                if (!zlib.Flush())
-                {
-                    return TransformResult::ERROR_IO_OUTPUT_UNKNOWN; // zlib inflate error?
-                }
+                return TransformResult::ERROR_IO_OUTPUT_UNKNOWN; // zlib inflate error?
             }
-            return result;
         }
-        catch (const CryptoPP::Exception &ex)
-        {
-            // zlib error - was the key correct?
-            return TransformResult::ERROR_INVALID_KEY;
-        }
+        return result;
     }
 };
 

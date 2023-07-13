@@ -1,10 +1,10 @@
 #include "kgm/kgm_header.h"
 #include "kgm_crypto.h"
 #include "parakeet-crypto/transformer/kgm.h"
+#include "parakeet-crypto/utils/hash/md5.h"
+#include "parakeet-crypto/utils/hex.h"
 #include "utils/base64.h"
-#include "utils/hex.h"
 #include "utils/loop_iterator.h"
-#include "utils/md5.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -17,20 +17,20 @@ namespace parakeet_crypto::kgm
 class KGMCryptoType4 final : public IKGMCrypto
 {
   private:
-    static constexpr size_t V4_DIGEST_SIZE = 31;
+    static constexpr size_t kKugouType4DigestSize = 31;
     std::vector<uint8_t> slot_key_;
     std::vector<uint8_t> file_key_;
 
-    static inline std::array<uint8_t, V4_DIGEST_SIZE> hash_type4(const uint8_t *data, size_t len)
+    static inline std::array<uint8_t, kKugouType4DigestSize> hash_type4(const uint8_t *data, size_t len)
     {
-        static constexpr std::array<size_t, V4_DIGEST_SIZE> kDigestIndexes = {
+        static constexpr std::array<size_t, kKugouType4DigestSize> kDigestIndexes = {
             0x05, 0x0e, 0x0d, 0x02, 0x0c, 0x0a, 0x0f, 0x0b, 0x03, 0x08, 0x05, 0x06, 0x09, 0x04, 0x03, 0x07,
             0x00, 0x0e, 0x0d, 0x06, 0x02, 0x0c, 0x0a, 0x0f, 0x01, 0x0b, 0x08, 0x07, 0x09, 0x04, 0x01,
         };
 
-        auto digest = utils::md5(data, len);
-        std::array<uint8_t, V4_DIGEST_SIZE> result{};
-        for (int i = 0; i < V4_DIGEST_SIZE; i++)
+        auto digest = utils::hash::md5(data, len);
+        std::array<uint8_t, kKugouType4DigestSize> result{};
+        for (int i = 0; i < kKugouType4DigestSize; i++)
         {
             result[i] = digest[kDigestIndexes[i]];
         }
@@ -42,11 +42,11 @@ class KGMCryptoType4 final : public IKGMCrypto
     {
         size_t table_len = table.size();
         auto md5_final = hash_type4(key, key_len);
-        auto final_key_size = 4 * (V4_DIGEST_SIZE - 1) * (table_len - 1);
+        auto final_key_size = 4 * (kKugouType4DigestSize - 1) * (table_len - 1);
 
         std::vector<uint8_t> expanded_key(final_key_size, 0);
         auto *p_key = expanded_key.data();
-        for (uint32_t i = 1; i < V4_DIGEST_SIZE; i++)
+        for (uint32_t i = 1; i < kKugouType4DigestSize; i++)
         {
             auto temp1 = i * static_cast<uint32_t>(md5_final[i]);
 
@@ -71,8 +71,8 @@ class KGMCryptoType4 final : public IKGMCrypto
     inline void configure_slot_key(const transformer::KGMConfig &config, const std::vector<uint8_t> &slot_key)
     {
         using namespace parakeet_crypto::utils;
-        auto slot_key_md5 = utils::md5(slot_key.data(), slot_key.size());
-        auto md5_hex = utils::Hex(slot_key_md5.data(), slot_key_md5.size(), false, false);
+        auto slot_key_md5 = utils::hash::md5(slot_key.data(), slot_key.size());
+        auto md5_hex = utils::Hex(slot_key_md5.data(), slot_key_md5.size(), false);
         auto md5_b64 = utils::Base64Encode(md5_hex);
         slot_key_ = key_expansion(config.v4.slot_key_table, md5_b64.data(), md5_b64.size());
     }

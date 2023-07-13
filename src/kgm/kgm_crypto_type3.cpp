@@ -1,12 +1,14 @@
 #include "kgm_crypto.h"
+#include "parakeet-crypto/utils/hash/md5.h"
 #include "utils/loop_iterator.h"
-#include "utils/md5.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <memory>
 
 namespace parakeet_crypto::kgm
 {
+using utils::hash::kMD5DigestSize;
 
 class KGMCryptoType3 final : public IKGMCrypto
 {
@@ -16,17 +18,16 @@ class KGMCryptoType3 final : public IKGMCrypto
     std::array<uint8_t, 17> file_key_{};
     // NOLINTEND(*-magic-numbers)
 
-    static inline std::array<uint8_t, utils::MD5_DIGEST_SIZE> hash_type3(const uint8_t *data, size_t len)
+    static inline std::array<uint8_t, kMD5DigestSize> hash_type3(const uint8_t *data, size_t len)
     {
-        constexpr size_t kMD5DigestSize = utils::MD5_DIGEST_SIZE;
         constexpr size_t kDigestMidIndex = kMD5DigestSize / 2;
-        auto digest = utils::md5(data, len);
+        auto digest = utils::hash::md5(data, len);
 
         // Reverse 2-bytes at a time.
-        for (int i = 0; i < utils::MD5_DIGEST_SIZE / 2; i += 2)
+        for (int i = 0; i < kMD5DigestSize / 2; i += 2)
         {
-            std::swap(digest[i + 0], digest[utils::MD5_DIGEST_SIZE - 2 - i]);
-            std::swap(digest[i + 1], digest[utils::MD5_DIGEST_SIZE - 1 - i]);
+            std::swap(digest[i + 0], digest[kMD5DigestSize - 2 - i]);
+            std::swap(digest[i + 1], digest[kMD5DigestSize - 1 - i]);
         }
         return digest;
     }

@@ -2,10 +2,9 @@
 #include "migu3d/freq_analysis.hpp"
 #include "migu3d/migu_decrypt.hpp"
 #include "parakeet-crypto/IStream.h"
-
 #include "parakeet-crypto/ITransformer.h"
+#include "parakeet-crypto/utils/hex.h"
 #include "utils/logger.h"
-#include "utils/md5.h"
 #include "utils/paged_reader.h"
 
 #include <algorithm>
@@ -14,9 +13,7 @@
 #include <memory>
 #include <vector>
 
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-#include <cryptopp/hex.h>
-#include <cryptopp/md5.h>
+#include "parakeet-crypto/utils/hash/md5.h"
 
 namespace parakeet_crypto::transformer
 {
@@ -34,16 +31,15 @@ class Migu3DTransformer final : public ITransformer
     Migu3DTransformer() = default;
     Migu3DTransformer(const uint8_t *salt, const uint8_t *file_key)
     {
-        CryptoPP::Weak::MD5 hash;
-        std::array<uint8_t, utils::MD5_DIGEST_SIZE> digest{};
-        hash.Update(salt, kSaltSize);
-        hash.Update(file_key, kFileKeySize);
-        hash.Final(digest.data());
+        std::array<uint8_t, utils::hash::kMD5DigestSize> digest{};
+        utils::hash::md5_ctx md5_ctx{};
+        utils::hash::md5_init(&md5_ctx);
+        utils::hash::md5_update(&md5_ctx, salt, kSaltSize);
+        utils::hash::md5_update(&md5_ctx, file_key, kFileKeySize);
+        utils::hash::md5_final(&md5_ctx, digest.data());
 
-        CryptoPP::HexEncoder encoder(nullptr, true, 0, "");
-        encoder.Put(digest.data(), digest.size());
-        encoder.MessageEnd();
-        encoder.Get(key_.data(), key_.size());
+        auto key = utils::Hex(digest.data(), digest.size());
+        std::copy(key.cbegin(), key.cend(), key_.begin());
 
         if (logger::DEBUG_Enabled)
         {

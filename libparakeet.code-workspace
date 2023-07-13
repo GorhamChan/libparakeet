@@ -7,7 +7,6 @@
   "settings": {
     "C_Cpp.autoAddFileAssociations": false,
     "C_Cpp.intelliSenseEngine": "disabled",
-    "clangd.path": "clangd",
     "clangd.arguments": [
       "-background-index",
       "-compile-commands-dir=${workspaceFolder}/out/build/ninja"
