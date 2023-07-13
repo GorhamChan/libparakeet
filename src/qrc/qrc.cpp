@@ -59,15 +59,17 @@ class RawDESTransformer final : public IWriteable
 
     [[nodiscard]] bool Write(const uint8_t *buffer, size_t len) override
     {
+        bool write_ok{true};
         std::array<uint8_t, kDESBlockSize> block{};
         buffer_.ProcessBuffer(buffer, len, [&](const uint8_t *buffer) {
             std::copy_n(buffer, block.size(), block.begin());
             des1_.decrypt_block(block.data());
             des2_.encrypt_block(block.data());
             des3_.decrypt_block(block.data());
-            return dest_->Write(block.data(), block.size());
+            write_ok = dest_->Write(block.data(), block.size());
+            return write_ok;
         });
-        return true;
+        return write_ok;
     }
 };
 
