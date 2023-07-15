@@ -22,7 +22,7 @@ CPMAddPackage(
 )
 
 if (zlib_ADDED)
-    add_subdirectory("${zlib_SOURCE_DIR}")
+    add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
 
     add_library(ZLIB::ZLIB ALIAS zlibstatic)
     target_include_directories(zlib
