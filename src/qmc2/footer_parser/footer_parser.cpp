@@ -31,7 +31,8 @@ class QMCFooterParserImpl : public QMCFooterParser
         const auto *magic_u32 = &file_footer[len - sizeof(uint32_t)];
         if (FooterParserAndroid::IsUnsupportedAndroidSTag(magic_u32))
         {
-            return std::make_unique<FooterParseResult>(FooterParseState::UnsupportedAndroidClientSTag);
+            auto footer_size = ReadBigEndian<uint32_t>(magic_u32 - sizeof(uint32_t)) + sizeof(uint32_t) * 2;
+            return std::make_unique<FooterParseResult>(FooterParseState::UnsupportedAndroidClientSTag, footer_size);
         }
 
         if (FooterParserAndroid::IsAndroidQTag(magic_u32))
