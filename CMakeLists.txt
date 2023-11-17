@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(parakeet_crypto VERSION 0.6.3 LANGUAGES CXX)
+project(parakeet_crypto VERSION 0.6.4 LANGUAGES CXX)
 
 set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
 
