@@ -1,10 +1,10 @@
 #pragma once
 #include "utils/loop_iterator.h"
-#include "utils/string_helper.h"
 
 #include <array>
 #include <cinttypes>
 #include <cstdint>
+#include <string>
 
 namespace parakeet_crypto::transformer
 {
@@ -44,7 +44,7 @@ union KuwoHeaderUnion {
 template <typename Container1, typename Container2>
 void SetupKuwoDecryptionKey(Container1 &&key_dst, Container2 &&key_src, uint32_t resource_id)
 {
-    auto rid_str = utils::Format("%u", resource_id);
+    auto rid_str = std::to_string(resource_id);
     utils::LoopIterator<char> rid_iter{rid_str, 0};
 
     auto it_dst = key_dst.begin();
