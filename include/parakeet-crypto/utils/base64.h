@@ -32,23 +32,15 @@ size_t b64_decode(uint8_t *output, const uint8_t *input, size_t input_len);
 } // namespace base64_impl
 
 std::vector<uint8_t> Base64Encode(const uint8_t *input, size_t len);
-inline std::vector<uint8_t> Base64Encode(const std::vector<uint8_t> &data)
+template <typename T = std::vector<uint8_t>> inline std::vector<uint8_t> Base64Encode(const T &&data)
 {
-    return Base64Encode(data.data(), data.size());
-}
-inline std::vector<uint8_t> Base64Encode(const std::string &data)
-{
-    return Base64Encode(reinterpret_cast<const uint8_t *>(data.c_str()), data.size()); // NOLINT(*-reinterpret-cast)
+    return Base64Encode(reinterpret_cast<const uint8_t *>(data.data()), data.size()); // NOLINT(*-reinterpret-cast)
 }
 
 std::vector<uint8_t> Base64Decode(const uint8_t *input, size_t len);
-inline std::vector<uint8_t> Base64Decode(const std::string &data)
+template <typename T = std::string> inline std::vector<uint8_t> Base64Decode(const T &&data)
 {
     return Base64Decode(reinterpret_cast<const uint8_t *>(data.data()), data.size()); // NOLINT(*-reinterpret-cast)
-}
-inline std::vector<uint8_t> Base64Decode(const std::vector<uint8_t> &data)
-{
-    return Base64Decode(data.data(), data.size());
 }
 
 } // namespace parakeet_crypto::utils

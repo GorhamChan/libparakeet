@@ -1,4 +1,4 @@
-#include "utils/base64.h"
+#include "parakeet-crypto/utils/base64.h"
 
 // Adapted from: https://raw.githubusercontent.com/joedf/base64.c/7896e2862488a85fef8452cc1b42c7cb8e707888/base64.c
 // License:      MIT License
@@ -21,24 +21,38 @@ namespace parakeet_crypto::utils
 namespace base64_impl
 {
 
-constexpr static std::array<uint8_t, 64> b64_chr = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', //
-                                                    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', //
-                                                    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', //
-                                                    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', //
-                                                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+constexpr static auto kBase64Table = ([]() {
+    const char *table_str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                            "abcdefghijklmnopqrstuvwxyz"
+                            "0123456789"
+                            "+/";
+    std::array<uint8_t, 64> table{};
+    for (auto &item : table)
+    {
+        item = *table_str++;
+    }
+    return table;
+})();
 
-constexpr static auto b64_rchr = ([]() {
+template <typename T>
+inline constexpr int IndexOf(const T &container, typename T::value_type needle, typename T::value_type fallback = 0)
+{
+    for (size_t i = 0; i < container.size(); i++)
+    {
+        if (container[i] == needle)
+        {
+            return static_cast<int>(i);
+        }
+    }
+    return fallback;
+}
+
+constexpr static auto kBase64ReverseTable = ([]() {
     std::array<uint8_t, 256> reverse_table{};
+
     for (size_t i = 0; i < reverse_table.size(); i++)
     {
-        for (size_t j = 0; j < b64_chr.size(); j++)
-        {
-            if (b64_chr[j] == static_cast<uint8_t>(i))
-            {
-                reverse_table[i] = j;
-                break;
-            }
-        }
+        reverse_table[i] = IndexOf(kBase64Table, static_cast<uint8_t>(i));
     }
 
     return reverse_table;
@@ -51,10 +65,10 @@ size_t b64_encode(uint8_t *output, const uint8_t *input, size_t input_len)
 
     for (const auto *p_input_end = input + input_len - 3; input <= p_input_end;)
     {
-        *p_out++ = b64_chr[input[0] >> 2];
-        *p_out++ = b64_chr[((input[0] & 0b0000'0011) << 4) | (input[1] >> 4)];
-        *p_out++ = b64_chr[((input[1] & 0b0000'1111) << 2) | (input[2] >> 6)];
-        *p_out++ = b64_chr[((input[2] & 0b0011'1111))];
+        *p_out++ = kBase64Table[input[0] >> 2];
+        *p_out++ = kBase64Table[((input[0] & 0b0000'0011) << 4) | (input[1] >> 4)];
+        *p_out++ = kBase64Table[((input[1] & 0b0000'1111) << 2) | (input[2] >> 6)];
+        *p_out++ = kBase64Table[((input[2] & 0b0011'1111))];
 
         input += 3;
     }
@@ -62,16 +76,16 @@ size_t b64_encode(uint8_t *output, const uint8_t *input, size_t input_len)
     input_len %= 3;
     if (input_len == 1)
     {
-        *p_out++ = b64_chr[input[0] >> 2];
-        *p_out++ = b64_chr[(input[0] & 0b0000'0011) << 4];
+        *p_out++ = kBase64Table[input[0] >> 2];
+        *p_out++ = kBase64Table[(input[0] & 0b0000'0011) << 4];
         *p_out++ = '=';
         *p_out++ = '=';
     }
     else if (input_len == 2)
     {
-        *p_out++ = b64_chr[input[0] >> 2];
-        *p_out++ = b64_chr[((input[0] & 0b0000'0011) << 4) | (input[1] >> 4)];
-        *p_out++ = b64_chr[((input[1] & 0b0000'1111)) << 2];
+        *p_out++ = kBase64Table[input[0] >> 2];
+        *p_out++ = kBase64Table[((input[0] & 0b0000'0011) << 4) | (input[1] >> 4)];
+        *p_out++ = kBase64Table[((input[1] & 0b0000'1111)) << 2];
         *p_out++ = '=';
     }
 
@@ -85,12 +99,12 @@ size_t b64_decode(uint8_t *output, const uint8_t *input, size_t input_len)
     auto *p_out = output;
     size_t total_decoded = 0;
 
-    auto encode_block = [&p_out](const uint8_t *p_in) {
+    auto decode_block = [&p_out](const uint8_t *p_in) {
         // NOLINTBEGIN(*-identifier-length)
-        uint8_t a{b64_rchr[p_in[0]]};
-        uint8_t b{b64_rchr[p_in[1]]};
-        uint8_t c{b64_rchr[p_in[2]]};
-        uint8_t d{b64_rchr[p_in[3]]};
+        uint8_t a{kBase64ReverseTable[p_in[0]]};
+        uint8_t b{kBase64ReverseTable[p_in[1]]};
+        uint8_t c{kBase64ReverseTable[p_in[2]]};
+        uint8_t d{kBase64ReverseTable[p_in[3]]};
         // NOLINTEND(*-identifier-length)
 
         *p_out++ = (a << 2) | (b >> 4);
@@ -114,7 +128,7 @@ size_t b64_decode(uint8_t *output, const uint8_t *input, size_t input_len)
 
     for (const auto *p_input_end = input + input_len - 4; input <= p_input_end; input += 4)
     {
-        if (encode_block(input))
+        if (decode_block(input))
         {
             return p_out - output;
         }
@@ -125,7 +139,7 @@ size_t b64_decode(uint8_t *output, const uint8_t *input, size_t input_len)
     {
         std::array<uint8_t, 4> buffer{0, '=', '=', '='};
         std::copy_n(input, input_len, buffer.begin());
-        encode_block(buffer.data());
+        decode_block(buffer.data());
     }
     return p_out - output;
 }
