@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Refactored AES code base with templates.
+
 ## [0.6.5] - 2023-11-17
 
 ### Changed
