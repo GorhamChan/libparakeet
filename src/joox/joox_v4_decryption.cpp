@@ -64,11 +64,11 @@ class JooxDecryptionV4Transformer final : public ITransformer
 
         using Reader = utils::PagedReader;
 
-        auto aes_decrypt = aes::make_aes_128_ecb_decryptor(key_.data());
+        auto aes_decrypt = utils::aes::make_aes_128_ecb_decryptor(key_.data());
         bool io_ok{true};
         auto decrypt_ok = Reader{input}.WithPageSize(kEncryptedBlockSize, [&](size_t, uint8_t *buffer, size_t n) {
             // Decrypt content
-            if (!aes_decrypt->process(buffer, n))
+            if (!aes_decrypt->Process(buffer, n))
             {
                 return false; // buffer not in blocked size
             }

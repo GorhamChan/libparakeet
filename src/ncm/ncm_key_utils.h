@@ -21,8 +21,8 @@ inline std::optional<std::array<uint8_t, kNCMFinalKeyLen>> DecryptNCMAudioKey(
     std::vector<uint8_t> content_key(file_key.size());
     std::transform(file_key.cbegin(), file_key.cend(), content_key.begin(),
                    [&](auto key) { return key ^ kFileKeyXorKey; });
-    auto aes_decrypt = aes::make_aes_128_ecb_decryptor(aes_key.data());
-    if (!aes_decrypt->process(content_key))
+    auto aes_decrypt = utils::aes::make_aes_128_ecb_decryptor(aes_key.data());
+    if (!aes_decrypt->Process(content_key))
     {
         return {}; // invalid data size
     }
