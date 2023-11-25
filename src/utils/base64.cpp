@@ -34,31 +34,23 @@ constexpr static auto kBase64Table = ([]() {
     return table;
 })();
 
-template <typename T>
-inline constexpr int IndexOf(const T &container, typename T::value_type needle, typename T::value_type fallback = 0)
-{
-    for (size_t i = 0; i < container.size(); i++)
-    {
-        if (container[i] == needle)
-        {
-            return static_cast<int>(i);
-        }
-    }
-    return fallback;
-}
+// NOLINTBEGIN(*-magic-numbers)
 
 constexpr static auto kBase64ReverseTable = ([]() {
     std::array<uint8_t, 256> reverse_table{};
 
-    for (size_t i = 0; i < reverse_table.size(); i++)
+    for (size_t i = 0; i < kBase64Table.size(); i++)
     {
-        reverse_table[i] = IndexOf(kBase64Table, static_cast<uint8_t>(i));
+        reverse_table[kBase64Table[i]] = static_cast<uint8_t>(i);
     }
+
+    // url-safe varient
+    reverse_table['-'] = 62;
+    reverse_table['_'] = 63;
 
     return reverse_table;
 })();
 
-// NOLINTBEGIN(*-magic-numbers)
 size_t b64_encode(uint8_t *output, const uint8_t *input, size_t input_len)
 {
     auto *p_out = output;
@@ -146,19 +138,5 @@ size_t b64_decode(uint8_t *output, const uint8_t *input, size_t input_len)
 // NOLINTEND(*-magic-numbers)
 
 } // namespace base64_impl
-
-std::vector<uint8_t> Base64Encode(const uint8_t *input, size_t len)
-{
-    std::vector<uint8_t> result(base64_impl::b64_encode_buffer_len(len));
-    result.resize(base64_impl::b64_encode(result.data(), input, len));
-    return result;
-}
-
-std::vector<uint8_t> Base64Decode(const uint8_t *input, size_t len)
-{
-    std::vector<uint8_t> result(base64_impl::b64_decode_buffer_len(len));
-    result.resize(base64_impl::b64_decode(result.data(), input, len));
-    return result;
-}
 
 } // namespace parakeet_crypto::utils
