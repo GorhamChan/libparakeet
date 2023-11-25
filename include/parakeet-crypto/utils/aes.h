@@ -55,27 +55,31 @@ constexpr inline size_t GetKeyExpansionSize(BLOCK_SIZE block_size)
     return (1 + GetKeyRounds(block_size)) * static_cast<size_t>(block_size);
 }
 
-template <BLOCK_SIZE tplBlockSize> class AESConfig
+template <BLOCK_SIZE kKeySizeInBytes> class AESConfig
 {
   public:
+    /**
+     * Process block size
+     * This should always be 16, regardless of the key block size
+     */
     static constexpr size_t kBlockSize = 16;
-    static constexpr size_t kKeyBlockSize = static_cast<size_t>(tplBlockSize);
+    static constexpr size_t kKeyBlockSize = static_cast<size_t>(kKeySizeInBytes);
     static constexpr size_t kKeySize = kKeyBlockSize;
     static constexpr size_t kKeyWordSize = kKeyBlockSize / 4;
-    static constexpr size_t kKeyRounds = GetKeyRounds(tplBlockSize);
-    static constexpr size_t kKeyExpansionSize = GetKeyExpansionSize(tplBlockSize);
+    static constexpr size_t kKeyRounds = GetKeyRounds(kKeySizeInBytes);
+    static constexpr size_t kKeyExpansionSize = GetKeyExpansionSize(kKeySizeInBytes);
 
-    static constexpr bool kIs128 = (tplBlockSize == BLOCK_SIZE::AES_128);
-    static constexpr bool kIs192 = (tplBlockSize == BLOCK_SIZE::AES_192);
-    static constexpr bool kIs256 = (tplBlockSize == BLOCK_SIZE::AES_256);
+    static constexpr bool kIs128 = (kKeySizeInBytes == BLOCK_SIZE::AES_128);
+    static constexpr bool kIs192 = (kKeySizeInBytes == BLOCK_SIZE::AES_192);
+    static constexpr bool kIs256 = (kKeySizeInBytes == BLOCK_SIZE::AES_256);
 };
 
 }; // namespace detail
 
-template <BLOCK_SIZE tplBlockSize, CRYPTO_MODE Mode> class AES
+template <BLOCK_SIZE kKeySizeInBytes, CRYPTO_MODE Mode> class AES
 {
   public:
-    using CONFIG = detail::AESConfig<tplBlockSize>;
+    using CONFIG = detail::AESConfig<kKeySizeInBytes>;
     AES() = default;
     inline AES(const uint8_t *key)
     {
