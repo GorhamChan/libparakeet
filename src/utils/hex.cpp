@@ -29,6 +29,8 @@ std::string Hex(const uint8_t *data, size_t len, bool upper)
     return result;
 }
 
+constexpr size_t kU64Bits = sizeof(uint64_t) * 8;
+
 std::string detail::IntToFixedWidthHexStringImpl(uint64_t value, size_t width, bool upper)
 {
     if (width < sizeof(uint8_t) || width > sizeof(uint64_t))
@@ -39,7 +41,7 @@ std::string detail::IntToFixedWidthHexStringImpl(uint64_t value, size_t width, b
     size_t char_count = width * 2;
     std::string result(char_count, '0');
 
-    value &= UINT64_MAX >> (UINT64_WIDTH - (width << 3));
+    value &= UINT64_MAX >> (kU64Bits - (width << 3));
     const char *hex_table = upper ? kHexUpper : kHexLower;
 
     for (size_t i = char_count - 1; value != 0;)
@@ -56,7 +58,7 @@ std::string detail::IntToFixedWidthHexStringImpl(uint64_t value, size_t width, b
 
 std::string detail::IntToHexStringImpl(uint64_t value, bool upper)
 {
-    constexpr size_t kInitShift = UINT64_WIDTH - 4;
+    constexpr size_t kInitShift = kU64Bits - 4;
     constexpr size_t kCheckMask = 0x0F;
 
     if (value == 0)
