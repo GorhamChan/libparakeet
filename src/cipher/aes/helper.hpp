@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../endian_helper.h"
+#include "../../utils/endian_helper.h"
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 
-namespace parakeet_crypto::utils::aes
+namespace parakeet_crypto::cipher::aes
 {
 
 // Implementation based on tiny-AES-c: https://github.com/kokke/tiny-AES-c
@@ -188,4 +188,4 @@ inline void InvMixColumns(uint8_t *buf)
 
 // NOLINTEND(*-magic-numbers,*-identifier-length)
 
-}; // namespace parakeet_crypto::utils::aes
+}; // namespace parakeet_crypto::cipher::aes

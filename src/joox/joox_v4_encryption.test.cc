@@ -15,7 +15,7 @@ using namespace parakeet_crypto;
 
 // NOLINTBEGIN (*-magic-numbers,*-non-const-global-variables,cppcoreguidelines-owning-memory)
 
-TEST(JOOX_v4, EncryptionAndDecryption)
+TEST(JOOX_v4, EncryptionAndDecryption__Encryption)
 {
     auto plain = test::read_fixture("sample_test_121529_32kbps.ogg");
     transformer::JooxConfig config{};

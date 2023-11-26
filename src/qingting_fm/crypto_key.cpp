@@ -1,6 +1,6 @@
 #include "../utils/endian_helper.h"
 #include "../utils/str_helper.hpp"
-#include "parakeet-crypto/utils/aes.h"
+#include "parakeet-crypto/cipher/aes/aes.h"
 #include "parakeet-crypto/utils/base64.h"
 #include "qingting_fm.h"
 
@@ -69,8 +69,7 @@ CryptoNonce CreateCryptoNonce(std::string_view filename)
 
 CryptoCounter CreateCryptoCounter(uint64_t offset)
 {
-    using namespace utils::aes;
-    using AESConfig = utils::aes::detail::AESConfig<BLOCK_SIZE::AES_128>;
+    using AESConfig = cipher::aes::detail::AESConfig<cipher::aes::BLOCK_SIZE::AES_128>;
 
     CryptoCounter counter{};
     WriteBigEndian(counter.data(), offset / AESConfig::kBlockSize);
