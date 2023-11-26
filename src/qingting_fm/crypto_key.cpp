@@ -12,6 +12,11 @@
 namespace parakeet_crypto::qingting_fm
 {
 
+/**
+ * Retrive QingTing FM's resource id from the file name or path.
+ *
+ * @return Resource id, in string format. When failed, returns empty string or invalid string.
+ */
 inline std::string DecodeFileName(std::string_view name_or_path)
 {
     using namespace utils;
@@ -22,28 +27,27 @@ inline std::string DecodeFileName(std::string_view name_or_path)
     // remove qta suffix
     name = str::stripSuffix(name, ".qta");
 
-    if (name.size() > 3)
-    {
-        if (name[2] == '!')
-        {
-            name = str::stripPrefix(name, ".p!"); // base64
-        }
-        else
-        {
-            name = str::stripPrefix(name, ".p~!"); // base64 (url-safe)
-        }
-    }
-
+    // Since our b64_decode() is capable of handling both base64 and base64-url-safe, we can remove both prefixes,
+    // unconditionally. Alternatively, we can just remove all text before the '!' character.
+    name = str::stripPrefix(name, ".p!");  // base64 id
+    name = str::stripPrefix(name, ".p~!"); // base64 (url-safe) id
     name = Base64DecodeToString(name);
+
+    // Split string by '@', keep the first part
     return str::getFirstItemBeforeToken(name, '@');
 }
 
-inline int64_t GetHashForNonce(std::string_view name)
+/**
+ * Calculate the hash for the given resource id.
+ * The resource id can be retrived by decoding the file name.
+ * @return The final hash, used as nonce.
+ */
+inline int64_t GetHashForNonce(std::string_view resource_id)
 {
     constexpr std::array<int, 6> kShifts = {1, 4, 5, 7, 8, 40};
 
     int64_t result = 0;
-    for (auto chr : name)
+    for (auto chr : resource_id)
     {
         result ^= chr;
         // NOLINTNEXTLINE(*-magic-numbers)
