@@ -4,6 +4,28 @@
 
 克隆仓库后使用 CMake 进行构建即可。
 
+## 构建
+
+请参考 [GitHub Actions 配置文件](./github/workflows/)以及 [CMake Preset 配置文件](./CMakePresets.json)。
+
+### Linux
+
+使用 Ninja 构建。
+
+```bash
+cmake --preset ninja
+cmake --build --preset "ninja-release" 
+```
+
+### Windows (Visual Studio 2022)
+
+- 可选构建预设 [`msvc-2022-debug`, `msvc-2022-release`, `msvc-2022-win32-debug`, `msvc-2022-win32-release`]
+
+```ps1
+cmake --preset msvc-2022
+cmake --build --preset "msvc-2022-release" 
+```
+
 ## 用例
 
 参考 `examples` 目录下的子项目。
