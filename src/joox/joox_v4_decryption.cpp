@@ -1,7 +1,7 @@
 #include "joox/joox_const.h"
 #include "parakeet-crypto/ITransformer.h"
+#include "parakeet-crypto/cipher/aes/aes.h"
 #include "parakeet-crypto/transformer/joox.h"
-#include "parakeet-crypto/utils/aes.h"
 #include "parakeet-crypto/utils/hash/pbkdf2_hmac_sha1.h"
 #include "parakeet-crypto/utils/hash/sha1.h"
 #include "utils/endian_helper.h"
@@ -63,12 +63,19 @@ class JooxDecryptionV4Transformer final : public ITransformer
         // auto actual_size = ReadBigEndian<uint64_t>(&header.at(4)); // is this used?
 
         using Reader = utils::PagedReader;
+        using namespace cipher::aes;
+        using AES128Dec = AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Decrypt>;
 
-        auto aes_decrypt = utils::aes::make_aes_128_ecb_decryptor(key_.data());
+        AES128Dec aes_dec(key_.data());
         bool io_ok{true};
         auto decrypt_ok = Reader{input}.WithPageSize(kEncryptedBlockSize, [&](size_t, uint8_t *buffer, size_t n) {
+            if (n % AES128Dec::CONFIG::kBlockSize != 0)
+            {
+                return false; // buffer not in blocked size
+            }
+
             // Decrypt content
-            if (!aes_decrypt->Process(buffer, n))
+            if (aes_dec.TransformBlocks(buffer, n) != cipher::CipherError::kSuccess)
             {
                 return false; // buffer not in blocked size
             }

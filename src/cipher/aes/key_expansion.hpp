@@ -1,4 +1,4 @@
-#include "parakeet-crypto/utils/aes.h"
+#include "parakeet-crypto/cipher/aes/aes.h"
 
 #include "helper.hpp"
 
@@ -6,7 +6,7 @@
 #include <array>
 #include <cstdint>
 
-namespace parakeet_crypto::utils::aes
+namespace parakeet_crypto::cipher::aes
 {
 
 // Implementation based on tiny-AES-c: https://github.com/kokke/tiny-AES-c
@@ -54,4 +54,4 @@ template void AES<BLOCK_SIZE::AES_192, CRYPTO_MODE::Decrypt>::SetKey(const uint8
 template void AES<BLOCK_SIZE::AES_256, CRYPTO_MODE::Encrypt>::SetKey(const uint8_t *key);
 template void AES<BLOCK_SIZE::AES_256, CRYPTO_MODE::Decrypt>::SetKey(const uint8_t *key);
 
-}; // namespace parakeet_crypto::utils::aes
+}; // namespace parakeet_crypto::cipher::aes

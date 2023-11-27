@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../cipher_block.h"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -8,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace parakeet_crypto::utils::aes
+namespace parakeet_crypto::cipher::aes
 {
 
 enum class BLOCK_SIZE : size_t
@@ -55,27 +57,38 @@ constexpr inline size_t GetKeyExpansionSize(BLOCK_SIZE block_size)
     return (1 + GetKeyRounds(block_size)) * static_cast<size_t>(block_size);
 }
 
-template <BLOCK_SIZE tplBlockSize> class AESConfig
+template <BLOCK_SIZE kKeySizeInBytes> class AESConfig
 {
   public:
+    /**
+     * Process block size
+     * This should always be 16, regardless of the key block size
+     */
     static constexpr size_t kBlockSize = 16;
-    static constexpr size_t kKeyBlockSize = static_cast<size_t>(tplBlockSize);
+    static constexpr size_t kKeyBlockSize = static_cast<size_t>(kKeySizeInBytes);
     static constexpr size_t kKeySize = kKeyBlockSize;
     static constexpr size_t kKeyWordSize = kKeyBlockSize / 4;
-    static constexpr size_t kKeyRounds = GetKeyRounds(tplBlockSize);
-    static constexpr size_t kKeyExpansionSize = GetKeyExpansionSize(tplBlockSize);
+    static constexpr size_t kKeyRounds = GetKeyRounds(kKeySizeInBytes);
+    static constexpr size_t kKeyExpansionSize = GetKeyExpansionSize(kKeySizeInBytes);
 
-    static constexpr bool kIs128 = (tplBlockSize == BLOCK_SIZE::AES_128);
-    static constexpr bool kIs192 = (tplBlockSize == BLOCK_SIZE::AES_192);
-    static constexpr bool kIs256 = (tplBlockSize == BLOCK_SIZE::AES_256);
+    static constexpr bool kIs128 = (kKeySizeInBytes == BLOCK_SIZE::AES_128);
+    static constexpr bool kIs192 = (kKeySizeInBytes == BLOCK_SIZE::AES_192);
+    static constexpr bool kIs256 = (kKeySizeInBytes == BLOCK_SIZE::AES_256);
 };
 
 }; // namespace detail
 
-template <BLOCK_SIZE tplBlockSize, CRYPTO_MODE Mode> class AES
+template <BLOCK_SIZE kKeySizeInBytes, CRYPTO_MODE Mode>
+class AES : public BlockCipher<detail::AESConfig<kKeySizeInBytes>::kBlockSize>
 {
   public:
-    using CONFIG = detail::AESConfig<tplBlockSize>;
+    using CONFIG = detail::AESConfig<kKeySizeInBytes>;
+
+  private:
+    std::array<uint8_t, CONFIG::kBlockSize> buffer_{};
+    size_t buffer_idx_{0};
+
+  public:
     AES() = default;
     inline AES(const uint8_t *key)
     {
@@ -90,7 +103,7 @@ template <BLOCK_SIZE tplBlockSize, CRYPTO_MODE Mode> class AES
     AES &operator=(const AES &) = delete;
     AES &operator=(AES &&) = delete;
 
-    ~AES()
+    ~AES() override
     {
         std::fill(key_.begin(), key_.end(), 0);
     };
@@ -107,41 +120,18 @@ template <BLOCK_SIZE tplBlockSize, CRYPTO_MODE Mode> class AES
         SetKey(key.data());
     }
 
-    void ProcessBlock(uint8_t *buffer);
-
-    bool Process(uint8_t *buffer, size_t n)
-    {
-        if (n % CONFIG::kBlockSize != 0)
-        {
-            return false;
-        }
-
-        auto *p_end = buffer + n;
-        while (buffer < p_end)
-        {
-            ProcessBlock(buffer);
-            buffer += CONFIG::kBlockSize;
-        }
-        return true;
-    }
-
-    template <typename T> inline bool Process(T &buffer)
-    {
-        return Process(buffer.data(), buffer.size());
-    }
+    CipherErrorCode TransformBlock(uint8_t *buffer) override;
 
   private:
     std::array<uint8_t, CONFIG::kKeyExpansionSize> key_{};
 };
 
-inline std::unique_ptr<AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Decrypt>> make_aes_128_ecb_decryptor(const uint8_t *key)
-{
-    return std::make_unique<AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Decrypt>>(key);
-}
+using AES128Dec = AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Decrypt>;
+using AES192Dec = AES<BLOCK_SIZE::AES_192, CRYPTO_MODE::Decrypt>;
+using AES256Dec = AES<BLOCK_SIZE::AES_256, CRYPTO_MODE::Decrypt>;
 
-inline std::unique_ptr<AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Encrypt>> make_aes_128_ecb_encryptor(const uint8_t *key)
-{
-    return std::make_unique<AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Encrypt>>(key);
-}
+using AES128Enc = AES<BLOCK_SIZE::AES_128, CRYPTO_MODE::Encrypt>;
+using AES192Enc = AES<BLOCK_SIZE::AES_192, CRYPTO_MODE::Encrypt>;
+using AES256Enc = AES<BLOCK_SIZE::AES_256, CRYPTO_MODE::Encrypt>;
 
-}; // namespace parakeet_crypto::utils::aes
+}; // namespace parakeet_crypto::cipher::aes

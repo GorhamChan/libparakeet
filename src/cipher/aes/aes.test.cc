@@ -1,4 +1,4 @@
-#include "parakeet-crypto/utils/aes.h"
+#include "parakeet-crypto/cipher/aes/aes.h"
 
 #include <cstdint>
 #include <gmock/gmock.h>
@@ -9,7 +9,7 @@
 #include <vector>
 
 using ::testing::ContainerEq;
-using namespace parakeet_crypto::utils::aes;
+using namespace parakeet_crypto::cipher::aes;
 
 // NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 
@@ -47,7 +47,7 @@ TEST(aess, TestAes128)
         std::array<uint8_t, 16> data{};
         for (auto expected : expected_cipher)
         {
-            aes_enc.Process(data);
+            aes_enc.TransformBlock(data.data());
             ASSERT_THAT(data, ContainerEq(expected));
         }
     }
@@ -63,7 +63,7 @@ TEST(aess, TestAes128)
         std::array<uint8_t, 16> data{};
         for (auto expected : expected_decipher)
         {
-            aes_dec.Process(data);
+            aes_dec.TransformBlock(data.data());
             ASSERT_THAT(data, ContainerEq(expected));
         }
     }
@@ -100,7 +100,7 @@ TEST(aess, InitAes192)
         std::array<uint8_t, 16> data{};
         for (auto expected : expected_cipher)
         {
-            aes_enc.Process(data);
+            aes_enc.TransformBlock(data.data());
             ASSERT_THAT(data, ContainerEq(expected));
         }
     }
@@ -116,7 +116,7 @@ TEST(aess, InitAes192)
         std::array<uint8_t, 16> data{};
         for (auto expected : expected_decipher)
         {
-            aes_dec.Process(data);
+            aes_dec.TransformBlock(data.data());
             ASSERT_THAT(data, ContainerEq(expected));
         }
     }
@@ -154,7 +154,7 @@ TEST(aess, InitAes256)
         std::array<uint8_t, 16> data{};
         for (auto expected : expected_cipher)
         {
-            aes_enc.Process(data);
+            aes_enc.TransformBlock(data.data());
             ASSERT_THAT(data, ContainerEq(expected));
         }
     }
@@ -171,7 +171,7 @@ TEST(aess, InitAes256)
         std::array<uint8_t, 16> data{};
         for (auto expected : expected_decipher)
         {
-            aes_dec.Process(data);
+            aes_dec.TransformBlock(data.data());
             ASSERT_THAT(data, ContainerEq(expected));
         }
     }

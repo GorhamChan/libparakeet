@@ -1,7 +1,8 @@
 #include "joox/joox_const.h"
 #include "parakeet-crypto/ITransformer.h"
+#include "parakeet-crypto/cipher/aes/aes.h"
+#include "parakeet-crypto/cipher/cipher_error.h"
 #include "parakeet-crypto/transformer/joox.h"
-#include "parakeet-crypto/utils/aes.h"
 #include "parakeet-crypto/utils/hash/pbkdf2_hmac_sha1.h"
 #include "parakeet-crypto/utils/hash/sha1.h"
 #include "utils/endian_helper.h"
@@ -59,14 +60,14 @@ class JooxEncryptionV4Transformer final : public ITransformer
 
         using Reader = utils::PagedReader;
 
-        auto aes_encrypt = utils::aes::make_aes_128_ecb_encryptor(key_.data());
+        auto aes_enc = cipher::aes::AES128Enc(key_.data());
         std::array<uint8_t, kAESBlockSize> padding_block{};
         auto decrypt_ok = Reader{input}.WithPageSize(kPlainBlockSize, [&](size_t, uint8_t *buffer, size_t n) {
             auto exceed_bytes = n % kAESBlockSize;
             auto padding_byte = static_cast<uint8_t>(kAESBlockSize - exceed_bytes);
             auto actual_len = n - exceed_bytes;
 
-            if (!aes_encrypt->Process(buffer, actual_len))
+            if (aes_enc.TransformBlocks(buffer, actual_len) != cipher::CipherError::kSuccess)
             {
                 return false; // size mismatch
             }
@@ -79,7 +80,7 @@ class JooxEncryptionV4Transformer final : public ITransformer
             // Write padding:
             std::fill(padding_block.begin(), padding_block.end(), padding_byte);
             std::copy_n(buffer + actual_len, exceed_bytes, padding_block.begin());
-            if (!aes_encrypt->Process(padding_block))
+            if (aes_enc.TransformBlocks(padding_block) != cipher::CipherError::kSuccess)
             {
                 return false; // padding_block is in the wrong size?
             }

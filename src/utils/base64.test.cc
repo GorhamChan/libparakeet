@@ -22,6 +22,13 @@ TEST(base64, HappyPath)
     ASSERT_THAT(utils::Base64Decode(std::string("bGli")), ContainerEq(std::vector<uint8_t>{'l', 'i', 'b'}));
 }
 
+TEST(base64, UrlSafeDecode)
+{
+    std::vector<uint8_t> expected({0x6b, 0xef, 0xf4, 0xff});
+    ASSERT_THAT(utils::Base64Decode(std::string("a-_0_-")), ContainerEq(expected));
+    ASSERT_THAT(utils::Base64Decode(std::string("a-_0_-==")), ContainerEq(expected));
+}
+
 TEST(base64, encode_buffer_len)
 {
     ASSERT_EQ(utils::base64_impl::b64_encode_buffer_len(0), 1);
