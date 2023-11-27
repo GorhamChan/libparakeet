@@ -84,7 +84,7 @@ TEST(aes_128_ctr, simple_case)
         size_t buffer_len{actual.size()};
         auto error = aes_128_ctr.Update(actual.data(), buffer_len, input.data(), input.size());
         ASSERT_EQ(error, CipherError::kSuccess);
-        ASSERT_EQ(buffer_len, input.size());
+        ASSERT_EQ(buffer_len, expected.size());
         ASSERT_THAT(actual, ContainerEq(expected));
     }
 }
@@ -119,6 +119,40 @@ TEST(aes_128_ctr, counter_with_overflow)
         auto error = aes_128_ctr.Update(actual.data(), buffer_len, input.data(), input.size());
         ASSERT_EQ(error, CipherError::kSuccess);
         ASSERT_EQ(buffer_len, input.size());
+        ASSERT_THAT(actual, ContainerEq(expected));
+    }
+}
+
+TEST(aes_128_ctr, counter_with_overflow_and_skips)
+{
+    auto aes_enc = std::make_shared<AES128Enc>(&g_aes_128_ctr_test_key[0]);
+
+    // NOLINTNEXTLINE
+    uint8_t test_iv[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE};
+
+    const auto input = ([]() {
+        std::array<uint8_t, 64> result{};
+        for (int i = 0; i < result.size(); i++)
+        {
+            result[i] = i;
+        }
+        return result;
+    })();
+
+    const std::vector<uint8_t> expected = {0x6E, 0xCB, 0x5B, 0x42, 0xD2, 0xC5, 0x7E, 0x2C, 0x6F, 0x89, 0x2D, 0xDA,
+                                           0x8A, 0xBD, 0x0D, 0xF8, 0xB3, 0x3F, 0x4D, 0x0B, 0x14, 0x71, 0x59, 0xB0,
+                                           0x71, 0x9E, 0x6C, 0xB8, 0x0B, 0x95, 0x97, 0x7D, 0x68, 0xBF, 0x63, 0x91,
+                                           0x6B, 0xB6, 0x0E, 0x3D, 0xF8, 0xE3, 0x68, 0xE4, 0xF0};
+
+    {
+        auto aes_128_ctr = CTR_Stream(aes_enc, &test_iv[0]);
+        std::vector<uint8_t> actual(expected.size());
+        size_t buffer_len{actual.size()};
+        ASSERT_EQ(aes_128_ctr.Skip(0x13), CipherError::kSuccess);
+        auto error = aes_128_ctr.Update(actual.data(), buffer_len, &input[0x13], expected.size());
+        ASSERT_EQ(error, CipherError::kSuccess);
+        ASSERT_EQ(buffer_len, expected.size());
         ASSERT_THAT(actual, ContainerEq(expected));
     }
 }
