@@ -56,6 +56,11 @@ cmake --build --preset "ninja-release" --target qrc-decode
 2. 更新 `CMakeLists.txt` 声明的版本号
 3. 合并到主分支，然后打上 `git tag`
 
+## 致谢
+
+- [Unlock Music](https://unlock-music.dev/) - 万物之始。
+- 匿名用户 `咦我的昵称呢` - 「蜻蜓 FM」相关算法。
+
 ## License
 
 Licensed under the [MIT License](LICENSE.txt).
