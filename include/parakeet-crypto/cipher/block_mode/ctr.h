@@ -94,6 +94,18 @@ template <typename ParentCipher> class CTR_Stream : public Cipher
         std::copy_n(iv, ParentCipher::block_size_, iv_.begin());
     }
 
+    // NOLINTNEXTLINE(*-identifier-length)
+    CTR_Stream(std::shared_ptr<ParentCipher> cipher, const std::array<uint8_t, ParentCipher::block_size_> &iv)
+        : cipher_(cipher)
+    {
+        if (cipher == nullptr)
+        {
+            throw std::invalid_argument("cipher cannot be nullptr");
+        }
+
+        std::copy_n(iv.cbegin(), ParentCipher::block_size_, iv_.begin());
+    }
+
     // Seek from current position, positive offset only.
     // This is used to update the IV in CTR mode.
     inline CipherErrorCode Skip(size_t count)
