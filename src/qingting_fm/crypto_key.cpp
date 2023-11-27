@@ -44,17 +44,13 @@ inline std::string DecodeFileName(std::string_view name_or_path)
  */
 inline int64_t GetHashForNonce(std::string_view resource_id)
 {
-    constexpr std::array<int, 6> kShifts = {1, 4, 5, 7, 8, 40};
+    return std::accumulate(resource_id.cbegin(), resource_id.cend(), int64_t{0}, [](auto sum, auto chr) {
+        sum ^= chr;
 
-    int64_t result = 0;
-    for (auto chr : resource_id)
-    {
-        result ^= chr;
         // NOLINTNEXTLINE(*-magic-numbers)
-        result += (result << 1) + (result << 4) + (result << 5) + (result << 7) + (result << 8) + (result << 40);
-    }
-
-    return result;
+        sum += (sum << 1) + (sum << 4) + (sum << 5) + (sum << 7) + (sum << 8) + (sum << 40);
+        return sum;
+    });
 }
 
 CryptoNonce CreateCryptoNonce(std::string_view filename)
