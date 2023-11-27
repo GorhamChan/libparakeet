@@ -1,5 +1,6 @@
 #include "../../arg_parser.hpp"
 #include "parakeet-crypto/qmc2/key_crypto.h"
+#include "parakeet-crypto/utils/base64.h"
 
 #include <memory>
 #include <parakeet-crypto/ITransformer.h>
@@ -20,20 +21,20 @@ void print_help()
     std::cerr << "usage: " << std::endl;
     std::cerr << "" << std::endl
               << "Secret key derivation from `android.os.Build` constants" << std::endl
-              << "  --product              value of `android.os.Build.PRODUCT`" << std::endl
-              << "  --device               value of `android.os.Build.DEVICE`" << std::endl
-              << "  --manufacturer         value of `android.os.Build.MANUFACTURER`" << std::endl
-              << "  --brand                value of `android.os.Build.BRAND`" << std::endl
-              << "  --board                value of `android.os.Build.BOARD`" << std::endl
-              << "  --model                value of `android.os.Build.MODEL`" << std::endl
+              << "  --product                   value of `android.os.Build.PRODUCT`" << std::endl
+              << "  --device                    value of `android.os.Build.DEVICE`" << std::endl
+              << "  --manufacturer              value of `android.os.Build.MANUFACTURER`" << std::endl
+              << "  --brand                     value of `android.os.Build.BRAND`" << std::endl
+              << "  --board                     value of `android.os.Build.BOARD`" << std::endl
+              << "  --model                     value of `android.os.Build.MODEL`" << std::endl
               << "" << std::endl
               << "Secret key" << std::endl
-              << "  -k | --secret-key <path>    Path to input file" << std::endl
+              << "  -k | --secret-key <key>     Derived secret key, 16 bytes, base64 encoded" << std::endl
               << "" << std::endl
               << "IO parameters" << std::endl
-              << "  -i | --input <path>    Path to input file" << std::endl
-              << "  -o | --output <path>   Path to output file" << std::endl
-              << "  -h | --help            Display this usage information" << std::endl;
+              << "  -i | --input <path>         Path to input file" << std::endl
+              << "  -o | --output <path>        Path to output file" << std::endl
+              << "  -h | --help                 Display this usage information" << std::endl;
     std::cerr << std::endl;
 }
 
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
     auto secret_key_hex = args->get_string("device-key");
     if (secret_key_hex)
     {
-        std::vector<uint8_t> secret_key(secret_key_hex->begin(), secret_key_hex->end());
+        auto secret_key = utils::Base64Decode(*secret_key_hex);
         secret_key.resize(16);
         transformer = transformer::CreateAndroidQingTingFMTransformer(path_file_in->c_str(), secret_key.data());
     }
