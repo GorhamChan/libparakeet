@@ -8,7 +8,7 @@
 #include <array>
 #include <vector>
 
-using namespace parakeet_crypto::qingting_fm;
+using namespace parakeet_crypto::qtfm;
 using testing::ContainerEq;
 
 // NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

@@ -9,7 +9,7 @@
 #include <numeric>
 #include <string>
 
-namespace parakeet_crypto::qingting_fm
+namespace parakeet_crypto::qtfm
 {
 
 /**
@@ -76,4 +76,4 @@ CryptoCounter CreateCryptoCounter(uint64_t offset)
     return counter;
 }
 
-} // namespace parakeet_crypto::qingting_fm
+} // namespace parakeet_crypto::qtfm

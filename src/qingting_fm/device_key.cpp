@@ -10,7 +10,7 @@
 
 #include "../utils/endian_helper.h"
 
-namespace parakeet_crypto::qingting_fm
+namespace parakeet_crypto::qtfm
 {
 
 /**
@@ -50,4 +50,4 @@ DeviceSecretKey CreateDeviceSecretKey(std::string_view product, std::string_view
     return device_key;
 }
 
-} // namespace parakeet_crypto::qingting_fm
+} // namespace parakeet_crypto::qtfm

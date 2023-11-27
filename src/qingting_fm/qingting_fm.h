@@ -4,7 +4,7 @@
 #include <string_view>
 #include <utility>
 
-namespace parakeet_crypto::qingting_fm
+namespace parakeet_crypto::qtfm
 {
 
 constexpr size_t kDeviceSecretKeySize = 16;
@@ -72,4 +72,4 @@ inline CryptoIV CreateCryptoIV(std::string_view filename, uint64_t offset)
     return result;
 }
 
-}; // namespace parakeet_crypto::qingting_fm
+}; // namespace parakeet_crypto::qtfm
