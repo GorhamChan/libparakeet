@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2023-12-21
+
+### Changed
+
+- Expose `qtfm::CreateDeviceSecretKey` method.
+
 ## [0.7.0] - 2023-11-28
 
 ### Added
@@ -169,4 +175,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.6.4]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.3...v0.6.4
 [0.6.5]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.4...v0.6.5
 [0.7.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.5...v0.7.0
-[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.0...v0.x.0
+[0.7.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.0...v0.7.1
+[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.1...v0.x.0
