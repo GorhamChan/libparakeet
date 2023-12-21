@@ -9,8 +9,22 @@
 #include <vector>
 
 using namespace parakeet_crypto;
+using ::testing::ContainerEq;
 
 // NOLINTBEGIN(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
+
+// NOLINTBEGIN(*-reinterpret-cast)
+TEST(hex, Hex)
+{
+    ASSERT_STREQ(utils::Hex(reinterpret_cast<const uint8_t *>("\x12\x34\x56\xab\x0f"), 5, false).c_str(), "123456ab0f");
+}
+
+TEST(hex, UnHex)
+{
+    ASSERT_THAT(utils::UnHex("123456ab0f"), ContainerEq(std::vector<uint8_t>{0x12, 0x34, 0x56, 0xab, 0x0f}));
+    ASSERT_THAT(utils::UnHex("0x12, 0x34, not hex, then FE cD Cb 00 07 9"),
+                ContainerEq(std::vector<uint8_t>{0x12, 0x34, 0xFE, 0xcd, 0xcb, 0x00, 0x07}));
+}
 
 TEST(hex, IntToFixedWidthHexString)
 {
@@ -38,4 +52,5 @@ TEST(hex, IntToHexString)
     ASSERT_STREQ(utils::IntToHexString(int64_t(-1)).c_str(), "ffffffffffffffff");
 }
 
+// NOLINTEND(*-reinterpret-cast)
 // NOLINTEND(*-magic-numbers,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

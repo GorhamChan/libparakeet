@@ -25,6 +25,8 @@ std::string IntToHexStringImpl(uint64_t value, bool upper = false);
 }; // namespace detail
 
 std::string Hex(const uint8_t *data, size_t len, bool upper = true);
+std::vector<uint8_t> UnHex(const char *data);
+
 template <typename T> std::string IntToHexString(T value, bool upper = false)
 {
     if constexpr (sizeof(value) != sizeof(uint64_t))
