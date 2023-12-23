@@ -2,6 +2,7 @@
 #include "footer_parser_android.h"
 #include "footer_parser_pc.h"
 
+#include "qmc2/footer_parser/footer_parser_pc_v2.h"
 #include "utils/endian_helper.h"
 
 #include <memory>
@@ -14,7 +15,7 @@ class QMCFooterParserImpl : public QMCFooterParser
 {
   private:
     std::shared_ptr<IKeyCrypto> key_crypto_;
-    static constexpr size_t kMinimumFooterLen = 8;
+    static constexpr size_t kMinimumFooterLen = sizeof(QQMusicTagMusicExTail);
 
   public:
     QMCFooterParserImpl(std::shared_ptr<IKeyCrypto> key_crypto) : QMCFooterParser(), key_crypto_(std::move(key_crypto))
@@ -43,6 +44,14 @@ class QMCFooterParserImpl : public QMCFooterParser
         if (FooterParserPC::IsPCFooter(magic_u32))
         {
             return FooterParserPC(key_crypto_).Parse(file_footer, len);
+        }
+
+        const auto *tail_music_ex =
+            // NOLINTNEXTLINE(*-reinterpret-cast)
+            reinterpret_cast<const QQMusicTagMusicExTail *>(&file_footer[len - sizeof(QQMusicTagMusicExTail)]);
+        if (FooterParserPCMusicEx::IsPCMusicExFooter(tail_music_ex))
+        {
+            return FooterParserPCMusicEx::Parse(file_footer, len);
         }
 
         return std::make_unique<FooterParseResult>(FooterParseState::UnknownContent);

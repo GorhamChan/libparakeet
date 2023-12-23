@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -19,6 +21,7 @@ enum class FooterParseState
     KeyDecryptionFailure = 2,
     UnsupportedAndroidClientSTag = 3,
     IOReadFailure = 4,
+    MusicExBufferOverflow = 5,
     UnknownContent = 9,
 };
 
@@ -39,11 +42,20 @@ struct FooterParseResult
      */
     std::vector<uint8_t> key{};
 
+    /**
+     * @brief Media file name, used by QQ Music PC 19.53+
+     */
+    std::string media_file_name{};
+
     FooterParseResult(FooterParseState state, size_t footer_size, std::vector<uint8_t> key)
         : state(state), footer_size(footer_size), key(std::move(key))
     {
     }
     FooterParseResult(FooterParseState state, size_t footer_size) : state(state), footer_size(footer_size)
+    {
+    }
+    FooterParseResult(FooterParseState state, size_t footer_size, std::string_view media_file_name)
+        : state(state), footer_size(footer_size), media_file_name(media_file_name)
     {
     }
     FooterParseResult(FooterParseState state) : state(state)
