@@ -1,6 +1,8 @@
 #include "../../arg_parser.hpp"
+#include "parakeet-crypto/qmc2/key_util.h"
 
 #include <cstdint>
+#include <memory>
 #include <parakeet-crypto/StreamHelper.h>
 
 #include <parakeet-crypto/qmc2/footer_parser.h>
@@ -30,20 +32,24 @@ static constexpr std::array<uint8_t, 16> qmc2_encv2_key2 = {
 
 void print_help()
 {
-    std::cerr << std::endl;
-    std::cerr << "usage: " << std::endl;
-    std::cerr << "  -h | --help            Display this usage information" << std::endl
-              << "" << std::endl
-              << "  -i | --input <path>    Path to input file" << std::endl
-              << "  -o | --output <path>   Path to output file" << std::endl
-              << "" << std::endl
-              << "  --seed <seed>          ekey seed" << std::endl
-              << "  --mix-key-1 <key>      [EncV2] mix key 1" << std::endl
-              << "  --mix-key-2 <key>      [EncV2] mix key 2" << std::endl
-              << "  --ekey [ekey]          EKey of the file (encrypted)" << std::endl
-              << "  --raw-ekey [ekey]      Raw ekey to qmc2 decryptor. This overrides '--ekey'." << std::endl
-              << "                         Will attempt to read from file footer if not provided." << std::endl
-              << std::endl;
+    std::cerr << '\n';
+    std::cerr << "usage: \n";
+    std::cerr << "  -h | --help            Display this usage information\n"
+              << "\n"
+              << "  -i | --input <path>    Path to input file\n"
+              << "  -o | --output <path>   Path to output file\n"
+              << "\n"
+              << "  --seed <seed>          ekey seed\n"
+              << "  --mix-key-1 <key>      [EncV2] mix key 1\n"
+              << "  --mix-key-2 <key>      [EncV2] mix key 2\n"
+              << "  -k | --ekey [ekey]     EKey of the file (encrypted)\n"
+              << "  --raw-ekey [ekey]      Raw ekey to qmc2 decryptor. This overrides '--ekey'.\n"
+              << "                         Will attempt to read from file footer if not provided.\n"
+              << "\n"
+              << "  --tail-trim            Number of bytes to trim off the tail. When key is provided, \n"
+              << "                         this will default to 0. When key is absent, this will\n"
+              << "                         auto-detect from tail\n"
+              << '\n';
 }
 
 int main(int argc, char **argv)
@@ -52,10 +58,12 @@ int main(int argc, char **argv)
 
 #if _WIN32
     setlocale(LC_ALL, ".65001");
+    _setmode(fileno(stdin), _O_BINARY);
+    _setmode(fileno(stdout), _O_BINARY);
+    _setmode(fileno(stderr), _O_BINARY);
 #endif
 
-    auto o_args = parse_args(argc, argv, {{"i", "input"}, {"o", "output"}}, print_help);
-
+    auto o_args = parse_args(argc, argv, {{"i", "input"}, {"o", "output"}, {"k", "ekey"}}, print_help);
     if (!o_args)
     {
         return 1;
@@ -70,14 +78,14 @@ int main(int argc, char **argv)
 
     if (!path_file_in)
     {
-        std::cerr << "ERROR: input not specified" << std::endl;
+        std::cerr << "ERROR: input not specified\n";
         print_help();
         return 2;
     }
 
     if (!path_file_out)
     {
-        std::cerr << "ERROR: output not specified" << std::endl;
+        std::cerr << "ERROR: output not specified\n";
         print_help();
         return 2;
     }
@@ -98,14 +106,21 @@ int main(int argc, char **argv)
                     qmc2_encv2_key2_local.begin());
     }
 
-    std::ifstream input_file(*path_file_in, std::ifstream::binary);
-    if (!input_file.is_open())
+    bool useStdin = *path_file_in == "-";
+    std::ifstream input_file;
+    if (!useStdin)
     {
-        std::cerr << "ERROR: could not open input file" << std::endl;
-        return 1;
+        input_file.open(*path_file_in, std::ifstream::binary);
+        if (!input_file.is_open())
+        {
+            std::cerr << "ERROR: could not open input file\n";
+            return 1;
+        }
     }
 
-    InputFileStream input_stream{input_file};
+    auto input_stream = std::shared_ptr<IReadSeekable>(
+        useStdin ? dynamic_cast<IReadSeekable *>(InputMemoryStream::FromStdin().release())
+                 : dynamic_cast<IReadSeekable *>(new InputFileStream(input_file)));
 
     // setup crypto
     auto key_crypto = qmc2::CreateKeyCrypto(seed, qmc2_encv2_key1_local.data(), qmc2_encv2_key2_local.data());
@@ -126,7 +141,7 @@ int main(int argc, char **argv)
     else
     {
         auto footer_parser = qmc2::CreateQMC2FooterParser(std::move(key_crypto));
-        auto footer = footer_parser->Parse(input_stream);
+        auto footer = footer_parser->Parse(*input_stream);
         if (footer->state != qmc2::FooterParseState::OK)
         {
             std::cerr << "could not parse key from file - error(" << static_cast<uint32_t>(footer->state) << ")"
@@ -136,31 +151,42 @@ int main(int argc, char **argv)
         ekey = footer->key;
         footer_len_exclude = footer->footer_size;
     }
-
-    std::ofstream output_file(*path_file_out, std::ofstream::binary);
-    if (!output_file.is_open())
+    if (auto footer_exclude_override = args->get_int("tail-trim"))
     {
-        std::cerr << "ERROR: could not open output file" << std::endl;
-        return 1;
+        footer_len_exclude = *footer_exclude_override;
     }
+
+    bool useStdout = *path_file_out == "-";
+    std::ofstream output_file{};
+    if (!useStdout)
+    {
+        output_file.open(*path_file_out, std::ofstream::binary);
+        if (!output_file.is_open())
+        {
+            std::cerr << "ERROR: could not open output file\n";
+            return 1;
+        }
+    }
+    auto writer = std::shared_ptr<IWriteable>(useStdin ? dynamic_cast<IWriteable *>(new WriteToStdoutStream())
+                                                       : dynamic_cast<IWriteable *>(new OutputFileStream(output_file)));
 
     // Create our transformer
-    std::unique_ptr<ITransformer> transformer =
-        transformer::CreateQMC2RC4DecryptionTransformer(ekey.data(), ekey.size());
+    auto transformer = (qmc2::GetEncryptionType(ekey) == qmc2::QMC2EncryptionType::RC4)
+                           ? transformer::CreateQMC2RC4DecryptionTransformer(ekey)
+                           : transformer::CreateQMC2MapDecryptionTransformer(ekey);
 
     // We need to create a "reader slice" so we don't "over-decrypt" key section.
-    SlicedReadableStream reader{input_stream, 0, input_stream.GetSize() - footer_len_exclude};
-    OutputFileStream writer{output_file};
+    SlicedReadableStream reader{*input_stream, 0, input_stream->GetSize() - footer_len_exclude};
 
     // Perform decryption...
-    auto decryption_result = transformer->Transform(&writer, &reader);
+    auto decryption_result = transformer->Transform(&*writer, &reader);
     if (decryption_result != TransformResult::OK)
     {
-        std::cerr << "decryption failed - error(" << static_cast<uint32_t>(decryption_result) << ")" << std::endl;
+        std::cerr << "decryption failed - error(" << static_cast<uint32_t>(decryption_result) << ")\n";
         return 1;
     }
 
-    std::cout << "done!" << std::endl;
+    std::cerr << "done!\n";
     return 0;
 }
 
