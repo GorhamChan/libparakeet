@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "base64.h"
+#include "parakeet-crypto/utils/base64.h"
 
 #include <algorithm>
 #include <array>
@@ -17,9 +17,16 @@ using namespace parakeet_crypto;
 TEST(base64, HappyPath)
 {
     std::vector<uint8_t> expected({'l', 'i', 'b', 'p', 'a', 'r', 'a', 'k', 'e', 'e', 't'});
-    ASSERT_THAT(utils::Base64Decode("bGlicGFyYWtlZXQ="), ContainerEq(expected));
-    ASSERT_THAT(utils::Base64Decode("bGlicGFyYWtlZXQ"), ContainerEq(expected));
-    ASSERT_THAT(utils::Base64Decode("bGli"), ContainerEq(std::vector<uint8_t>{'l', 'i', 'b'}));
+    ASSERT_THAT(utils::Base64Decode(std::string("bGlicGFyYWtlZXQ=")), ContainerEq(expected));
+    ASSERT_THAT(utils::Base64Decode(std::string("bGlicGFyYWtlZXQ")), ContainerEq(expected));
+    ASSERT_THAT(utils::Base64Decode(std::string("bGli")), ContainerEq(std::vector<uint8_t>{'l', 'i', 'b'}));
+}
+
+TEST(base64, UrlSafeDecode)
+{
+    std::vector<uint8_t> expected({0x6b, 0xef, 0xf4, 0xff});
+    ASSERT_THAT(utils::Base64Decode(std::string("a-_0_-")), ContainerEq(expected));
+    ASSERT_THAT(utils::Base64Decode(std::string("a-_0_-==")), ContainerEq(expected));
 }
 
 TEST(base64, encode_buffer_len)

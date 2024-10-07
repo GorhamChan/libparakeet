@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(parakeet_crypto VERSION 0.6.1 LANGUAGES CXX)
+project(parakeet_crypto VERSION 0.7.3 LANGUAGES CXX)
 
 set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
 
@@ -22,7 +22,7 @@ CPMAddPackage(
 )
 
 if (zlib_ADDED)
-    add_subdirectory("${zlib_SOURCE_DIR}")
+    add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
 
     add_library(ZLIB::ZLIB ALIAS zlibstatic)
     target_include_directories(zlib

@@ -36,6 +36,17 @@
       "displayName": "Ninja"
     },
     {
+      "name": "ninja-cov",
+      "inherits": [
+        "ninja"
+      ],
+      "displayName": "Ninja (Coverage)",
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_DEBUG": "-g -fprofile-arcs -ftest-coverage",
+        "CMAKE_C_FLAGS_DEBUG": "-g -fprofile-arcs -ftest-coverage"
+      }
+    },
+    {
       "name": "make",
       "inherits": [
         "base"
@@ -99,6 +110,12 @@
       "name": "ninja-debug",
       "configurePreset": "ninja",
       "displayName": "Debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-cov",
+      "configurePreset": "ninja-cov",
+      "displayName": "Ninja (Coverage; Debug)",
       "configuration": "Debug"
     },
     {

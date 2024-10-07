@@ -1,13 +1,14 @@
 #pragma once
 #include "ncm_rc4.h"
+
+#include "parakeet-crypto/cipher/aes/aes.h"
+#include "parakeet-crypto/cipher/cipher_error.h"
 #include "parakeet-crypto/transformer/ncm.h"
 #include "utils/pkcs7.hpp"
 
 #include <algorithm>
 #include <optional>
 #include <vector>
-
-#include "parakeet-crypto/utils/aes.h"
 
 namespace parakeet_crypto::transformer
 {
@@ -21,8 +22,8 @@ inline std::optional<std::array<uint8_t, kNCMFinalKeyLen>> DecryptNCMAudioKey(
     std::vector<uint8_t> content_key(file_key.size());
     std::transform(file_key.cbegin(), file_key.cend(), content_key.begin(),
                    [&](auto key) { return key ^ kFileKeyXorKey; });
-    auto aes_decrypt = aes::make_aes_128_ecb_decryptor(aes_key.data());
-    if (!aes_decrypt->process(content_key))
+    auto aes_decrypt = cipher::aes::AES128Dec(aes_key.data());
+    if (aes_decrypt.TransformBlocks(content_key) != cipher::CipherError::kSuccess)
     {
         return {}; // invalid data size
     }

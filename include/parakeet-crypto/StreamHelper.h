@@ -117,6 +117,20 @@ class InputMemoryStream final : public IReadSeekable
     {
         return offset_;
     }
+
+    static std::unique_ptr<InputMemoryStream> FromStdin()
+    {
+        std::vector<uint8_t> input_data{};
+        uint8_t buffer[1024]{};
+
+        while (!feof(stdin))
+        {
+            auto bytes_read = fread(buffer, 1, sizeof(buffer), stdin);
+            input_data.insert(input_data.end(), buffer, &buffer[bytes_read]);
+        }
+
+        return std::make_unique<InputMemoryStream>(input_data);
+    }
 };
 
 class SlicedReadableStream final : public IReadSeekable
@@ -196,6 +210,17 @@ class OutputMemoryStream final : public IWriteable
     bool Write(const uint8_t *buffer, size_t len) override
     {
         data_.insert(data_.end(), buffer, buffer + len);
+        return true;
+    }
+};
+
+class WriteToStdoutStream final : public IWriteable
+{
+  public:
+    WriteToStdoutStream() = default;
+    bool Write(const uint8_t *buffer, size_t len) override
+    {
+        fwrite(buffer, 1, len, stdout);
         return true;
     }
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/base64.h"
+#include "parakeet-crypto/utils/base64.h"
 
 #include <algorithm>
 #include <array>

@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2023-12-24
+
+### Added
+
+- Add support for `musicex` tail tag (QMPC)
+
+## [0.7.2] - 2023-12-21
+
+### Added
+
+- Add `utils::UnHex` method.
+
+## [0.7.1] - 2023-12-21
+
+### Changed
+
+- Expose `qtfm::CreateDeviceSecretKey` method.
+
+## [0.7.0] - 2023-11-28
+
+### Added
+
+- Support for QingTingFM (`.qta`) files.
+- Added CTR mode for AES encryption/decryption.
+
+### Changed
+
+- Refactored AES code base with templates.
+
+## [0.6.5] - 2023-11-17
+
+### Changed
+
+- Remove use of `sprintf` from the code base.
+
+## [0.6.4] - 2023-11-17
+
+### Changed
+
+- Expose `base64` and `tc_tea` methods.
+
+## [0.6.3] - 2023-10-11
+
+### Changed
+
+- Improved `QMC2DecryptionTransformer` allowing user to override with a specific key.
+
+## [0.6.2] - 2023-07-16
+
+### Changed
+
+- Fixed QRC decode - it should not report error in the end.
+- Removed Crypto++ dependency.
+
 ## [0.6.1] - 2023-06-17
 
 ### Changed
@@ -126,4 +180,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.4.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.3.0...v0.4.0
 [0.4.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.4.0...v0.4.1
 [0.5.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.4.1...v0.5.0
-[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.5.0...v0.x.0
+[0.6.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.5.0...v0.6.0
+[0.6.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.0...v0.6.1
+[0.6.2]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.1...v0.6.2
+[0.6.3]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.2...v0.6.3
+[0.6.4]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.3...v0.6.4
+[0.6.5]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.4...v0.6.5
+[0.7.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.6.5...v0.7.0
+[0.7.1]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.0...v0.7.1
+[0.7.2]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.1...v0.7.2
+[0.7.3]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.2...v0.7.3
+[0.x.0]: https://github.com/parakeet-rs/libparakeet/compare/v0.7.3...v0.x.0

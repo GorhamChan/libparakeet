@@ -23,6 +23,8 @@ std::unique_ptr<ITransformer> CreateQMC2RC4DecryptionTransformer(const uint8_t *
  * @return std::unique_ptr<ITransformer>
  */
 std::unique_ptr<ITransformer> CreateQMC2DecryptionTransformer(std::shared_ptr<qmc2::QMCFooterParser> footer_parser);
+std::unique_ptr<ITransformer> CreateQMC2DecryptionTransformer(std::shared_ptr<qmc2::QMCFooterParser> footer_parser,
+                                                              const uint8_t *key, size_t key_len);
 
 // Make API a bit easier to consume...
 

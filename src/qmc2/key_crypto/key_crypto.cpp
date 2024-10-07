@@ -3,7 +3,7 @@
 #include "key_v1.h"
 #include "key_v2.h"
 
-#include "utils/base64.h"
+#include "parakeet-crypto/utils/base64.h"
 
 #include <algorithm>
 #include <array>
@@ -69,7 +69,7 @@ class KeyCryptoImpl : public IKeyCrypto
         {
             result = GetEncV2().Encrypt(result);
         }
-        result = utils::Base64Encode(result);
+        result = utils::Base64Encode(std::move(result));
         return result;
     }
 };

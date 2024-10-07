@@ -10,6 +10,11 @@
 #include <string>
 #include <utility>
 
+#if _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 class ArgMapWrapper
 {
   private:
@@ -67,6 +72,8 @@ inline std::optional<std::unique_ptr<ArgMapWrapper>> parse_args(int argc, char *
 {
 #if _WIN32
     setlocale(LC_ALL, ".65001");
+    _setmode(_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stdin), _O_BINARY);
 #endif
 
     std::map<std::string, std::string> result;

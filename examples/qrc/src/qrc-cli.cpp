@@ -7,7 +7,12 @@
 #include <array>
 #include <fstream>
 #include <iostream>
-#include <vector>
+#include <string>
+
+#if _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 // NOLINTBEGIN(*-magic-numbers)
 
@@ -34,6 +39,9 @@ int main(int argc, char **argv)
 
 #if _WIN32
     setlocale(LC_ALL, ".65001");
+    _setmode(fileno(stdin), _O_BINARY);
+    _setmode(fileno(stdout), _O_BINARY);
+    _setmode(fileno(stderr), _O_BINARY);
 #endif
 
     if (argc <= 2)
@@ -46,18 +54,31 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::ifstream input_file(argv[1], std::ifstream::binary);
-    if (!input_file.is_open())
+    std::string input_path = argv[1];
+    bool useStdin = input_path == "-";
+
+    std::ifstream input_file;
+    if (!useStdin)
     {
-        std::cerr << "ERROR: could not open input file" << std::endl;
-        return 1;
+        input_file.open(argv[1], std::ifstream::binary);
+        if (!input_file.is_open())
+        {
+            std::cerr << "ERROR: could not open input file" << std::endl;
+            return 1;
+        }
     }
 
-    std::ofstream output_file(argv[2], std::ofstream::binary);
-    if (!output_file.is_open())
+    std::string output_path = argv[2];
+    bool useStdout = output_path == "-";
+    std::ofstream output_file;
+    if (!useStdout)
     {
-        std::cerr << "ERROR: could not open output file" << std::endl;
-        return 1;
+        output_file.open(argv[2], std::ofstream::binary);
+        if (!output_file.is_open())
+        {
+            std::cerr << "ERROR: could not open output file" << std::endl;
+            return 1;
+        }
     }
 
     // Create our transformer
@@ -66,18 +87,22 @@ int main(int argc, char **argv)
     auto transformer =
         transformer::CreateQRCLyricsDecryptionTransformer(qmc_transformer, &des_key1[0], &des_key2[0], &des_key3[0]);
 
-    InputFileStream reader{input_file};
-    OutputFileStream writer{output_file};
+    auto reader = std::shared_ptr<IReadSeekable>(
+        useStdin ? dynamic_cast<IReadSeekable *>(InputMemoryStream::FromStdin().release())
+                 : dynamic_cast<IReadSeekable *>(new InputFileStream(input_file)));
+    auto writer =
+        std::shared_ptr<IWriteable>(useStdout ? dynamic_cast<IWriteable *>(new WriteToStdoutStream())
+                                              : dynamic_cast<IWriteable *>(new OutputFileStream(output_file)));
 
     // Perform decryption...
-    auto decryption_result = transformer->Transform(&writer, &reader);
+    auto decryption_result = transformer->Transform(&*writer, &*reader);
     if (decryption_result != TransformResult::OK)
     {
         std::cerr << "decryption failed - error(" << static_cast<uint32_t>(decryption_result) << ")" << std::endl;
         return 1;
     }
 
-    std::cout << "done!" << std::endl;
+    std::cerr << "done!" << std::endl;
     return 0;
 }
 

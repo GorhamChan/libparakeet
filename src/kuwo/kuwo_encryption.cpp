@@ -6,7 +6,6 @@
 #include "utils/endian_helper.h"
 #include "utils/loop_iterator.h"
 #include "utils/paged_reader.h"
-#include "utils/string_helper.h"
 #include "utils/xor_helper.h"
 
 #include <cinttypes>
